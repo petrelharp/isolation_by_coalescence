@@ -1,0 +1,56 @@
+# Finding $G$ from $H$
+
+Suppose that $G$ is the generator matrix of an irreducible continuous-time Markov chain $X$,
+so that $G_{ij} \ge 0$ for $i \neq j$ and
+$$ G 1 = 0 $$.
+
+Let $\tau_{j} = \inf\{t \ge 0 : X_t = j\}$ and $H_{ij} = \E[\tau_j \,|\, X_0 = i]$.
+Then we know that
+$$
+    (G H)_{ij} = -1 \qquad \text{for} \; i \neq j ,
+$$
+i.e.,
+$$
+    GH = - 1 1^T + \diag(x).
+$$
+
+What is $x$?  Well, note that
+$$
+    G = (\diag(x) - 1 1^T) H^{-1}
+$$
+and so
+$$ \begin{aligned}
+    0 &= G1 \\
+    &= (\diag(x) - 1 1^T) H^{-1} x 
+\end{aligned} $$
+and so
+$$
+    x_i = \frac{ 1^T H^{-1} 1 }{ (H^{-1} 1)_i } .
+$$
+Furthermore,
+the [Random Target Lemma](https://www.stat.berkeley.edu/users/aldous/RWG/Book_Ralph/Ch2.S2.html)
+tells us that $H \pi = 1$, so thus $H^{-1} 1 = \pi$, the stationary distribution of the chain.
+Therefore, $x_i = 1/\pi_i$,
+and in fact $1^T H^{-1} 1 = 1$.
+
+In summary,
+$$
+    G = (\diag(1/H^{-1} 1) - 1 1^T) H^{-1} .
+$$
+
+
+# Finding $G$ from $R$
+
+The resistance distance is given by
+$R = H + H^T$, so if we can modify $H$ by a skew-symmetric matrix,
+we won't change $R$.
+Can we do this and retain a valid $G$?
+I.e., does $R$ uniquely specify $G$?
+Let $Z + Z^T = 0$. 
+Since $G$ is a continuous function of $H$, if all entries of $G$ are nonzero
+we can find a small enough $\epsilon$ such that the $G'$ corresponding to $H' = H + \epsilon Z$
+is also a valid generator matrix.
+If $G$ has zero entries this may not be true.
+To find a direction that we can change $H$ in that doesn't mess this up,
+we could differentiate $dG/dH$.
+
