@@ -1,0 +1,1230 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{natbib}
+
+\bibliographystyle{plainnat}
+
+\newcommand{\Dcom}{\widetilde D}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\DeclareMathOperator{\var}{\mathop{\mbox{Var}}}
+\DeclareMathOperator{\cov}{\mathop{\mbox{Cov}}}
+\DeclareMathOperator{\diag}{\mathop{\mbox{diag}}}
+
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\given}{\,\vert\,}
+\newcommand{\supp}{\mathop{\mbox{supp}}}
+\newcommand{\sgn}{\mathop{\mbox{sgn}}}
+\newcommand{\EE}[1]{\E\!\left[#1\right]}
+\newcommand{\PP}[1]{\P\!\left\{#1\right\}}
+\newcommand{\PPP}[2]{\P_{#1}\!\left\{#2\right\}}
+\newcommand{\EEE}[2]{\E_{#1}\!\left[#2\right]}
+\newcommand{\EEsup}[2]{\E^{#1}\!\left[#2\right]}
+
+\newcommand{\bone}{\mathbf{1}}
+
+\newcommand{\plr}[1]{{\em \color{blue} #1}}
+
+\begin{document}
+
+\title{Are populations like a circuit? The relationship between isolation by distance and isolation by resistance}
+\author{Erik Lundgren\footnote{Computational Biology, University of Southern California}, and
+        Peter L. Ralph\footnote{Institute for Ecology and Evolution, University of Oregon}}
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+% NOTE: I tend to use semantic linebreaks.
+% Please excuse the ragged right margins in the source.
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section*{Introduction}
+
+Genetic relatedness is determined by past gene flow,
+a product of individual or gamete movements across geographic space.
+Genomes therefore retain the traces of this movement,
+and can contribute to the inference of how a species moves across a landscape,
+which is important for understanding how diseases spread, how species adapt,
+and how to retain genetic diversity in threatened species.
+This is a potentially important source of information,
+as direct observation can be difficult \citep[especially of long-distance movement]{dispersal_estimation},
+or even impossible, if some of the populations in question no longer exist.
+
+The idea of ``resistance'' is an important tool in the lanscape genomics toolbox.
+Introduced by \citet{mcrae},
+it makes use of a mathematical equivalence between random walks and electrical resistance
+\citep{resistance}:
+the expected time for a continuous-time Markov chain that starts at node $x$
+to first hit node $y$ and then return to $x$ (the ``commute time'')
+is equal to the effective resistance between $x$ and $y$ in an electrical network
+whose conductances are given by the movement rates of the Markov chain.
+Both electrical resistance and commute time between two nodes
+average over all possible paths through the network between the two.
+For this reason, it is thought that if genetic distances between samples
+from different parts of the landscape
+are significantly correlated with the effective resistances between those locations,
+with local conductances assigned based on the values of some landscape variable,
+then that landscape variable is likely a good indicator of the regions of the map 
+where gene flow occurs.
+For instance,
+if the conductance across a grid cell in a discretization of the landscape
+is set equal to its elevation,
+and this produces effective resistance values 
+that are significantly correlated with genetic distances,
+then one might conclude that the species in question tends to disperse more at higher elevations,
+perhaps along ridgelines.
+\plr{reference some examples}
+Other methods \citep{eems} seek to build \emph{de novo} 
+a map of conductance values that produces resistances 
+most strongly correlated with observed genetic distance,
+and then interpret regions of low conductance in the resulting map as barriers to gene flow.
+
+Genetic distances between two genomes sampled from the landscape
+do derive from an average across a large number of paths between those points --
+the lineages along which each segment of genetic material has been inherited
+from their most recent common ancestor.
+The more recent this ancestor is,
+the smaller the genetic distance will be.
+Thanks to recombination, there are a large number of such paths, 
+and genetic distance averages over these.
+It is reasonable in some situations to model these lineages as random walks across the landscape;
+however, the model of genetic distance that one is thus led to
+is \emph{coalescence time} of the random walks, 
+rather than commute time, the quantity that corresponds to resistance.
+This naturally raises the question: 
+Are methods that depend on effective resistances being misled?
+If so, would using coalescence time do better?
+To better contrast the two,
+we refer to ``commute time'' rather than ``resistance'' throughout,
+although the two concepts are equivalent.
+
+In this paper, we contrast 
+coalescence time and commute time,
+and develop an inference method for movement rates on a landscape
+using both as estimated from genetic distances.
+As we will see,
+although the two methods are conceptually similar,
+commute time inference may get the wrong answer if data derive from a coalescent process,
+as does real genetic data.
+We also explore the question of identifiability.
+Resistance-based methods are often used to predict distances based on a few layers of geographical data
+(land cover, slope, etcetera).
+Some methods find the combination of landscape layers to best explain genetic distance,
+which allows very fine geographic resolution \citep{infer_resistance}.
+Others methods such as EEMS \citep{eems} infer conductances without such prior information;
+however, the geographical resolution is much coarser.
+One reason for this difference in resolution
+is that EEMS uses more computationally intensive Bayesian methods.
+However, we show that this is a more general problem --
+inference of movement rates, in either a coalescence or commute time framework,
+is an ill-conditioned problem,
+implying the need for regularization to obtain reliable inference.
+Using maps for prior information, or restricting the geographical resolution of the results,
+are two ways to do this.
+
+\plr{I didn't find myself wanting to explain isolation by distance here:
+    I don't think we need to? Do you agree?}
+
+%%%%%%%%%%%%%%%%%%
+\section*{Methods}
+
+\subsection*{Genetic distance and coalescence time}
+
+\plr{pasted in: divergence is coalescence of lineages}
+The genetic distance between
+individuals, which provides a good estimate of the average time to a common ancestor along the genome, or
+the average coalescence time. Coalescence is the process in which genes or regions of the genome from two
+or more individuals, if traced back in time, eventually share a common origin [Wakeley, 2005]. While we
+cannot know exactly when this happens, if we assume the rate of mutation per nucleotide per generation is
+relatively constant, we can use the number of differences between two copies of a gene to estimate how much
+time has passed since their common ancestor. With enough loci, we can calculate an estimate for
+the average coalescence time across the genome [Hudson, 2007].
+
+\plr{pasted in: lineages as random walks}
+Even though the population dynamics in forwards time are Markov, the dynamics of lineages traced back
+in time (the coalescent process) may not be. For example, if fecundity is variable and population density
+is low, two lineages near each other are more likely to share a recent common origin, so knowing how one
+lineage moves gives you information about how the other lineage is likely to move. This effect becomes
+negligible as population density increases [Barton et al., 2002]), so it should not be an issue if the offspring
+of any one parent are typically interspersed with the offspring of many others. The methods I develop here
+model the coalescent process as Markov, which should be a good approximation for many systems.
+
+\plr{Pasted in, needs transition; make understandable without the below}
+The mean commute time of a location to itself is zero,
+so to fit to genetic data, we clearly must also account for local diversity.
+\plr{say why}
+Coalescence time does not have this property,
+because coalescence time accounts for both the first meeting time and the eventual coalescence,
+while commute time is more analagous to the first meeting time.
+For local diversity, we will also have another set of model parameters, $q$, 
+where $q_{i}$ approximates the observed coalescence time in location $i$.
+As is done by \citet{petkova2016visualizing},
+we use commute time to approximate genetic distance as
+\begin{align} \label{eq:hcom}
+	D_{ij} \approx \Dcom_{ij} = R_{ij}/4 + q_{i}/2 + q_{j}/2 .
+\end{align}
+To gain an intuitive feel for why resistance distance is divided by 4, 
+consider how, if the movement rates are symmetric, 
+a single particle moving from one state to another is similar to (but not the same as)
+the first meeting time of two particles, 
+one moving forward in time from the first location 
+and the second one moving backward in time from the other, 
+so it is similar to twice the first meeting time.
+Since the commute time is the sum of the hitting times in each direction, 
+it is similar to 4 times the first meeting time.
+For a conceptual picture of the differences between the coalescence time and commute time,
+see Figure \ref{fig:concept_coalcom}. 
+The average of the local diversity estimates ($q$) are then added 
+to the first meeting time estimate to account for the eventual coalescence after meeting.
+%\emph{Briefly motivate by describing "first meeting" plus "subsequent coalescence" -> 
+%	commute + diversity approximation.}
+In this case, these values
+are parameters in the model to be inferred instead of within deme coalescence rates ($\gamma$).
+Since the values a $q$ are typically fairly easy to infer 
+and requiring them all to be the same can significantly decrease the quality of the fit, 
+we will not be using an analogue of Problem Modification \ref{probmod:const-coal} 
+(where we would only have one parameter for $q$).
+Commute time inference has the advantage of only needing to use the base Markov chain
+instead of the product chain,
+but it also leads to incorrect inferences in certain circumstances.
+Using the base Markov chain instead of the product chain is advantageous 
+because, as the grid size increases, it is much more computationally efficient 
+to work with a Markov chain with $n$ states than $n^2$ states 
+since the matrices would be much smaller.
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.5]{conceptn}
+\caption{Illustration of the conceptual differences
+betweeen coalescence and commute time between states 1 and 3 
+for a continuous time Markov chain with four linearly connected states. 
+Coalescence time (left) is the time for two independently moving particles to meet and coalesce 
+(it is possible for them to be in the same location without coalescing).
+Commute time is time for a single particle starting in one state to travel to another state 
+and then back to the original state.
+Note how the time axis is scaled to be faster in the figure showing commute time
+than the one for coalescence time in order for them to fit in the same space.}
+\label{fig:concept_coalcom}
+\end{figure}
+
+For a simple example where the coalescence times and commute time approximations are very different, 
+consider a system of three islands in a line,
+where lineages currently in the outer islands are much more likely to come from the central island
+than the other way around.
+In this case, lineages are likely to quickly move to the center and coalesce regardless of starting position,
+so coalescence time will be relatively short between all individuals.
+Commute time between the two outer locations, on the other hand,
+will be much longer since it requires the lineage to leave the center.
+If we plug real numbers into this example, say, 
+reverse time gene flow rate of $1$ into the center and $0.1$ out of it
+with $\gamma=1$ everywhere,
+then $H_{13}=H_{31}=2.90$ but $\Dcom_{13}=\Dcom_{31}=7.94$.
+However, the fact that $\Dcom$ as predicted from the correct parameters may be far from $H$
+does not mean that the parameters inferred using resistance distance methods
+will necessarily be very wrong.
+In principle, it still might be that the parameters for which $\Dcom$ is closest to $H$ 
+are close to the real parameters, 
+at least in some situations.
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.5]{three_state_example}
+\caption{A simple example where the coalescence time and commute time based approximation
+are very different.
+In this case, commute time between the two outer locations will be much longer 
+than coalescence time.}
+\label{fig:3_state}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Hitting times of Markov chains}
+
+First, we explain how to compute the relevant quantities --
+mean commute and coalescence times -- from a Markov chain model of lineage movement.
+The Markov chain is defined by its \emph{generator matrix}, denoted $G$,
+for which $G_{xy}$ gives the jump rate from $x$ to $y$.
+This means that if the Markov chain is at location $X_t$ at time $t$,
+then for $x \neq y$, the probability the chain jumps from $x$ to $y$ is proportional to $G_{xy}$,
+i.e., $\PP{X_{t+\epsilon} = y \given X_t = y} = \epsilon G_{xy} + O(\epsilon^2)$,
+and $G_{xx} = - \sum_{y \neq x} G_{xy}$.
+We will need to find the \emph{hitting times} of the chain,
+i.e., for each pair of states $x$ and $y$, 
+the mean time until the chain first hits $y$ after being started at $x$.
+We denote this quantity $H_{xy}$.
+Throughout, we assume that all hitting times are finite,
+which implies the chain is connected and irreducible.
+By conditioning on $X_\epsilon$,
+one can use the Markov property to show that
+\begin{align} \label{eqn:hitting_sum}
+    \sum_y G_{xy} H_{yz} = -1 \qquad \text{for} \; x \neq z,
+\end{align}
+i.e., if $G_{-z}$ is the matrix with the $z^\text{th}$ row and column removed,
+and $\bone$ is the vector composed of all ones,
+then the $z^\text{th}$ column of $H$, except for $H_{zz}$,
+can be computed as $- (G_{-z})^{-1} \bone$.
+This, along with $H_{zz} = 0$, allows computation of $H$
+from the movement rates $G$.
+
+Suppose instead we are given the hitting times, $H$, and wish to find the movement rates, $G$.
+This is not the situation we are in -- we have either commute or coalescence times --
+but it is related.
+The Random Target Lemma \citep{aldous}
+tells us that the stationary distribution of the Markov chain, denoted $\pi$,
+can be recovered from the hitting times by solving $\pi = H^{-1} \bone$.
+As shown in Appendix \ref{apx::hitting_calcs},
+equation \eqref{eqn:hitting_sum} can be rewritten in matrix form as
+\begin{align}
+    G H = \diag(1/\pi) - \bone \bone^T ,
+\end{align}
+which implies that $G$ can be computed directly from $H$ as
+\begin{align} \label{eqn:G_from_H}
+    G = \left( \diag(1/\pi) - \bone \bone^T \right) H^{-1} .
+\end{align}
+Therefore, $H$ uniquely determines $G$.
+
+% \paragraph{Commute times}
+The \emph{commute times} are a symmetrized version of the hitting times
+(which need not be symmetric):
+\begin{align} \label{eqn:R_from_H}
+\text{\bf (commute time)} \qquad
+    R_{xy} = H_{xy} + H_{yx},
+\end{align}
+or $R = H + H^T$.
+We use $R$ to refer to the commute time as a reminder that commute times are also effetive resistances,
+and to reserve $C$ for the coalescence time.
+
+Although commute times are uniquely determined by movement rates, the reverse is not true.
+Commute times only depend on the symmetric part of $H$ --
+given an antisymmetric matrix $Z$ (so that $Z + Z^T = 0$),
+any Markov chain that has hitting times given by $H_\epsilon = H + \epsilon Z$ for some $\epsilon$
+will have the same commute times.
+The resulting hitting times may not be valid --
+if we let $G_\epsilon$ be the matrix constructed by applying equation \eqref{eqn:G_from_H} to $H_\epsilon$
+(assuming this is invertible),
+then it is not guaranteed that the offdiagonal elements of $G_\epsilon$ are all nonnegative, as required.
+(It is always true that rows of $G_\epsilon$ sum to zero.)
+However, since $G$ and $H$ are continuous functions of each other,
+if all offdiagonal elements of $G$ are strictly positive,
+then there exists a positive $\epsilon_0$ such that all $G_\epsilon$ for $\epsilon < \epsilon_0$
+do define valid Markov chains, all with the same commute times.
+
+% \paragraph{Coalescence times}
+The \emph{coalescence times} are defined using \emph{two} copies of the same chain,
+as the mean time until coalescence,
+if the chains coalesce at rate $\gamma$ when they are in the same place.
+Concretely, 
+suppose that $X$ and $Y$ are independent Markov chains both moving with movement rates given by $G$,
+that coalesce at rate $\gamma_x$ when $X$ and $Y$ are both at $x$.
+Then we define $\tau$ to be this coalescence time,
+so that 
+$\P\{\tau \le t + \epsilon \given \tau > t, \; X_t = Y_t = x\} = \epsilon \gamma_x + O(\epsilon^2)$,
+and 
+$\P\{\tau \le t + \epsilon \given \tau > t, \; X_t \neq Y_t\} = O(\epsilon^2)$.
+Then, the (mean) coalescence time is $C_{xy} = \E[\tau \given X_0 = x, \, Y_0 = y]$.
+A similar argument using the Markov property
+shows that $C$ satisfies the following equation:
+\begin{align}
+\text{\bf (coalescence time)} \qquad
+    \sum_y \left(G_{xy} C_{yz} + C_{xy} G_{zy}\right)
+    &=
+    \begin{cases}
+        -1                   \quad & \text{if} \; x \neq z, \\
+        -1 + \gamma_z C_{zz} \quad & \text{if} \; x = z.
+    \end{cases}
+\end{align}
+In matrix notation, this is
+\begin{align} \label{eqn:C_matrix}
+    G C + C G^T - \diag(\gamma) \circ C = -\bone \bone^T,
+\end{align}
+where $\diag(\gamma)$ is the matrix with the vector $\gamma$ on the diagonal and zeros elsewhere,
+and $\circ$ is the componentwise product.
+This can also be seen by working with the product Markov chain $(X_t, Y_t)$,
+whose generator matrix is $G \prod I + I \prod G$,
+where $I$ is the identity matrix and $\prod$ is the Kronecker product.
+
+Equation \eqref{eqn:C_matrix} is linear in $G$ and $\gamma$,
+and so can be solved with straightforward linear algebra.
+If $\gamma$ is given, then solving for $G$ is an example of a XXX equation \citep{matrixeqn}.
+However, the solution is again not necessarily unique:
+suppose that we have a matrix $Z$ such that $ZH$ is antisymmetric.
+Then $(G + Z) C + C (G + Z)^T = GC + CG^T$,
+and so a Markov chain with generator matrix $G + Z$ has the same coalescence times
+as the original chain.
+As before, if all entries of $G$ are nonzero, 
+it is always possible to find sufficiently small $Z$
+so that $G + Z$ remains the generator of a valid Markov chain,
+but this is not guaranteed in general.
+
+\paragraph{Constraints and uniqueness}
+We have seen that to find the movement rates of a continuous-time Markov chain
+given the coalescence or commute times
+we must solve equations \eqref{eqn:C_matrix} or \eqref{eqn:R_from_H} and \eqref{G_from_H} for $G$,
+and that these do not hae unique solutions.
+The situation is worse when one needs to infer coalescence rates ($\gamma$) as well.
+However, usually in applications the locations lie across geographical space,
+so that many of the entries of $G$ can be assumed to be zero.
+We can get an idea of this by simply counting equations and unknowns.
+For concreteness, suppose that the spatial locations
+are arranged in a square grid of $n$ locations,
+so that each is connected to four others.
+(Boundary locations will have fewer, but we omit this detail.)
+Since movement rates in each direction can be different,
+there are $4n$ free parameters, each corresponding to an offdiagonal entry of $G$.
+Coalescence rates provide another $n$ parameters.
+
+Since commute times are symmetric, and $R_{zz} = 0$, 
+equation \eqref{eqn:R_from_H} only provides $n (n-1)/2$ informative equations.
+This is larger than $4n$, the number of parameters,
+for a grid with at least nine nodes (i.e., $3 \times 3$).
+The same calculation holds for commute times, 
+except that (a) we get an additional $n$ equations from the diagonal entries,
+but (b) this is counteracted by the additional $n$ coalescence parameters.
+
+This suggests that although nonuniqueness of solutions may not be a problem in practice,
+as long as geography is discretized into sufficiently many locations.
+However, another problem appears at finer geographic resolutions:
+although solutions may be in principle unique,
+the problems become \emph{ill-conditioned}, 
+in the sense that arbitrarily small variations in the input times
+(even numerical instability)
+produce large differences in the inferred rates.
+Very roughly speaking, this occurs because as the spatial resolution increases,
+the matrix $G$ converges to a second-order elliptic differential operator \citep{pde};
+such operators are deformations of the Laplacian \citep{laplacian},
+which is well-known to have eigenvalues that decay exponentially \citep{laplacian_eigenvals}.
+Information about the landscape contained in higher-order modes
+(e.g., finer resolution changes in hitting times)
+is then almost obliterated by the small eigenvalues of $G$,
+making the inverse problem possible in theory but not in practice.
+For more discussion of related problems, see \citet{badtruth,shape_of_a_pop,inverse_prob}.
+
+\subsection*{The simplest example}
+
+Consider a Markov chain with two states, 
+where the rate of movement from state 1 to state 2 is $G_{12}$
+and the rate of movement from state 2 to state 1 is $G_{21}$,
+so the generator matrix is
+\begin{align*}
+G = 
+    \begin{bmatrix}
+        -G_{12}  & G_{12} \\
+         G_{21}  & -G_{21}
+    \end{bmatrix}.
+\end{align*}
+Writing out equation \ref{eqn:C_matrix}, we get three unique equations
+for the coalescence times:
+\begin{align*}
+   -1 &= -C_{11} G_{12} + C_{21} G_{12} - C_{11} G_{12} + C_{12} G_{12} - C_{11} \gamma_1 \\
+   -1 &=  C_{11} G_{21} - C_{21} G_{21} - C_{21} G_{12} + C_{22} G_{12} \\
+   -1 &=  C_{12} G_{21} - C_{22} G_{21} + C_{21} G_{21} - C_{22} G_{21} - C_{22} \gamma_2 .
+\end{align*}
+Given $C$, we have three equations for the four unknowns, 
+$G_{12}$, $G_{21}$, $\gamma_{1}$, and $\gamma_{2}$.
+By grouping terms together, factoring back into matrix form, 
+and writing $C_{ji}$ instead of $C_{ij}$ when $i > j$,
+we have
+\begin{align*}
+\begin{bmatrix}
+-2C_{11} + 2C_{12} & 0                 & -C_{11} & 0       \\
+-C_{12} + C_{22}   & C_{11} - C_{12}   & 0       & 0       \\
+0                  & 2C_{12} - 2C_{22} & 0       & -C_{22}
+\end{bmatrix}
+\begin{bmatrix}
+G_{12} \\ G_{21} \\ \gamma(1) \\ \gamma(2)
+\end{bmatrix}
+=
+\begin{bmatrix}
+-1 \\ -1 \\ -1
+\end{bmatrix}.
+\end{align*}
+This is small enough to be solved symbolically. 
+The valid solutions to these equations are those with $G_{12}$, $G_{21}$, $\gamma_1$,
+and $\gamma_2$ nonnegative.
+If $C_{11} \neq C_{12}$, 
+we can write the solution with $\gamma_1$ as the free variable:
+\begin{align*}
+G_{12} &= \frac{1}{2(C_{11} - C_{12})} - \frac{C_{11}}{2(C_{11} - C_{12})}\gamma_1 \\
+G_{21} &= \frac{-2(C_{11} - C_{12}) + (C_{12} - C_{22})}{2(C_{11} - C_{12})^2}
+	- \frac{C_{11}(C_{12} - C_{22})}{2(C_{11} - C_{12})^2}\gamma_1 \\
+\gamma_2 &= \frac{(C_{11} - 2C_{12} + C_{22})^2}{C_{22}(C_{11} - C_{12})^2}
+	- \frac{C_{11}(C_{12} - C_{22})^2}{C_{22}(C_{11} - C_{12})^2}\gamma_1.
+\end{align*}
+This implies that $\gamma_2$ decreases as $\gamma_1$ increases as long as $C_{12} \neq C_{22}$.
+This makes sense because
+increasing a rate of coalescence cannot make expected coalescence times longer,
+so in order to keep coalescence times the same,
+if one coalescence rate is increased, another must be decreased.
+This also implies that, in order for $\gamma_2$ to be a value other than $0$, 
+we must have $C_{11} - 2C_{12} + C_{22} \neq 0$.
+In general, if there is a value or range of values of $\gamma_1$
+for which the other movement and coalescence parameters are non-negative,
+then a solution exists.
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.7]{valid_range}
+\caption{The green shaded region shows 
+	the valid range of the parameter values
+	for the two state Markov chain given that
+	$C_{11}=1$, $C_{12}=2$, and $C_{22}=1.5$}
+\label{fig:valid_range}
+\end{figure}
+
+To produce a comcrete example, suppose that
+$C_{11} = 1$, $C_{12} = 2$, and $C_{22} = 1.5$ in arbitrary time units.
+The other parameters will be non-negative 
+when $1 \leq \gamma_1 \leq 5$,
+as shown in in Figure \ref{fig:valid_range}.
+Assuming $\gamma_1 = \gamma_2$ produces a unique solution, 
+with $\gamma_1 = \gamma_2 = 1.29$ and $G_{12} = 0.14$ and $G_{21} = 0.93$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Bayesian inference of movement rates}
+
+Mean coalescence times estimated from real data are subject to a number of sources of noise
+(which we discuss in more detail later).
+Here, we use
+the exact solutions based on linear algebra developed above
+to develop a Bayesian inference method that accounts for noise in the data
+and estimates uncertainty in the resulting estimates.
+Suppose that $\hat{C}_{ij} = C + \epsilon_{ij}$,
+where $\epsilon$ is Normally distributed
+with mean $\mathbf{0}$ and covariance $\Sigma$.
+For now, we will make a few assumptions about $\epsilon$.
+First, that all $\epsilon_{ij}$ are independent, identically distributed $\mathcal{N}(0,\sigma_{\epsilon}^2)$
+for $i \leq j$, and $\epsilon_{ij} = \epsilon_{ji}$.
+Additionally, we will assume that $C_{ij}$ is large compared to $\sigma_{\epsilon}$
+such that the probability that a value of $\hat{C}$ is ever negative is negligible.
+Writing $f(\mathbf{x})$ as the probability density function of 
+the multivariate normal distribution $\epsilon$,
+the likelihood function for the pair $(G,\gamma)$ is
+\begin{align*}
+\mathcal{L}(G,\gamma;\hat{C}) &= f(\mathcal{C}(G,\gamma) - \hat{C}) \\
+			      &= f(-(G^*-\text{diag$(\Gamma)$})^{-1} \mathbf{1} - \hat{C})
+\end{align*}
+recalling that $\mathcal{C}$ is the hitting time matrix for a given pair $(G,\gamma)$
+defined by equation \ref{eq:solve_H}. 
+If $\hat{C}$ is a valid coalescence time matrix,
+we can find the maximum likelihood estimate (MLE) of $G$;
+however, this is in practice unlikely to happen, 
+and the likelihood function is still useful 
+for providing information about the uncertainty of $G$.
+
+To complete the Bayesian model,
+we place priors on the parameters.
+Let's say that $i$ is said to be adjacent to $j$ if $i \neq j$ and $G_{ij}$ is one of 
+the values known to be non-zero.
+Then we could let the prior probability density for the movement parameters be that of an 
+exponential random variable with rate parameter $\lambda_{G}$. 
+That is, the prior likelihood of $G$ would be
+\begin{align*}
+\mathcal{L}_G(G) = 
+\begin{cases}
+	\lambda_{G}^{m_G} \prod_{i \sim j} e^{-\lambda_{G} G_{ij}} 
+		\quad & \text{for $G_{ij} \geq 0 \quad \forall \ i \neq j$} \\
+	0 & \text{otherwise}
+\end{cases}
+\end{align*}
+where $i \sim j$ means that $i$ and $j$ are adjacent and $m_G$ is the number of positive values of $G$. 
+Similarly, we can put a prior density on $\gamma$:
+\begin{align*}
+\mathcal{L}_{\gamma}(\gamma) = 
+\begin{cases}
+	\prod_{i}^{n} \lambda_{\gamma} e^{-\lambda_{\gamma}\gamma_i} 
+		\quad & \text{for $\gamma_i \geq 0 \quad \forall \ i$} \\
+	0 & \text{otherwise.}
+\end{cases}
+\end{align*}
+Recall that $n$ is the number of states in the single particle Markov chain.
+If we assume that all $\epsilon_{ij}$ are IID with $\epsilon_{ij} \sim \mathcal{N}(0,\sigma_{\epsilon}^2)$ 
+for $i \leq j$
+we can write the likelihood for $\hat{C}$:
+\begin{align*}
+\mathcal{L}(\hat{C};G,\gamma) = \frac{1}{(2 \pi \sigma_{\epsilon}^2)^{m/2}} \prod_{i \leq j}
+	\exp\left\{-\frac{(\mathcal{C}_{ij}(G,\gamma) - \hat{C}_{ij})^2}{2 \sigma_{\epsilon}^2}\right\},
+\end{align*}
+where $m$ is the number of nonmissing values on or above the diagonal in $\hat{C}$.
+Then the posterior distribution is
+\begin{align} \label{eq:post}
+\mathcal{L}(\hat{C};G,\gamma) \mathcal{L}_{G}(G) \mathcal{L}_{\gamma}(\gamma) = 
+	\frac{\lambda_{G}^{m_G} \lambda_{\gamma}^n}{(2 \pi \sigma_{\epsilon}^2)^{m/2}}
+	\exp\{-\sum_{i \sim j} \lambda_G G_{ij} -\sum_{i}^n \lambda_{\gamma}\gamma_i
+		-\frac{1}{2 \sigma_{\epsilon}^2} \sum_{i \leq j} (\mathcal{C}_{ij}
+		(G,\gamma) - \hat{C}_{ij})^2 \}
+\end{align}
+with the same support over $G$ and $\gamma$ as in their individual priors.
+To sample from this distribution, 
+we will use the Metropolis-Hastings algorithm \citep{brooks2011handbook}. 
+
+
+\paragraph{Incomplete observations}
+With real world data, 
+unless the number of states is small or we have a large amount of data,
+our pairwise average coalescent time matrix will have a large number of unobserved values.
+For example, if our landscape is a $20 \times 20$ grid and we take $100$ samples, 
+each from a different grid square,
+we would have only $100(101)/2$ out of $400(401)/2$ of the unique values for $H$. 
+(Note that we are including the self-comparisons in this example;
+if the organisms were haploid or inbreeding were substantial,
+our $H$ matrix would have only $99(100)/2$ usable values.)
+To carry out inference in this situation,
+we simply use Equation \ref{eq:post},
+but the rightmost sum will be only over observed entries of H.
+
+%%%%%%%%%%%%%%%%
+\subsection*{Test cases and simulations}
+
+\plr{describe graphs and slim sims}
+
+\plr{MCMC methods: pre-burnin, burnin, number of iterations, trace plots}
+
+
+%%%%%%%%%%%%%%%%%%
+\section*{Results}
+%%%%%%%%%%%%%%%%%%
+
+\plr{transition paragraph}
+% biased migration is bad for commute times: 
+%              figure 19 showing the two against each other, and the simple example
+% continuous space: can find big barriers but lots of between-replicate variability (life is still hard)
+% tortoises: results on small graph, showing strong asymmetry (?)
+
+\plr{Summarizing observations about inference being harder with more noise,
+more parameters,
+and lower coalescence rate.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Identifying a barrier to gene flow}
+\label{sec:5x3b}
+
+\plr{TODO: replace bottom two panels in figure 18 with same thing for commute time}
+
+\plr{pasted in}
+We now test the method's ability to locate barriers to migration
+on a $5 \times 3$ grid with asymmetric gene flow. 
+There are impassable boundaries on the bottom left and top right of the landscape,
+but the overall graph remains fairly well connected (see Figure \ref{fig:5x3b_grid}).
+Each value of $g$ in the true model is determined randomly as before.
+The coalescence rates are set to 1 everywhere, 
+and for the first case, we assume that we know it is the same everywhere, 
+although the specific value is not known.
+Gaussian noise with standard deviation equal to 1/1000 of the mean of $H$ is added to form $\hat{H}$, 
+and inference is performed using all values of $\hat{H}$.
+All inference in this section is done using
+$5 \times 10^6$ iterations of MCMC 
+after $4 \times 10^6$ iterations for burn-in and $1 \times 10^6$ iterations for pre-burn-in.
+In this case, the mean absolute error of $\hat{g}$ was 0.019, 
+while the error of $\hat{\gamma}$ was 0.0028. %\emph{talk more about results here?}
+This analysis is repeated in three more situations, 
+all with noise set to have standard deviation 1/100 of the mean of $H$.
+In the first case, there are no missing values of $\hat{H}$, 
+in the second case, values from rows and columns
+corresponding to populations 2, 5, 7, and 15 are missing from $\hat{H}$. 
+The third case is the same as the second except that
+there is a coalescence parameter for each location on the grid 
+instead of one parameter for all locations.
+With no missing values and noise of 1/100, 
+the mean absolute error of $\hat{g}$ was 0.17 and the error of $\hat{\gamma}$ was 0.0066.
+With the four missing values,
+the mean absolute error of $\hat{g}$ was 0.37 and the error of $\hat{\gamma}$ was 0.033.
+With missing values and multiple coalescence parameters, 
+the mean absolute error of $\hat{g}$ was 0.52 
+and the mean absolute error of $\hat{\gamma}$ was 0.42.
+Boxplots of the posterior distributions of $g$ can be seen in Figure \ref{fig:5x3boxplots}.
+We can see that the inference method does very well 
+in the case with noise of 1/1000.
+With each modification, the problem becomes less well defined, 
+so it is not surprising that the error increases as well.
+Notably, we are still able to identify the barrier 
+except when there is data missing from both locations on either side of the barrier, 
+as is the case for movement parameters $g_{5}$ and $g_{17}$ with locations 2 and 7.
+Additionally, inference of the coalescence rate is very accurate 
+when there is only one coalescence rate parameter,
+but is much harder with multiple parameters, 
+which in turn makes the movement parameters harder to estimate.
+
+%This is repeated with noise set to have standard deviation 1/100 of the mean of $H$ 
+%and with data missing from 4 of the 15 locations (\emph{also non-constant coalescence?}).
+%In this case, the mean absolute error of $\hat{g}$ was (insert) and (appropriate statement for $\gamma$)
+%after (insert) iterations of MCMC.
+%\emph{talk more about results here}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.6]{5x3b_grid}
+\caption{Plot of the grid structure 
+for the 5 $\times$ 3 grid with barriers.
+Values for the non-zero movement rates 
+were chosen by rounding independent draws of an exponential random variable with mean 1 
+up to the nearest tenth.}
+\label{fig:5x3b_grid}
+\end{figure}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=0.8]{5x3boxplots}
+\caption{Posterior distributions for values of $g$ 
+for the 5 $\times$ 3 graph with barriers 
+for each of the analysis cases.
+See Figure \ref{fig:5x3b_grid} to see movement parameter locations.}
+\label{fig:5x3boxplots}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Biased migration}
+\label{sec:comvcoal}
+
+\plr{transition about how we expect biased migration to produce large differences}
+
+In order to further illustrate the differences between commute time and coalescence time inference,
+we test both methods on four different $4 \times 4$ graphs (shown in Figure \ref{fig:4x4_grids}:
+one where movement parameters are all equal to 1 (which we will call the uniform case),
+one where movement parameters are symmetric but randomly generated, 
+one asymmetric graph where all movement parameters are randomly generated,
+and one asymmetric graph where there is a bias in moving towards one direction in the graph.
+For the symmetric and unbiased asymmetric graphs, movement parameters are chosen randomly as before.
+In the biased asymmetric graph, all parameters for moving left or down are 2 while 
+all parameters moving right or up are 0.5.
+Differences between true mean coalescence times ($H$) and mean commute times ($\Dcom$) 
+are shown for each graph in Figure \ref{fig:4x4coalvcomH}. 
+The differences are fairly small in the uniform and symmetric cases, moderate in the asymmetric case, 
+and extreme in the biased asymmetric case.
+%The structure of the graphs themselves can be seen in Figure \ref{fig:4x4_grids}.
+Inference is done using $\hat{H}$ with a noise level of 1/200 the mean value of $H$ for each grid.
+All trials with each inference method were done using $4 \times 10^6$ iterations of MCMC 
+after $1 \times 10^5$  iterations of pre-burn-in and $1 \times 10^6$ iterations of burn-in.
+Posterior distributions for each graph and and inference method are shown in Figure \ref{fig:4x4box}.
+The coalescence time inference was substantially more accurate in all cases.
+The commute time based inference and coalescence time based inference methods had 
+mean absolute errors in $\hat{g}$ of 0.30 and 0.12 respectively for the uniform graph,
+0.49 and 0.053 for the symmetric graph, 
+0.87 and 0.035 for the asymmetric graph,
+and 3.27 and 0.053 for the biased asymmetric graph, respectively.
+We can see that, as expected based on the differences between $H$ and $\Dcom$,
+the coalescence time inference performs very well in all four test cases
+while the commute time inference performs fairly well in uniform and symmetric cases,
+poorly in the asymmetric case, and very poorly in the biased asymmetric case.
+The behavior of the biased asymmetric graph supports our previous thoughts about
+situations similar to the three state system seen in Figure \ref{fig:3_state},
+where commute times are much longer than coalescence times.
+In this case, the commute time inference predicts that many movement parameters
+are an order of magnitude larger than they are in truth. 
+%and there does not appear to be a correlation between 
+%the magnitude of the true and inferred values, 
+%indicating that we cannot infer much beyond that the population mixes quickly,
+%which was already clear from the data itself.
+
+
+%\emph{talk more about results here}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.8]{4x4_grids}
+\caption{Plots of the grid structure 
+for the uniform graph, symmetric graph, the asymmetric graph,
+and the biased asymmetric graph 
+using the igraph R package.}
+\label{fig:4x4_grids}
+\end{figure}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.8]{4x4coalvcomH}
+\caption{Plots of the true values of $\Dcom$ vs $H$ 
+for the uniform graph, symmetric graph, the asymmetric graph,
+and the biased asymmetric graph, 
+shown with the $y=x$ line.
+See Figure \ref{fig:4x4_grids} to see overall graph structure.}
+\label{fig:4x4coalvcomH}
+\end{figure}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.8]{4x4box}
+\caption{Boxplots of the posterior distributions for $g$ for commute time and coalescence time
+based inference for the uniform graph, symmetric graph, 
+the asymmetric graph, and the biased symmetric graph.
+See Figure \ref{fig:4x4_grids} to see movement parameter locations.}
+\label{fig:4x4box}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Continuous geographical space}
+
+\plr{transition about discretization and continuous space}
+
+In order to validate the methods in situations 
+that are more similar to those that we would see with actual populations,
+we performed simulations using SLiM (Selection on Linked Mutations) \citep{haller2016slim}.
+
+\plr{move to methods}
+We used SLiM to simulate discrete generations based on the Wright-Fisher model.
+Simulations were performed in three different situations:
+uniform migration on a continuous square landscape, 
+uniform migration on a rectangular landscape with barriers to migration, 
+and biased migration on a square landscape.
+The simulations performed in this section 
+were of populations of 10000 diploid hermaphroditic individuals.
+Mates were selected from nearby individuals using a Gaussian kernel 
+with standard deviation of $\sigma_{d}$,
+truncated at $3 \sigma_{d}$.
+In each simulation,
+$\sigma_{d}$ was chosen such that there would be an average of 
+0.25 individuals per $\sigma_{d}^2$ (2.25 per $(3 \sigma_{d})^2$),
+which is 0.005 for a square landscape with one unit of area.
+Offspring are dispersed according to a Gaussian distribution away from the mother
+using the same truncated Gaussian kernel as before.
+If the location of the offspring falls outside of the habitable area, 
+it is redrawn until it is in a valid location.
+In order to prevent excessive clumpiness of the population density distribution \citep{felsensten1975pain}, 
+we also model local competition. 
+To do this, we use the same truncated Gaussian kernel,
+with the strength of the interaction chosen 
+by visual inspection of the density distribution.
+Specifically, the new fitness of each individual after accounting for local competition
+is equal to $\exp{(-\text{totalStrength}/40)}$,
+where totalStrength is the sum of the strength of interations with all individuals
+within the cutoff distance according to the Gaussian kernel,
+resulting in reduced fitness for individuals in dense regions.
+Individuals are chosen to reproduce proportional to their fitness until the next generation.
+Clumpiness is similar to what is seen in 
+Figure \ref{fig:ind_locs_5x3b_1}
+
+In our simulations, individuals have 10 pairs of chromosomes with 200,000 base pairs each 
+with a recombination rate of $10^{-8}$ per generation per base pair.
+In the landscapes with barriers and biased migration,
+mutation rate was set to $10^{-7}$.
+In order to speed up simulation in the case of the landscape with uniform migration,
+the mutation rate was lowered to $10^{-8}$.
+This should not have a dramatic effect on the pattern of genetic relatedness between individuals
+aside from reducing the genetic distance for those simulations by a factor of ten.
+
+In each location, individuals are sampled uniformly from those 
+within the middle three quarters in each dimension of the grid space,
+as shown for one situation iin Figure \ref{fig:ind_locs_5x3b_1}.
+This protocol was chosen as a compromise between sampling all individuals 
+from near the center of each location,
+which could result in a large number of close relatives being sampled, 
+leading to an underestimate of the mean genetic distance for individuals in that location
+and uniform sampling from the whole area of each grid, 
+which may result in many sampled individuals being very close to other grid squares.
+An equal number of individuals are drawn from each location,
+but this need not be the case.
+We could even have some locations from which no individuals were drawn,
+but this lowers performance as discussed in Section \ref{sec:5x3b}.
+Mean genetic distances for each pair of locations 
+are calculated from the means of all of the pairwise genetic divergences 
+between genomes in the two locations, excluding self comparisons.
+Standard error of the mean is calculated conservatively using 
+the minumum number of independent samples, 
+in this case the smallest number of individuals from each location.
+
+Before being passed to the MCMC inference method,
+genetic distance values are scaled so that the resulting parameters 
+are approximately of order one.
+This is accomplished by multiplying the mean genetic distances by a constant
+such that the new mean of the mean genetic distances 
+is equal to the number of states in the discretization. 
+For example, if we discretize a landscape into 16 squares, 
+the mean of the mean genetic distances after scaling will be 16.
+
+For the $4 \times 4$ discretizations of the uniform and biased migration cases, 
+as well the barrier case, 
+inference was performed using $4 \times 10^6$ iterations of MCMC
+after $1 \times 10^6$ iterations of pre-burn-in and $3 \times 10^6$ iterations of burn-in. 
+For the $2 \times 2$ discretizations, $1 \times 10^6$ iterations were used 
+with $1 \times 10^5$ for pre-burn-in and $1 \times 10^6$ for burn-in.
+
+
+% {Continuous Landscape with a Barrier}
+We now revisit the earlier situation where a landscape has locations that are barriers to gene flow,
+as in Section \ref{sec:5x3b}.
+The landscape is designed to be a continuous version of this situation.
+Since the distribution of offspring locations is truncated at three standard deviations
+away from the mother, a sufficiently thick uninhabitable area can completely stop migration
+directly across it.
+As in \ref{sec:5x3b}, though, the landscape is still relatively well connected.
+The layout of the landscape can be seen in Figure \ref{fig:ind_locs_5x3b_1},
+with the red bars being the uninhabitable regions that serve as barriers to migration.
+Unlike the case of a square landscape with no barriers, 
+there is not a natual way to discretize it more coarsely 
+with grid squares of equal size and shape,
+so a $5 \times 3$ grid will be the only discretization used in this section.
+We calculate mean genetic distances using 50 individuals 
+from each grid location,
+here giving us a total of 750 individuals.
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.8]{ind_locs_5x3b_1}
+\caption{Locations of all and selected individuals on the $5 \times 3$ landscape with barriers
+in the first replicate.
+Locations of individuals used to compute the mean genetic distance matrix are shown in bold points
+whereas the locations of other individuals are shown in smaller points.
+The red bars show the locations of uninhabitable regions of the landscape.
+They are sufficiently thick so that no migration can occur directly across them.}
+\label{fig:ind_locs_5x3b_1}
+\end{figure}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.8]{grid_5x3b_1}
+\caption{Medians of the posterior distributions of the inferred values of $g$ 
+for the first replicate of the $5 \times 3$ landscape with barriers.
+The gene flow rate across the barriers are small, 
+but there is no clear pattern amoung the rest of the values.}
+\label{fig:grid_5x3b_1}
+\end{figure}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.8]{post_dists_5x3b_1_new}
+\caption{Boxplots of the posterior distributions for $g$ 
+for the first replicate of the $5 \times 3$ landscape with barriers.
+Boxes for gene flow rates for edges that cross the barrier are colored in red.}
+\label{fig:post_dists_5x3b_1}
+\end{figure}
+
+The gene flow rates across the barriers are reliably estimated to be very small
+%(\emph{maybe reference all 6 supplemental figures here?}),
+but there is considerable variation in the other values.
+Note, however, that this analysis requires that we guess a reasonable place
+to put the divisions between the locations.
+For instance, we may wonder whether a river or other geographical feature
+restricts gene flow.
+We would then discretize the landscape such that individuals on opposite sides of the 
+potential obstruction are in separate grid spaces.
+
+
+\subsection*{Continuous Landscape with Biased Migration}
+
+The third situation that we will discuss is where migration is biased.
+We will be using a square landscape as in the first case, 
+but the offspring locations of offspring are not centered around the parent.
+Instead, the mean of the distribution of the locations
+is one tenth of a standand deviation (or 0.05\% of the edge length of the landscape) 
+up and to the right of their parent's location.
+This results in reverse time gene flow down and to the left 
+as in the biased asymmetric graph in Section \ref{sec:comvcoal}.
+In terms of population genetics, 
+this is very similar to the case where a population is expanding into new territory 
+since in both cases, 
+offspring tend to be further from the edge of the expansion than their parents.
+The difference is that, in our case, 
+the population is constrained to be a bounded distance 
+away from the edge of the ``expansion''.
+In both situations, individuals at the edge may have disproportionately more offspring,
+leading to low genetic diversity and strong drift.
+This results in substantially more noise in the isolation by distance plots 
+as seen in Figure \ref{fig:ibd_comp}. 
+The horizontal lines in that figure are likely from comparing genomes of individuals from
+two families that have recently increased in size and geographical spread, 
+resulting in many pairs of genomes with similar genetic distance 
+but varying geographic distance.
+
+As in Section \ref{sec:slim_unif}, we discretize the landscape into
+both a $2 \times 2$ grid and a $4 \times 4$ grid for inference.
+Looking at the medians of the inferred posteriors of the gene flow rates in the $2 \times 2$ case
+(Figure \ref{fig:2x2grid_asb}),
+it is immediately clear how strong the bias 
+against reverse time gene flow out of the lower left corner is.
+That is, hardly any individuals in the lower left area have ancestors
+from other regions of the landscape.
+This is to be expected as even though the single generation migration bias is small,
+having a descendant in a location against the bias after a large number of generations
+becomes less and less likely as the number of generations increases.
+In the $4 \times 4$ discretization, 
+the bottom left also shows very strongly biased gene flow (Figure \ref{fig:grid_bias_4x4_1}).
+Most (but not all) of the other pairs also show bias in the expected direction.
+Boxplots of the posterior distributions are shown in Figure \ref{fig:post_dists_bias_4x4_1}.
+%\emph{maybe talk about/cite some biased random walk stuff here?}
+
+%\emph{talk about some kind of log ratio test for the 4x4 case?}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.35]{ibd_comp}
+\caption{Comparison of the isolation by distance plots for the square landscape with uniform migration
+and the square landscape with biased migration.
+Faster coalescence in the biased migration case results in more noticeable horizontal lines,
+indicative of families that recently increased in size and geographical spread.}
+\label{fig:ibd_comp}
+\end{figure}
+
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.5]{2x2grid_asb}
+\caption{Medians of the posterior distributions of the inferred values of $g$ 
+for the first replicate of the $2 \times 2$ discretization of the square landscape with biased migration.
+The reverse time gene flow rates out of the bottom left section are very small,
+indicating that very few individuals living in the bottom left of the landscape
+have ancestors from other regions of the habitat,
+consistent with migration biased up and to the right.}
+\label{fig:2x2grid_asb}
+\end{figure}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.8]{grid_bias_4x4_1}
+\caption{Medians of the posterior distributions of the inferred values of $g$ 
+for the first replicate of the $4 \times 4$ discretization of the square landscape with biased migration.
+As in the $2 \times 2$ case, 
+the reverse time gene flow rates out of the bottom left section are very small,
+indicating that very few individuals living in that area of the landscape
+have ancestors from other regions of the graph.
+Most, but not all of the other gene flow rates are biased 
+in the direction we would expect.}
+\label{fig:grid_bias_4x4_1}
+\end{figure}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.6]{post_dists_bias_4x4_1}
+\caption{Boxplots of the posterior distributions for $g$ 
+for the first replicate of the $4 \times 4$ discretization of the square landscape with biased migration.
+Black boxes are gene flow rates down and to the left 
+with each green box being the corresponding gene flow rate up and to the right.}
+\label{fig:post_dists_bias_4x4_1}
+\end{figure}
+
+\section*{Application of Inference to Mojave Desert Tortoises}
+
+We also apply the method to a population of Mojave desert tortoises (\emph{Gopherus agassizii})
+living in California. 
+Location and low coverage whole genome sequencing data was collected from 271 individuals 
+\citep{shaffer2017desert}.
+Pairwise genetic distances between all individuals was obtained from the same study.
+The landscape was discretized into 13 regions based on watersheds and the locations of individuals.
+The mean coalescence time matrix and standard deviations were calculated as before. 
+Since the regions vary substantially in size, 
+and may vary substantially in population density, 
+we do not assume that coalescence rates are the same everywhere, 
+which gives 13 values of $\gamma$. 
+Since allowing only nearest neighbor migration gives 50 values of $g$, 
+we have a total of 63 unknown parameters.
+Because there are $13(14)/2 = 91$ unique values of the mean coalescence time matrix, 
+we have more equations than unknowns.
+
+Posterior distributions of gene flow and coalescence rate parameters were inferred
+using $4 \times 10^7$ iterations of MCMC 
+after $1 \times 10^6$ iterations of pre-burn-in and $3 \times 10^6$ iterations of burn-in.
+The landscape and associated graph are shown in Figure \ref{fig:tort_land}. 
+Boxplots of the posterior distributions for the gene flow rates can be seen in Figure \ref{fig:tort_post_g} 
+and for the coalescence rates can be seen in Figure \ref{fig:tort_post_gam}.
+There is substantial variation in the gene flow rates 
+but not the coalescence rates, 
+with the exception of region 4, which seems to have a relatively slow coalescence rate.
+This is not too surprising given its large area and central location.
+In general, the results are reasonable. 
+For example,  we observe relatively low gene flow between areas with mountains on the border, 
+%such as the Paiute and Castle Mountains between regions 1 and 4, 
+%the Providence and Granite Mountains between regions 4 and 12, 
+%the New York and McCollough Mountains between regions 1 and 9
+such as between regions 1 and 4, 1 and 9, 4 and 12, 4 and 5, and 9 and 10.
+On the other hand, there is an open connection between 9 and 13, 
+and we infer high rates of migration between the two regions.
+%say something about regions that don't touch much?
+Overall, the model is a better fit than the resistance distance method of \citet{shaffer2017desert}
+(Figure \ref{fig:tort_h_comp}).
+
+The strong asymmetries, such as those present between regions 9 and 11 or 9 and 12, 
+are probably the result of either source-sink dynamics or historical processes. 
+The presence of source-sink dynamics would be of great interest for tortoise conservation efforts; 
+however, it is too early in this analysis to use these numbers for that purpose.
+For example, we would want to check for the effects of the sample configuration 
+(e.g., are gene flow rates between regions 2 and 3 low 
+simply because individuals sampled in region 3 are geographically far from region 2) 
+as well as perform a sensitivity analysis, 
+potentially including simulations on the landscape.
+% sensitivity analysis would need to be performed, 
+%as well as checking for the effects of the sample configuration.
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.34]{tort_land5}
+\caption{Left: Locations of the sampled tortoises.
+Right: Sample maximum likelihood estimates from the posterior distributions of the inferred values of $g$.}
+\label{fig:tort_land}
+\end{figure}
+
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.6]{tort_post_g}
+\caption{Boxplots of the posterior distributions for $g$ 
+for the Mojave desert tortoise data set 
+on the thirteen region discretization of the landscape.}
+\label{fig:tort_post_g}
+\end{figure}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.6]{tort_post_gam}
+\caption{Boxplots of the posterior distributions for $\gamma$ 
+for the Mojave desert tortoise data set 
+on the thirteen region discretization of the landscape.}
+\label{fig:tort_post_gam}
+\end{figure}
+
+\begin{figure}
+\centering
+% \includegraphics[scale=.8]{tort_h_comp}
+\caption{Mean coalescence times calculated from the sample maximum likelihood model parameters 
+plotted against the observed mean coalescence times calculated from the data, 
+measured in the mean of pairwise $\pi$.
+The mean absolute value relative differences between the two is 0.4\%.}
+\label{fig:tort_h_comp}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section*{Discussion}
+
+resistance distance can mislead, especially in the presence of biased migration
+
+coalescence time analogue is feasible but more computationally intensive
+
+practical example (tortoises) shows strong asymmetry
+
+but methods dealing with ill-posedness are necessary
+
+
+With these methods, we provide a framework for
+inferring demographic parameters of 
+populations living on a habitat spread over a two dimensional landscape 
+by using present day location and genetic sequencing information.
+We are able to do inference of reverse time gene flow and coalescence rates 
+with the matrix of mean coalescence times
+in cases where the matrix is noise-free, noisy, or incomplete, 
+or when it made after discretization of a simulated or real landscape.
+To do this, we assume that the reverse time movements of lineages are Markov
+and the population is near stationarity.
+Typically, there is more error and uncertainty in the posterior distributions of the parameters
+when there is more noise, slower coalescence rate, more missing values,
+and multiple parameters for coalescence rate.
+
+While the primary focus is coalescence time based inference,
+we also compare the results with that of resistance distance (i.e., commute time) based inference.
+Coalescence based inference typically has lower error than commute time based inference,
+along with the benefit that you can also infer coalescence rates. 
+The commute time plus diversity estimate, $\Dcom$, 
+provides a good estimate of the coalescence times, $H$,
+when gene flow rates are symmetric ($G_{ij} = G_{ji}$), 
+but can be very wrong when they are asymmetric, 
+including extreme discrepencies 
+when there is an overall bias in the direction of the asymmetry across the landscape 
+(Figure \ref{fig:4x4coalvcomH}).
+When inference is performed on discrete landscapes 
+with varying degrees of migrational asymmetry, 
+coalescence time based inference is more accurate than commute time inference in all tested cases
+(Figure \ref{fig:4x4box}).
+Although performance of the commute time based method is reasonable 
+when gene flow rates in the underlying model are symmetric, 
+it becomes worse as the gene flow rates become more asymmetric 
+to the point where there is little correlation at all with the true values 
+when there is biased asymmetric migration.
+On the other hand, commute time inference is much less computationally intensive, 
+so much larger spatial systems can be used.
+If the gene flow rates are symmetric, the higher resolution allowed by commute time inference
+may outweigh the loss in accuracy.
+The implication of these results for the body of literature using resistance distance methods
+is that one may need to use caution when interpreting results.
+For example, inferring high gene flow rates between two areas by using resistance distance
+could potentially mean that those were areas were actually being fed by a common source.
+Therefore, it may be worthwhile to apply a coarse resolution coalescence time based method 
+alongside a finer resolution resistance distance method 
+in order to check for evidence of asymmetric gene flow patterns.
+
+We also apply the method to data from continuous space simulations. 
+While there is substantial variation between the inferred values 
+for different simulations with the same underlying demographic parameters, 
+we are able to reliably find evidence of biased asymmetric migration (if it is present)
+and verify the exitence of a barrier to migration, 
+even when the landscape is otherwise relatively well connected.
+Further work could involve more precise study of the relationship
+between reverse time gene flow rates and forwards time migration rates.
+
+
+
+\bibliography{references}
+
+\appendix
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Finding $G$ from $H$}
+\label{apx::hitting_calcs}
+
+\plr{edit}
+
+Suppose that $G$ is the generator matrix of an irreducible continuous-time Markov chain $X$,
+so that $G_{ij} \ge 0$ for $i \neq j$ and
+$$ G 1 = 0 $$.
+
+Let $\tau_{j} = \inf\{t \ge 0 : X_t = j\}$ and $H_{ij} = \E[\tau_j \,|\, X_0 = i]$.
+Then we know that
+$$
+    (G H)_{ij} = -1 \qquad \text{for} \; i \neq j ,
+$$
+i.e.,
+$$
+    GH = - 1 1^T + \diag(x).
+$$
+
+What is $x$?  Well, note that
+$$
+    G = (\diag(x) - 1 1^T) H^{-1}
+$$
+and so
+$$ \begin{aligned}
+    0 &= G1 \\
+    &= (\diag(x) - 1 1^T) H^{-1} x 
+\end{aligned} $$
+and so
+$$
+    x_i = \frac{ 1^T H^{-1} 1 }{ (H^{-1} 1)_i } .
+$$
+Furthermore,
+the Random Target Lemma \citep{aldous} % https://www.stat.berkeley.edu/users/aldous/RWG/Book_Ralph/Ch2.S2.html
+tells us that $H \pi = 1$, so thus $H^{-1} 1 = \pi$, the stationary distribution of the chain.
+Therefore, $x_i = 1/\pi_i$,
+and in fact $1^T H^{-1} 1 = 1$.
+
+In summary,
+$$
+    G = (\diag(1/H^{-1} 1) - 1 1^T) H^{-1} .
+$$
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Finding $G$ from $R$}
+
+The resistance distance is given by
+$R = H + H^T$, so if we can modify $H$ by a skew-symmetric matrix,
+we won't change $R$.
+Can we do this and retain a valid $G$?
+I.e., does $R$ uniquely specify $G$?
+Let $Z + Z^T = 0$. 
+Since $G$ is a continuous function of $H$, if all entries of $G$ are nonzero
+we can find a small enough $\epsilon$ such that the $G'$ corresponding to $H' = H + \epsilon Z$
+is also a valid generator matrix.
+If $G$ has zero entries this may not be true.
+To find a direction that we can change $H$ in that doesn't mess this up,
+we could differentiate $dG/dH$.
+
+
+\end{document}
