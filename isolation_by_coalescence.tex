@@ -128,6 +128,8 @@ implying the need for regularization to obtain reliable inference.
 Using maps for prior information, or restricting the geographical resolution of the results,
 are two ways to do this.
 
+We apply the method to the desert tortoise \plr{say more here}.
+
 \plr{I didn't find myself wanting to explain isolation by distance here:
     I don't think we need to? Do you agree?}
 
@@ -538,7 +540,8 @@ with a larger $\sigma_\epsilon$, to allow the chain to more quickly converge on 
 portion of parameter space.
 Typically, we ran MCMC for $10^6$ iterations of pre-burn-in 
 and $3 \time 10^6$ iterations of burn-in,
-followed by $4 \times 10^6$ iterations which were used to estimate posterior distributions.
+followed by $4 \times 10^6$ iterations which were used to estimate posterior distributions,
+although for small graphs fewer iterations were necessary.
 We used standard methods to assess convergence and mixing.
 
 
@@ -623,76 +626,112 @@ is equal to the number of locations in the discretization.
 %%%%%%%%%%%%%%%%%%
 
 \plr{transition paragraph}
-% biased migration is bad for commute times: 
-%              figure 19 showing the two against each other, and the simple example
-% continuous space: can find big barriers but lots of between-replicate variability (life is still hard)
-% tortoises: results on small graph, showing strong asymmetry (?)
 
-\plr{Summarizing observations about inference being harder with more noise,
-more parameters,
-and lower coalescence rate.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Model validation}
+
+We first tested the method using data generated under the model.
+To test the methods across a wide range of situations,
+we generated random movement rates for 
+a large number of $3 \times 2$ rectangular grids:
+twenty-five symmetric (i.e., with $G_{ij} = G_{ji}$) and twenty-five asymmetric.
+We generated movement parameters
+by rounding independent exponential random variables up to the nearest one tenth,
+and fixed coalescence rate at 1 for all locations.
+We then added independent noise to each matrix entry (preserving symmetry),
+and assume that we can estimate the amount of noise reasonably well, 
+so used the standard deviation of the noise for $\sigma_\epsilon$ in the likelihood function.
+To assess the impact on inference of the number of parameters,
+we performed inference both with and without the assumption 
+that coalescence rate is the same everywhere.
+For $3 \times 2$ graphs, there are 21 equations
+and 14 movement parameters,
+so that with a global coalescence rate there are 15 unknowns
+but with individual coalescence rates there are 20 unknowns,
+which is close to nonidentifiable.
+(For commute time inference, we analogously constrained all values of $q$ to be identical or not.)
+To quantify accuracy across these random graphs in different situations,
+we computed, for each model fit on a particular random graph,
+the absolute difference between the posterior median of each movement parameter
+and the true value.
+We then averaged these across movement parameters to produce a measure of accuracy for that model fit,
+reported below as ``mean absolute error''.
+
+\paragraph{Varying noise}
+Unsurprisingly, coalescence time inference became less accurate as the amount of noise increased.
+As we varied the standard deviation of the noise
+from 1/1000 to 1/50 of the mean value of $C$ for that grid,
+the mean absolute error 
+for coalescence time inference with a single coalescence rate
+increased from around 0.05 to 0.4.
+Posterior interquartile ranges increased proportionally.
+(although there was substantial variation in accuracy between replicates;
+see Figures \ref{fig:mult_noise} and \ref{fig:mult_noise_iqr}).
+Increasing the number of parameters by allowing multiple coalescence rates
+made the inference problem even harder --
+mean absolute errors no longer depended strongly on the amount of noise added,
+and hovered around 0.4.
+
+More surprisingly, the performance of commute time inference did not depend on the amount of noise --
+mean absolute error was around 0.6 across all levels of noise,
+both with and without more than one parameter for local diversity
+(see Figure \ref{fig:mult_noise}).
+Although symmetry did not affect coalescence time inference,
+commute time inference did substantially worse on asymmetric graphs,
+showing median absolute errors of around 0.8.
+
+\paragraph{Varying coalescence rates}
+Lower coalescence rates mean that lineages wander about the landscape for longer
+before they coalesce, 
+thus greatly reducing the geographic information we get from coalescence times.
+Indeed, coalescence rates had a strong effect on feasability of the inference problem
+(shown in Figures \ref{fig:mult_gam} and \ref{fig:mult_gam_iqr}):
+lowering the coalescence rate from 10 to 0.1
+(always adding noise with standard deviation 1/200th of the mean value)
+increased mean absolute error of coalescence time inference from around 0.05 to 0.5.
+Again, allowing multiple coalescence rates
+or using commute time inference were highly inaccurate in all cases,
+with mean absolute errors of above 0.5.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Identifying a barrier to gene flow}
 \label{sec:5x3b}
 
-\plr{TODO: replace bottom two panels in figure 18 with same thing for commute time}
 
-\plr{pasted in}
-We now test the method's ability to locate barriers to migration
-on a $5 \times 3$ grid with asymmetric gene flow. 
-There are impassable boundaries on the bottom left and top right of the landscape,
-but the overall graph remains fairly well connected (see Figure \ref{fig:5x3b_grid}).
-Each value of $g$ in the true model is determined randomly as before.
-The coalescence rates are set to 1 everywhere, 
-and for the first case, we assume that we know it is the same everywhere, 
-although the specific value is not known.
-Gaussian noise with standard deviation equal to 1/1000 of the mean of $H$ is added to form $\hat{H}$, 
-and inference is performed using all values of $\hat{H}$.
-All inference in this section is done using
-$5 \times 10^6$ iterations of MCMC 
-after $4 \times 10^6$ iterations for burn-in and $1 \times 10^6$ iterations for pre-burn-in.
-In this case, the mean absolute error of $\hat{g}$ was 0.019, 
-while the error of $\hat{\gamma}$ was 0.0028. %\emph{talk more about results here?}
-This analysis is repeated in three more situations, 
-all with noise set to have standard deviation 1/100 of the mean of $H$.
-In the first case, there are no missing values of $\hat{H}$, 
-in the second case, values from rows and columns
-corresponding to populations 2, 5, 7, and 15 are missing from $\hat{H}$. 
-The third case is the same as the second except that
-there is a coalescence parameter for each location on the grid 
-instead of one parameter for all locations.
-With no missing values and noise of 1/100, 
-the mean absolute error of $\hat{g}$ was 0.17 and the error of $\hat{\gamma}$ was 0.0066.
-With the four missing values,
-the mean absolute error of $\hat{g}$ was 0.37 and the error of $\hat{\gamma}$ was 0.033.
-With missing values and multiple coalescence parameters, 
-the mean absolute error of $\hat{g}$ was 0.52 
-and the mean absolute error of $\hat{\gamma}$ was 0.42.
-Boxplots of the posterior distributions of $g$ can be seen in Figure \ref{fig:5x3boxplots}.
-We can see that the inference method does very well 
-in the case with noise of 1/1000.
-With each modification, the problem becomes less well defined, 
-so it is not surprising that the error increases as well.
-Notably, we are still able to identify the barrier 
-except when there is data missing from both locations on either side of the barrier, 
-as is the case for movement parameters $g_{5}$ and $g_{17}$ with locations 2 and 7.
-Additionally, inference of the coalescence rate is very accurate 
-when there is only one coalescence rate parameter,
-but is much harder with multiple parameters, 
-which in turn makes the movement parameters harder to estimate.
+We then test the method's ability to locate barriers to migration
+on the $5 \times 3$ grid with asymmetric gene flow shown in Figure \ref{fig:5x3b_grid}. 
+Each nonzero movement rate is determined randomly as before.
+Coalescence rates are set to 1 everywhere.
+Figure \ref{fig:5x3boxplots} shows posterior distributions of the movement rates
+for both coalescence and commute time inference
+on this graph, with noise standard deviation equal to
+1/1000 of the mean coalescence time (left)
+and 1/100 of the mean coalescence time (right).
+Although increased noise in the data increased uncertainty in the estimated values,
+coalescence time inference correctly inferred the location of the barrier
+(as well as high-dispersal connections) in both cases.
+Commute time inference \plr{did what?}
+We also explored making the problem harder,
+by first (a) dropping rows and columns from the data corresponding to populations 2, 5, 7, and 15;
+and then (b) allowing a separate coalescence rate for each location,
+in both cases using a noise level of 1/100.
+The resulting posterior distributions are shown in Figure \ref{fig:5x3boxplots_mult_gam},
+and show substantially increased error,
+but only in movement rates to the removed locations.
+As before, uncertainty was increased when multiple coalescence rates were allowed,
+but not as strongly as before, likely because the problem is less close to being underconstrained,
+having 105 equations and 59 unknowns.
 
-%This is repeated with noise set to have standard deviation 1/100 of the mean of $H$ 
-%and with data missing from 4 of the 15 locations (\emph{also non-constant coalescence?}).
-%In this case, the mean absolute error of $\hat{g}$ was (insert) and (appropriate statement for $\gamma$)
-%after (insert) iterations of MCMC.
-%\emph{talk more about results here}
 
 \begin{figure}
 \centering
      \includegraphics[scale=.6]{figs/5x3b_grid}
     \caption{Plot of the grid structure 
-    for the 5 $\times$ 3 grid with barriers.
+    for the 5 $\times$ 3 grid with two barriers:
+    movement rates between $\{2,3\}$ and $\{7,8\}$ are zero,
+    as are those between $\{8,9\}$ and $\{13,14\}$.
     Values for the non-zero movement rates 
     were chosen by rounding independent draws of an exponential random variable with mean 1 
     up to the nearest tenth.}
@@ -705,67 +744,62 @@ which in turn makes the movement parameters harder to estimate.
     \caption{Posterior distributions for values of $g$ 
     for the 5 $\times$ 3 graph with barriers 
     for each of the analysis cases.
-    See Figure \ref{fig:5x3b_grid} to see movement parameter locations.}
+    See Figure \ref{fig:5x3b_grid} to see movement parameter locations.
+    \plr{TODO: replace bottom two panels with same thing for commute time}
+}
     \label{fig:5x3boxplots}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Biased migration}
-\label{sec:comvcoal}
+\label{sec:biased_migration}
 
-\plr{transition about how we expect biased migration to produce large differences}
+Both matrices of coalescence and commute times, $C$ and $R$, are symmetric,
+but they do not deal with asymmetric (biased) migration in the same way.
+Since commute time to $i$ requires paths both to and from $i$,
+but coalescence time to $i$ only reaquires lineages to leave $i$,
+if, for instance, there is a low rate of migration back into $i$,
+then commute times to $i$ could be quite long even while coalescence times are not.
+For instance, suppose there are three populations arranged in a line,
+and lineages currently in the outer populations are much more likely to come from the central island
+than the other way around.
+Since lineages quickly move to the center and coalesce regardless of starting position,
+coalescence time (and genetic diversity) will be relatively low between all individuals.
+Commute time between the two outer locations, on the other hand,
+will be much longer than other comparisons, since it requires a lineage to leave the center.
 
-In order to further illustrate the differences between commute time and coalescence time inference,
-we test both methods on four different $4 \times 4$ graphs (shown in Figure \ref{fig:4x4_grids}:
-one where movement parameters are all equal to 1 (which we will call the uniform case),
-one where movement parameters are symmetric but randomly generated, 
-one asymmetric graph where all movement parameters are randomly generated,
-and one asymmetric graph where there is a bias in moving towards one direction in the graph.
-For the symmetric and unbiased asymmetric graphs, movement parameters are chosen randomly as before.
-In the biased asymmetric graph, all parameters for moving left or down are 2 while 
-all parameters moving right or up are 0.5.
-Differences between true mean coalescence times ($H$) and mean commute times ($\comdist$) 
-are shown for each graph in Figure \ref{fig:4x4coalvcomH}. 
-The differences are fairly small in the uniform and symmetric cases, moderate in the asymmetric case, 
+In order to investigate this general situation,
+we tested both methods on four different $4 \times 4$ graphs (shown in Figure \ref{fig:4x4_grids}):
+\emph{uniform}, where all movement rates are 1.0;
+\emph{symmetric}, where movement rates are symmetric and randomly generated as before;
+\emph{asymmetric}, where all movement rates are random;
+and \emph{biased}, where movement rates down or to the left are equal to 2.0,
+and movement rates up or to the right are 0.5.
+
+Differences between true mean coalescence times ($C$) and mean commute times ($\comdist$) 
+are shown in Figure \ref{fig:4x4coalvcomH}:
+they are fairly small in the uniform and symmetric cases, moderate in the asymmetric case, 
 and extreme in the biased asymmetric case.
-%The structure of the graphs themselves can be seen in Figure \ref{fig:4x4_grids}.
-Inference is done using $\hat{H}$ with a noise level of 1/200 the mean value of $H$ for each grid.
-All trials with each inference method were done using $4 \times 10^6$ iterations of MCMC 
-after $1 \times 10^5$  iterations of pre-burn-in and $1 \times 10^6$ iterations of burn-in.
-Posterior distributions for each graph and and inference method are shown in Figure \ref{fig:4x4box}.
-The coalescence time inference was substantially more accurate in all cases.
-The commute time based inference and coalescence time based inference methods had 
-mean absolute errors in $\hat{g}$ of 0.30 and 0.12 respectively for the uniform graph,
-0.49 and 0.053 for the symmetric graph, 
-0.87 and 0.035 for the asymmetric graph,
-and 3.27 and 0.053 for the biased asymmetric graph, respectively.
-We can see that, as expected based on the differences between $H$ and $\comdist$,
-the coalescence time inference performs very well in all four test cases
-while the commute time inference performs fairly well in uniform and symmetric cases,
-poorly in the asymmetric case, and very poorly in the biased asymmetric case.
-The behavior of the biased asymmetric graph supports our previous thoughts about
-situations similar to the three state system seen in Figure \ref{fig:3_state},
-where commute times are much longer than coalescence times.
-In this case, the commute time inference predicts that many movement parameters
-are an order of magnitude larger than they are in truth. 
-%and there does not appear to be a correlation between 
-%the magnitude of the true and inferred values, 
-%indicating that we cannot infer much beyond that the population mixes quickly,
-%which was already clear from the data itself.
+This difference suggests that commute time inference may be strongly misled 
+in the asymmetric and biased situations,
+but it still could be the case that the movement rates that give the best fit of commute time
+to coalescence time data could be close to the actual rates use to generate the data.
 
+Nonetheless, 
+coalescence time inference was substantially more accurate in all cases.
+Posterior distributions of movement parameters are shown in Figure \ref{fig:4x4box},
+produced by applying both inference methods
+after adding noise with standard deviation of 1/200 the mean value of $C$.
+The mean absolute errors for coalescence time inference are 0.12 or less in all cases.
+Commute time inference obtains roughly uniform migration rates
+(although varying by a factor of 2) in the uniform case;
+and migration rates noisily correlated with the truth in the symmetric graph.
+However, commute time inferences for the asymmetric and biased graphs are only weakly correlated, 
+if at all, to the truth.
+Commute times also drastically overestimate movement rates for the biased case,
+as we would expect based on the differences discussed above.
 
-%\emph{talk more about results here}
-
-\begin{figure}
-\centering
-     \includegraphics[scale=.8]{figs/4x4_grids}
-    \caption{Plots of the grid structure 
-    for the uniform graph, symmetric graph, the asymmetric graph,
-    and the biased asymmetric graph 
-    using the igraph R package.}
-    \label{fig:4x4_grids}
-\end{figure}
 
 \begin{figure}
 \centering
@@ -792,92 +826,38 @@ are an order of magnitude larger than they are in truth.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Continuous geographical space}
 
-\plr{transition about discretization and continuous space}
+The data we have used thus far are produced ``under the model'',
+and should provide an accurate depiction of our method applied to discrete, randomly mating populations
+whose connections by migration are known.
+However, this is nearly always a rough approximation to reality,
+in which organisms are distributed across continuous geography,
+and ``populations'' are constructed by necessity, often driven by sampling locations.
 
-In order to validate the methods in situations 
-that are more similar to those that we would see with actual populations,
-we performed simulations using SLiM (Selection on Linked Mutations) \citep{haller2016slim}.
+\paragraph{Process noise}
+Talk about Figure \ref{fig:h_val_comp}.
 
-\plr{move to methods}
-We used SLiM to simulate discrete generations based on the Wright-Fisher model.
-Simulations were performed in three different situations:
-uniform migration on a continuous square landscape, 
-uniform migration on a rectangular landscape with barriers to migration, 
-and biased migration on a square landscape.
-The simulations performed in this section 
-were of populations of 10000 diploid hermaphroditic individuals.
-Mates were selected from nearby individuals using a Gaussian kernel 
-with standard deviation of $\sigma_{d}$,
-truncated at $3 \sigma_{d}$.
-In each simulation,
-$\sigma_{d}$ was chosen such that there would be an average of 
-0.25 individuals per $\sigma_{d}^2$ (2.25 per $(3 \sigma_{d})^2$),
-which is 0.005 for a square landscape with one unit of area.
-Offspring are dispersed according to a Gaussian distribution away from the mother
-using the same truncated Gaussian kernel as before.
-If the location of the offspring falls outside of the habitable area, 
-it is redrawn until it is in a valid location.
-In order to prevent excessive clumpiness of the population density distribution \citep{felsensten1975pain}, 
-we also model local competition. 
-To do this, we use the same truncated Gaussian kernel,
-with the strength of the interaction chosen 
-by visual inspection of the density distribution.
-Specifically, the new fitness of each individual after accounting for local competition
-is equal to $\exp{(-\text{totalStrength}/40)}$,
-where totalStrength is the sum of the strength of interations with all individuals
-within the cutoff distance according to the Gaussian kernel,
-resulting in reduced fitness for individuals in dense regions.
-Individuals are chosen to reproduce proportional to their fitness until the next generation.
-Clumpiness is similar to what is seen in 
-Figure \ref{fig:ind_locs_5x3b_1}
+\begin{figure}
+\centering
+\includegraphics[scale=.8]{figs/h_val_comp}
+\caption{
+    Comparison of the values of the genetic distance matrix $C$
+    for a $4 \times 4$ discretization of a square landscape with uniform migration
+    calculated from various situations.
+    All values are plotted against the corresponding values from the $C$ matrix
+    calculated using the first set of individuals from the first simulation,
+    along with the $y=x$ line.
+    Black circles are from a second (non-overlapping) set of individuals from the first simulation,
+    red triangles are from the second simulation, 
+    and blue plusses are for the third simulation.
+    Mean absolute value relative differences between the new values of $C$ for each situation
+    and the original values from the first set of individuals from the first simulation are
+    1.8\% for the second set of indivuals from the first simulation,
+    13.2\% for the second simulation, 
+    and 7.3\% for the third simulation.
+    } \label{fig:h_val_comp}
+\end{figure}
 
-In our simulations, individuals have 10 pairs of chromosomes with 200,000 base pairs each 
-with a recombination rate of $10^{-8}$ per generation per base pair.
-In the landscapes with barriers and biased migration,
-mutation rate was set to $10^{-7}$.
-In order to speed up simulation in the case of the landscape with uniform migration,
-the mutation rate was lowered to $10^{-8}$.
-This should not have a dramatic effect on the pattern of genetic relatedness between individuals
-aside from reducing the genetic distance for those simulations by a factor of ten.
-
-In each location, individuals are sampled uniformly from those 
-within the middle three quarters in each dimension of the grid space,
-as shown for one situation iin Figure \ref{fig:ind_locs_5x3b_1}.
-This protocol was chosen as a compromise between sampling all individuals 
-from near the center of each location,
-which could result in a large number of close relatives being sampled, 
-leading to an underestimate of the mean genetic distance for individuals in that location
-and uniform sampling from the whole area of each grid, 
-which may result in many sampled individuals being very close to other grid squares.
-An equal number of individuals are drawn from each location,
-but this need not be the case.
-We could even have some locations from which no individuals were drawn,
-but this lowers performance as discussed in Section \ref{sec:5x3b}.
-Mean genetic distances for each pair of locations 
-are calculated from the means of all of the pairwise genetic divergences 
-between genomes in the two locations, excluding self comparisons.
-Standard error of the mean is calculated conservatively using 
-the minumum number of independent samples, 
-in this case the smallest number of individuals from each location.
-
-Before being passed to the MCMC inference method,
-genetic distance values are scaled so that the resulting parameters 
-are approximately of order one.
-This is accomplished by multiplying the mean genetic distances by a constant
-such that the new mean of the mean genetic distances 
-is equal to the number of states in the discretization. 
-For example, if we discretize a landscape into 16 squares, 
-the mean of the mean genetic distances after scaling will be 16.
-
-For the $4 \times 4$ discretizations of the uniform and biased migration cases, 
-as well the barrier case, 
-inference was performed using $4 \times 10^6$ iterations of MCMC
-after $1 \times 10^6$ iterations of pre-burn-in and $3 \times 10^6$ iterations of burn-in. 
-For the $2 \times 2$ discretizations, $1 \times 10^6$ iterations were used 
-with $1 \times 10^5$ for pre-burn-in and $1 \times 10^6$ for burn-in.
-
-
-% {Continuous Landscape with a Barrier}
+\paragraph{Identifying a barrier}
 We now revisit the earlier situation where a landscape has locations that are barriers to gene flow,
 as in Section \ref{sec:5x3b}.
 The landscape is designed to be a continuous version of this situation.
@@ -895,6 +875,7 @@ We calculate mean genetic distances using 50 individuals
 from each grid location,
 here giving us a total of 750 individuals.
 
+
 \begin{figure}
 \centering
      \includegraphics[scale=.8]{figs/ind_locs_5x3b_1}
@@ -905,16 +886,6 @@ here giving us a total of 750 individuals.
     The red bars show the locations of uninhabitable regions of the landscape.
     They are sufficiently thick so that no migration can occur directly across them.}
     \label{fig:ind_locs_5x3b_1}
-\end{figure}
-
-\begin{figure}
-\centering
-     \includegraphics[scale=.8]{figs/grid_5x3b_1}
-    \caption{Medians of the posterior distributions of the inferred values of $g$ 
-    for the first replicate of the $5 \times 3$ landscape with barriers.
-    The gene flow rate across the barriers are small, 
-    but there is no clear pattern amoung the rest of the values.}
-    \label{fig:grid_5x3b_1}
 \end{figure}
 
 \begin{figure}
@@ -946,7 +917,7 @@ Instead, the mean of the distribution of the locations
 is one tenth of a standand deviation (or 0.05\% of the edge length of the landscape) 
 up and to the right of their parent's location.
 This results in reverse time gene flow down and to the left 
-as in the biased asymmetric graph in Section \ref{sec:comvcoal}.
+as in the biased asymmetric graph in Section \ref{sec:biased_migration}.
 In terms of population genetics, 
 this is very similar to the case where a population is expanding into new territory 
 since in both cases, 
@@ -1029,83 +1000,83 @@ with each green box being the corresponding gene flow rate up and to the right.}
 \label{fig:post_dists_bias_4x4_1}
 \end{figure}
 
-\section*{Application of Inference to Mojave Desert Tortoises}
+\section*{Application to the Mojave Desert Tortoise}
 
-We also apply the method to a population of Mojave desert tortoises (\emph{Gopherus agassizii})
-living in California. 
-Location and low coverage whole genome sequencing data was collected from 271 individuals 
-\citep{shaffer2017desert}.
-Pairwise genetic distances between all individuals was obtained from the same study.
-The landscape was discretized into 13 regions based on watersheds and the locations of individuals.
-The mean coalescence time matrix and standard deviations were calculated as before. 
+The Mojave desert tortoise (\textit{Gopherus agassizii})
+lives across much of the Mojave desert of California and Nevada,
+separated from its sister taxa, \textit{Gopherus morofkaii} by the Colorado river.
+We applied our method to genomic distances calculated from
+whole genome sequencing data of 271 individuals sampled from across much of the range,
+reported in \citet{shaffer2017desert}.
+We discretized the landscape into 13 regions based on watershed polygons
+from the Watershed Boundary Dataset \citep{WBD}
+(using WBD8 slightly modified by portions of WBD10 to improve contiguity of regions).
+The resulting discretization,
+overlaid on a map including tortoise sampling locations,
+is shown in Figure \ref{fig:tort_land}.
 Since the regions vary substantially in size, 
 and may vary substantially in population density, 
 we do not assume that coalescence rates are the same everywhere, 
-which gives 13 values of $\gamma$. 
-Since allowing only nearest neighbor migration gives 50 values of $g$, 
-we have a total of 63 unknown parameters.
-Because there are $13(14)/2 = 91$ unique values of the mean coalescence time matrix, 
-we have more equations than unknowns.
+which gives 13 coalescence rates;
+combined with the 50 migration parameters between each pair of adjacent regions
+we have a total of 63 unknown parameters
+(and 91 equations).
 
-Posterior distributions of gene flow and coalescence rate parameters were inferred
-using $4 \times 10^7$ iterations of MCMC 
-after $1 \times 10^6$ iterations of pre-burn-in and $3 \times 10^6$ iterations of burn-in.
-The landscape and associated graph are shown in Figure \ref{fig:tort_land}. 
-Boxplots of the posterior distributions for the gene flow rates can be seen in Figure \ref{fig:tort_post_g} 
-and for the coalescence rates can be seen in Figure \ref{fig:tort_post_gam}.
+Posterior distributions of the parameters are shown in Figure \ref{fig:tort_post}.
 There is substantial variation in the gene flow rates 
 but not the coalescence rates, 
 with the exception of region 4, which seems to have a relatively slow coalescence rate.
 This is not too surprising given its large area and central location.
-In general, the results are reasonable. 
-For example,  we observe relatively low gene flow between areas with mountains on the border, 
-%such as the Paiute and Castle Mountains between regions 1 and 4, 
-%the Providence and Granite Mountains between regions 4 and 12, 
-%the New York and McCollough Mountains between regions 1 and 9
-such as between regions 1 and 4, 1 and 9, 4 and 12, 4 and 5, and 9 and 10.
-On the other hand, there is an open connection between 9 and 13, 
+Gene flow rates are low across mountainous boundaries:
+for instance, regions 1 and 4 are separated by the Paiute and Castle mountains,
+and regions 4 and 12 are separated by the Providence and Granite mountains.
+% and regions 1 and 9 are separated by the New York and McCollough mountains.
+On the other hand, there is a large, mostly open bajada connecting areas 9 and 13, 
 and we infer high rates of migration between the two regions.
-%say something about regions that don't touch much?
-Overall, the model is a better fit than the resistance distance method of \citet{shaffer2017desert}
+The coalescence time model provides a good fit to the data,
+much better than was obtained by commute times, either \plr{in this paper??}
+or using the resistance distance method of \citet{shaffer2017desert}
 (Figure \ref{fig:tort_h_comp}).
 
-The strong asymmetries, such as those present between regions 9 and 11 or 9 and 12, 
-are probably the result of either source-sink dynamics or historical processes. 
-The presence of source-sink dynamics would be of great interest for tortoise conservation efforts; 
-however, it is too early in this analysis to use these numbers for that purpose.
-For example, we would want to check for the effects of the sample configuration 
-(e.g., are gene flow rates between regions 2 and 3 low 
-simply because individuals sampled in region 3 are geographically far from region 2) 
-as well as perform a sensitivity analysis, 
-potentially including simulations on the landscape.
-% sensitivity analysis would need to be performed, 
-%as well as checking for the effects of the sample configuration.
+The most biologically interesting aspects
+are the strong asymmetries, for instance between region 9 and regions 11, 12, and 13.
+These indicate that resistance-based methods may be strongly misled.
+However, we cannot conclude from this analysis \emph{what} is leading to the observed asymmetries.
+One explanation would be source-sink dynamics:
+for instance, the observed bias in lineage movement could be observed 
+if the tortoise fecundity in the Ivanpah valley in region 9
+is higher than in the colder, higher-elevation regions to the north.
+Or, it could be the result of a historical range expansion out of the area,
+perhaps out of a more resticted range as climates changed after the last glacial maximum.
+The presence of source-sink dynamics would be of great interest for tortoise conservation efforts,
+but it is not clear from this analysis which explanation is more likely.
+Some aspects of the results may even be the produced by sample configuration:
+for instance, perhaps the inferred gene flow between regions 2 and 3 is low
+simply because individuals sampled in region 3 are geographically far from region 2.
 
 \begin{figure}
 \centering
  \includegraphics[scale=.34]{figs/tort_land5}
 \caption{Left: Locations of the sampled tortoises.
-Right: Sample maximum likelihood estimates from the posterior distributions of the inferred values of $g$.}
-\label{fig:tort_land}
+    \plr{add mountain shadings and ocean; remove bits on the other side of the Colorado}
+    Right: Sample maximum posterior estimates 
+    of movement rates.
+    \plr{can these be maximum posterior estimates instead?}
+    } \label{fig:tort_land}
 \end{figure}
 
 
 \begin{figure}
 \centering
- \includegraphics[scale=.6]{figs/tort_post_g}
-\caption{Boxplots of the posterior distributions for $g$ 
-for the Mojave desert tortoise data set 
-on the thirteen region discretization of the landscape.}
-\label{fig:tort_post_g}
-\end{figure}
-
-\begin{figure}
-\centering
- \includegraphics[scale=.6]{figs/tort_post_gam}
-\caption{Boxplots of the posterior distributions for $\gamma$ 
-for the Mojave desert tortoise data set 
-on the thirteen region discretization of the landscape.}
-\label{fig:tort_post_gam}
+ \includegraphics[width=0.8\textwidth]{figs/tort_post_g}
+ \includegraphics[width=0.8\textwidth]{figs/tort_post_gam}
+\caption{
+Boxplots of the posterior distributions for 
+\textbf{(top)} movement rates, and
+\textbf{(bottom)} coalescence rates,
+for the Mojave desert tortoise data set.
+Parameters are labeled as in Figure \ref{fig:tort_land}.
+\label{fig:tort_post}
 \end{figure}
 
 \begin{figure}
@@ -1148,8 +1119,42 @@ On the other hand, if there is a ridge instead of a valley,
 resistance methods will show no barrier (and relatively high movement rates),
 even if there is very little uphill dispersal.
 This could lead to a falsely high assessment of gene flow across the top of the ridge.
+\plr{Also applies to least-cost path analysis.}
 
+\paragraph{Difficulty of inference}
+What determines the feasability of inferring movement rates from genetic distances?
+Using coalescence times instead of commute times greatly improves accuracy in many situations,
+but there are still a number of factors that determine the tractability of the problem.
+Observation noise is clearly an issue;
+we found that estimation errors of a few percent was enough to seriously degrade accuracy.
+However, genetic distances can be estimated to much higher accuracy using modern genomic data.
+Perhaps more seriously,
+a rate of coalescence relative to movement can also make the problem essentially nonidentifiable.
+This is clear at least in the limit: with very low coalescence, 
+the population loses any isolation by distance and looks panmictic.
+In continuous landscapes, this balance is measured by Wright's local effective population size,
+which is proportional to the number of other individuals 
+within a circle of radius equal to the mean dispersal distance.
+\plr{more about continuous landscapes and discretization}
 
+\paragraph{Circuitscape}
+Could we use coalescence time in place of commute time
+for workflows that compute values on a given map of movement rates
+that are then compared to genetic distance?
+In principle this could be done,
+but not at the same (impressively fine) geographic resolution that is currently possible,
+e.g., using Circuitscape \citep{circuitscape}.
+This is because if we have $n$ sampled locations
+on a landscape discretized into $N$ regions,
+the computational complexity of finding commute times is $nN$,
+but coalescence time scales as $N^2$.
+This is because each $N$-vector of hitting times to a particular location can be found independently,
+but the entire $N \times N$ matrix of coalescence times must be found together.
+However, as we discuss above, this fine geographic resolution is in some sense illusory --
+for each fine-resolution map there should be coarser maps that give almost identical coalescence times.
+However, we are not aware of existing theory providing guidance on how to find these.
+
+\plr{from the thesis; merge in}
 With these methods, we provide a framework for
 inferring demographic parameters of 
 populations living on a habitat spread over a two dimensional landscape 
@@ -1219,6 +1224,8 @@ model the coalescent process as Markov, which should be a good approximation for
 \bibliography{references}
 
 \appendix
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{figure}{0}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1267,7 +1274,7 @@ $$
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Finding $G$ from $R$}
+\subsection{Finding $G$ from $R$}
 
 The resistance distance is given by
 $R = H + H^T$, so if we can modify $H$ by a skew-symmetric matrix,
@@ -1282,5 +1289,123 @@ If $G$ has zero entries this may not be true.
 To find a direction that we can change $H$ in that doesn't mess this up,
 we could differentiate $dG/dH$.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Further inference results}
+
+Here we put some more plots describing inference method accuracy.
+
+
+\begin{figure}
+\centering
+\includegraphics[scale=.6]{figs/mult_noise}
+\caption{Boxplots of the mean absolute error, %in $\hat{g}$.
+defined to be the absolute value difference between the true value and posterior median,
+averaged across movement parameters $g$ for each of the 25 graphs in each situation.
+Each box is labeled with the relative amount of noise added to $H$ to make $\hat{H}$.
+The top left shows the results for symmetric graphs 
+when there is a single coalescence parameter for all locations,
+the top right for symmetric graphs 
+when there is a separate coalescence parameter for each location,
+the bottom left for asymmetric graphs 
+when there is a single coalescence parameter for all locations,
+and the bottom right for asymmetric graphs 
+when there is a separate coalescence parameter for each location.}
+\label{fig:mult_noise}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=.6]{figs/mult_noise_iqr}
+\caption{Boxplots of the mean interquartile ranges of the posterior distributions of $g$
+for each of the 25 graphs in each situation.
+Each box is labeled with the relative amount of noise added to $H$ to make $\hat{H}$.
+Subplot locations for each situation are the same as in Figure \ref{fig:mult_noise}.
+%The top left shows the results for symmetric graphs 
+%when there is a single coalescence parameter for all locations,
+%the top right for symmetric graphs 
+%when there is a separate coalescence parameter for each location,
+%the bottom left for asymmetric graphs 
+%when there is a single coalescence parameter for all locations,
+%and the bottom right for asymmetric graphs 
+%when there is a separate coalescence parameter for each location.
+}
+\label{fig:mult_noise_iqr}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[scale=.6]{figs/mult_gam}
+\caption{
+Boxplots of the mean absolute error, %in $\hat{g}$.
+defined to be the absolute value difference between the true value and posterior median,
+averaged across movement parameters $g$ for each of the 25 graphs in each situation.
+Each box is labeled with the coalescence rate in the underlying model for each situation.
+Subplot locations for each situation are the same as in Figure \ref{fig:mult_noise}.
+%The top left shows the results for symmetric graphs 
+%when there is a single coalescence parameter for all locations,
+%the top right for symmetric graphs 
+%when there is a separate coalescence parameter for each location,
+%the bottom left for asymmetric graphs 
+%when there is a single coalescence parameter for all locations,
+%and the bottom right for asymmetric graphs 
+%when there is a separate coalescence parameter for each location.
+}
+\label{fig:mult_gam}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=.6]{figs/mult_gam_iqr}
+\caption{Boxplots of the mean interquartile ranges of the posterior distributions of $g$
+for each of the 25 graphs in each situation.
+Each box is labeled with the coalescence rate in the underlying model for each situation.
+Subplot locations for each situation are the same as in Figure \ref{fig:mult_noise}.
+%The top left shows the results for symmetric graphs 
+%when there is a single coalescence parameter for all locations,
+%the top right for symmetric graphs 
+%when there is a separate coalescence parameter for each location,
+%the bottom left for asymmetric graphs 
+%when there is a single coalescence parameter for all locations,
+%and the bottom right for asymmetric graphs 
+%when there is a separate coalescence parameter for each location.
+}
+\label{fig:mult_gam_iqr}
+\end{figure}
+
+
+\begin{figure}
+\centering
+     \includegraphics[scale=0.8]{figs/5x3boxplots}
+    \caption{Posterior distributions for values of $g$ 
+    for the 5 $\times$ 3 graph with barriers 
+    for each of the analysis cases.
+    See Figure \ref{fig:5x3b_grid} to see movement parameter locations.
+    \plr{TODO: put bottom two panels on top; on the bottom put the same thing for commute time}
+}
+    \label{fig:5x3boxplots_mult_gam}
+\end{figure}
+
+
+\begin{figure}
+\centering
+     \includegraphics[scale=.8]{figs/4x4_grids}
+    \caption{Plots of the grid structure 
+    for the uniform graph, symmetric graph, the asymmetric graph,
+    and the biased asymmetric graph 
+    using the igraph R package.}
+    \label{fig:4x4_grids}
+\end{figure}
+
+
+\begin{figure}
+\centering
+     \includegraphics[scale=.8]{figs/grid_5x3b_1}
+    \caption{Medians of the posterior distributions of the inferred values of $g$ 
+    for the first replicate of the $5 \times 3$ landscape with barriers.
+    The gene flow rate across the barriers are small, 
+    but there is no clear pattern amoung the rest of the values.}
+    \label{fig:grid_5x3b_1}
+\end{figure}
 
 \end{document}

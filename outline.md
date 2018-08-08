@@ -11,12 +11,12 @@
 - computing hitting times of Markov chains (brief)
 - solving for commute time
 - solving for coalescence time
+- nonuniqueness: simple example and math theory
 - MCMC method (brief)
 - example graphs and simulations
 
 # Results
 
-- nonuniqueness: simple example and math theory
 - coalescent times work better than commute times: comparing the two on the four types of graph (Fig 20)
 - biased migration is bad for commute times: figure 19 showing the two against each other, and the simple example
 - continuous space: can find big barriers but lots of between-replicate variability (life is still hard)
