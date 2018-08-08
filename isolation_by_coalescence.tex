@@ -9,7 +9,7 @@
 
 \bibliographystyle{plainnat}
 
-\newcommand{\Dcom}{\widetilde D}
+\newcommand{\comdist}{\widetilde R}
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
@@ -41,9 +41,6 @@
 
 \begin{abstract}
 \end{abstract}
-
-% NOTE: I tend to use semantic linebreaks.
-% Please excuse the ragged right margins in the source.
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -137,119 +134,97 @@ are two ways to do this.
 %%%%%%%%%%%%%%%%%%
 \section*{Methods}
 
+
+The \emph{commute time} of a Markov chain between locations $i$ and $j$
+is the mean time it takes a particle moving according to the rules of the chain, 
+started at $i$, to first reach $j$ and then return.
+We will denote this by $R_{ij}$, to emphasize that it is also the effective resistance
+between $i$ and $j$.
+The \emph{coalescence time} is the mean time it takes two particles started at $i$ and $j$
+to \emph{coalesce},
+which happens at a given rate whenever they are in the same location.
+We will denote this by $C_{ij}$.
+Why should these be related to genetic distance? 
+First, we explain this connection,
+and then discuss their computation and application.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Genetic distance and coalescence time}
 
-\plr{pasted in: divergence is coalescence of lineages}
-The genetic distance between
-individuals, which provides a good estimate of the average time to a common ancestor along the genome, or
-the average coalescence time. Coalescence is the process in which genes or regions of the genome from two
-or more individuals, if traced back in time, eventually share a common origin [Wakeley, 2005]. While we
-cannot know exactly when this happens, if we assume the rate of mutation per nucleotide per generation is
-relatively constant, we can use the number of differences between two copies of a gene to estimate how much
-time has passed since their common ancestor. With enough loci, we can calculate an estimate for
-the average coalescence time across the genome [Hudson, 2007].
+There are a number of ways to calculate measures of dissimilarity using genetic data \citep{distances}.
+In this paper we use mean pairwise divergence:
+for two genomes, it is calculated as the density of sites at which the two differ.
+The genomes differ at a site only if there has been a mutation in some ancestor on the lineages leading
+from the two genomes back to their most recent common ancestor at that site;
+under an infinite-sites model with average mutation rate $\mu$ per site and per meiosis,
+pairwise divergence is therefore an unbiased estimate of the mean time to most recent common ancestor,
+averaged across the genome \citep{hudson2007variance,ralphXX}.
+It is natural to model this process by following the two lineages back through time
+(and across space)
+until they find their most recent common ancestor,
+i.e., until they coalesce.
+It is common to model the geographic distribution of a species
+as a collection of randomly mating populations
+that exchange occasional migrants,
+thus discretizing geographic space.
+If the genome is selectively netural,
+then the motion of these lineages back through time
+forms a Markov process, the \emph{structured coalescent} \citep{wakeley2005coalescent}.
+In this framework, each lineage performs a random walk across the populations,
+with movement probabilities depending on the flux of individuals between populations.
+This provides the link between genetic distance and random walks.
 
-\plr{pasted in: lineages as random walks}
-Even though the population dynamics in forwards time are Markov, the dynamics of lineages traced back
-in time (the coalescent process) may not be. For example, if fecundity is variable and population density
-is low, two lineages near each other are more likely to share a recent common origin, so knowing how one
-lineage moves gives you information about how the other lineage is likely to move. This effect becomes
-negligible as population density increases [Barton et al., 2002]), so it should not be an issue if the offspring
-of any one parent are typically interspersed with the offspring of many others. The methods I develop here
-model the coalescent process as Markov, which should be a good approximation for many systems.
-
-\plr{Pasted in, needs transition; make understandable without the below}
-The mean commute time of a location to itself is zero,
-so to fit to genetic data, we clearly must also account for local diversity.
-\plr{say why}
-Coalescence time does not have this property,
-because coalescence time accounts for both the first meeting time and the eventual coalescence,
-while commute time is more analagous to the first meeting time.
-For local diversity, we will also have another set of model parameters, $q$, 
-where $q_{i}$ approximates the observed coalescence time in location $i$.
-As is done by \citet{petkova2016visualizing},
-we use commute time to approximate genetic distance as
-\begin{align} \label{eq:hcom}
-	D_{ij} \approx \Dcom_{ij} = R_{ij}/4 + q_{i}/2 + q_{j}/2 .
+For data, we are given genotypes of individuals and their geographic coordinates;
+then, we divide these individuals into groups,
+and compute the genetic distance between group $i$ and group $j$
+as the mean divergence between a pair of genomes, chosen one from each group.
+We denote the resulting genetic distance $D_{ij}$;
+since divergence is symmetric, $D_{ij} = D_{ji}$.
+We compute $D_{ii}$ by sampling without replacement from group $i$,
+so that generally $D_{ii} > 0$: the diagonal elements measure local diversity.
+As discussed below, we will find commute times so that the mean commute time between
+$i$ and $j$ matches $D_{ij}$ -- but the commute time of a location to itself is zero,
+so we must account for local diversity.
+We do this in the same way as \citet{petkova2016visualizing},
+by introducing another set of model parameters, $q$, 
+that fill the same role as the coalescence rates, $\gamma$.
+Then, we use commute time to approximate genetic distance as
+\begin{align} \label{eq:commute_approx}
+	D_{ij} \approx \comdist{ij} = R_{ij}/4 + q_{i}/2 + q_{j}/2 .
 \end{align}
-To gain an intuitive feel for why resistance distance is divided by 4, 
-consider how, if the movement rates are symmetric, 
-a single particle moving from one state to another is similar to (but not the same as)
-the first meeting time of two particles, 
-one moving forward in time from the first location 
-and the second one moving backward in time from the other, 
-so it is similar to twice the first meeting time.
-Since the commute time is the sum of the hitting times in each direction, 
-it is similar to 4 times the first meeting time.
+The factor of four appears to make commute time more similar to coalescence time:
+the commute time covers the path from $i$ to $j$ twice
+(once in both directions),
+while the coalescence time covers the distance only once,
+and in half the time, because two particles are moving.
+Furthermore, coalescence time includes within-location diversity,
+because particles do not coalesce instantly --
+commute time is most analogous to the first meeting time.
 For a conceptual picture of the differences between the coalescence time and commute time,
 see Figure \ref{fig:concept_coalcom}. 
-The average of the local diversity estimates ($q$) are then added 
-to the first meeting time estimate to account for the eventual coalescence after meeting.
-%\emph{Briefly motivate by describing "first meeting" plus "subsequent coalescence" -> 
-%	commute + diversity approximation.}
-In this case, these values
-are parameters in the model to be inferred instead of within deme coalescence rates ($\gamma$).
-Since the values a $q$ are typically fairly easy to infer 
-and requiring them all to be the same can significantly decrease the quality of the fit, 
-we will not be using an analogue of Problem Modification \ref{probmod:const-coal} 
-(where we would only have one parameter for $q$).
-Commute time inference has the advantage of only needing to use the base Markov chain
-instead of the product chain,
-but it also leads to incorrect inferences in certain circumstances.
-Using the base Markov chain instead of the product chain is advantageous 
-because, as the grid size increases, it is much more computationally efficient 
-to work with a Markov chain with $n$ states than $n^2$ states 
-since the matrices would be much smaller.
 
 \begin{figure}
 \centering
-% \includegraphics[scale=.5]{conceptn}
-\caption{Illustration of the conceptual differences
-betweeen coalescence and commute time between states 1 and 3 
-for a continuous time Markov chain with four linearly connected states. 
-Coalescence time (left) is the time for two independently moving particles to meet and coalesce 
-(it is possible for them to be in the same location without coalescing).
-Commute time is time for a single particle starting in one state to travel to another state 
-and then back to the original state.
-Note how the time axis is scaled to be faster in the figure showing commute time
-than the one for coalescence time in order for them to fit in the same space.}
-\label{fig:concept_coalcom}
-\end{figure}
-
-For a simple example where the coalescence times and commute time approximations are very different, 
-consider a system of three islands in a line,
-where lineages currently in the outer islands are much more likely to come from the central island
-than the other way around.
-In this case, lineages are likely to quickly move to the center and coalesce regardless of starting position,
-so coalescence time will be relatively short between all individuals.
-Commute time between the two outer locations, on the other hand,
-will be much longer since it requires the lineage to leave the center.
-If we plug real numbers into this example, say, 
-reverse time gene flow rate of $1$ into the center and $0.1$ out of it
-with $\gamma=1$ everywhere,
-then $H_{13}=H_{31}=2.90$ but $\Dcom_{13}=\Dcom_{31}=7.94$.
-However, the fact that $\Dcom$ as predicted from the correct parameters may be far from $H$
-does not mean that the parameters inferred using resistance distance methods
-will necessarily be very wrong.
-In principle, it still might be that the parameters for which $\Dcom$ is closest to $H$ 
-are close to the real parameters, 
-at least in some situations.
-
-\begin{figure}
-\centering
-% \includegraphics[scale=.5]{three_state_example}
-\caption{A simple example where the coalescence time and commute time based approximation
-are very different.
-In this case, commute time between the two outer locations will be much longer 
-than coalescence time.}
-\label{fig:3_state}
+    % \includegraphics[scale=.5]{conceptn}
+    \caption{
+    Illustration of the conceptual differences
+    betweeen coalescence and commute time between states 1 and 3 
+    for a continuous time Markov chain with four linearly connected states. 
+    Coalescence time (left) is the time for two independently moving particles to meet and coalesce 
+    (it is possible for them to be in the same location without coalescing).
+    Commute time is time for a single particle starting in one state to travel to another state 
+    and then back to the original state.
+    Note how the time axis is scaled to be faster in the figure showing commute time
+    than the one for coalescence time in order for them to fit in the same space.
+    } \label{fig:concept_coalcom}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Hitting times of Markov chains}
 
-First, we explain how to compute the relevant quantities --
+Now, we explain how to compute the relevant quantities --
 mean commute and coalescence times -- from a Markov chain model of lineage movement.
 The Markov chain is defined by its \emph{generator matrix}, denoted $G$,
 for which $G_{xy}$ gives the jump rate from $x$ to $y$.
@@ -349,11 +324,11 @@ In matrix notation, this is
 where $\diag(\gamma)$ is the matrix with the vector $\gamma$ on the diagonal and zeros elsewhere,
 and $\circ$ is the componentwise product.
 This can also be seen by working with the product Markov chain $(X_t, Y_t)$,
-whose generator matrix is $G \prod I + I \prod G$,
-where $I$ is the identity matrix and $\prod$ is the Kronecker product.
+whose generator matrix is $G \otimes I + I \otimes G$,
+where $I$ is the identity matrix and $\otimes$ is the Kronecker product.
 
 Equation \eqref{eqn:C_matrix} is linear in $G$ and $\gamma$,
-and so can be solved with straightforward linear algebra.
+and so after rearrangement can be solved with standard linear algebra.
 If $\gamma$ is given, then solving for $G$ is an example of a XXX equation \citep{matrixeqn}.
 However, the solution is again not necessarily unique:
 suppose that we have a matrix $Z$ such that $ZH$ is antisymmetric.
@@ -423,10 +398,11 @@ G =
 \end{align*}
 Writing out equation \ref{eqn:C_matrix}, we get three unique equations
 for the coalescence times:
+\plr{simplify these equations and remove matrix version?}
 \begin{align*}
-   -1 &= -C_{11} G_{12} + C_{21} G_{12} - C_{11} G_{12} + C_{12} G_{12} - C_{11} \gamma_1 \\
-   -1 &=  C_{11} G_{21} - C_{21} G_{21} - C_{21} G_{12} + C_{22} G_{12} \\
-   -1 &=  C_{12} G_{21} - C_{22} G_{21} + C_{21} G_{21} - C_{22} G_{21} - C_{22} \gamma_2 .
+   -C_{11} G_{12} + C_{21} G_{12} - C_{11} G_{12} + C_{12} G_{12} - C_{11} \gamma_1 &= -1 \\
+    C_{11} G_{21} - C_{21} G_{21} - C_{21} G_{12} + C_{22} G_{12}                   &= -1 \\
+    C_{12} G_{21} - C_{22} G_{21} + C_{21} G_{21} - C_{22} G_{21} - C_{22} \gamma_2 &= -1 .
 \end{align*}
 Given $C$, we have three equations for the four unknowns, 
 $G_{12}$, $G_{21}$, $\gamma_{1}$, and $\gamma_{2}$.
@@ -498,96 +474,148 @@ Here, we use
 the exact solutions based on linear algebra developed above
 to develop a Bayesian inference method that accounts for noise in the data
 and estimates uncertainty in the resulting estimates.
-Suppose that $\hat{C}_{ij} = C + \epsilon_{ij}$,
-where $\epsilon$ is Normally distributed
-with mean $\mathbf{0}$ and covariance $\Sigma$.
-For now, we will make a few assumptions about $\epsilon$.
-First, that all $\epsilon_{ij}$ are independent, identically distributed $\mathcal{N}(0,\sigma_{\epsilon}^2)$
-for $i \leq j$, and $\epsilon_{ij} = \epsilon_{ji}$.
-Additionally, we will assume that $C_{ij}$ is large compared to $\sigma_{\epsilon}$
-such that the probability that a value of $\hat{C}$ is ever negative is negligible.
-Writing $f(\mathbf{x})$ as the probability density function of 
-the multivariate normal distribution $\epsilon$,
-the likelihood function for the pair $(G,\gamma)$ is
-\begin{align*}
-\mathcal{L}(G,\gamma;\hat{C}) &= f(\mathcal{C}(G,\gamma) - \hat{C}) \\
-			      &= f(-(G^*-\text{diag$(\Gamma)$})^{-1} \mathbf{1} - \hat{C})
-\end{align*}
-recalling that $\mathcal{C}$ is the hitting time matrix for a given pair $(G,\gamma)$
-defined by equation \ref{eq:solve_H}. 
-If $\hat{C}$ is a valid coalescence time matrix,
-we can find the maximum likelihood estimate (MLE) of $G$;
-however, this is in practice unlikely to happen, 
-and the likelihood function is still useful 
-for providing information about the uncertainty of $G$.
+To do this, we model genetic distances as equal to coalescence times plus noise:
+$D_{ij} = C_{ij} + \epsilon_{ij}$,
+where $\epsilon_{ij}$ are independent and Normally distributed
+with mean $\mathbf{0}$ and variance $\sigma_\epsilon^2$,
+except that $\epsilon_{ij} = \epsilon_{ji}$.
+(We imagine that $C_{ij}$ is large compared to $\sigma_{\epsilon}$,
+so that resulting values are still positive.)
+Using the calculations above, 
+given $G$ and $\gamma$ we can compute the corresponding coalescence times
+-- call these $\mathcal{C}(G, \gamma)$ --
+so our model is that $D$ has a Gaussian distribution 
+with mean $\mathcal{C}(G, \gamma)$.
+The maximum likelihood estimate of $G$ could be found directly;
+however, this in practice will quite likely contain negative movement rates,
+and does not allow us to impose constraints
+(such as only allowing a subset of movement rates to be nonzero).
 
-To complete the Bayesian model,
-we place priors on the parameters.
-Let's say that $i$ is said to be adjacent to $j$ if $i \neq j$ and $G_{ij}$ is one of 
-the values known to be non-zero.
-Then we could let the prior probability density for the movement parameters be that of an 
-exponential random variable with rate parameter $\lambda_{G}$. 
-That is, the prior likelihood of $G$ would be
-\begin{align*}
-\mathcal{L}_G(G) = 
-\begin{cases}
-	\lambda_{G}^{m_G} \prod_{i \sim j} e^{-\lambda_{G} G_{ij}} 
-		\quad & \text{for $G_{ij} \geq 0 \quad \forall \ i \neq j$} \\
-	0 & \text{otherwise}
-\end{cases}
-\end{align*}
-where $i \sim j$ means that $i$ and $j$ are adjacent and $m_G$ is the number of positive values of $G$. 
-Similarly, we can put a prior density on $\gamma$:
-\begin{align*}
-\mathcal{L}_{\gamma}(\gamma) = 
-\begin{cases}
-	\prod_{i}^{n} \lambda_{\gamma} e^{-\lambda_{\gamma}\gamma_i} 
-		\quad & \text{for $\gamma_i \geq 0 \quad \forall \ i$} \\
-	0 & \text{otherwise.}
-\end{cases}
-\end{align*}
-Recall that $n$ is the number of states in the single particle Markov chain.
-If we assume that all $\epsilon_{ij}$ are IID with $\epsilon_{ij} \sim \mathcal{N}(0,\sigma_{\epsilon}^2)$ 
-for $i \leq j$
-we can write the likelihood for $\hat{C}$:
-\begin{align*}
-\mathcal{L}(\hat{C};G,\gamma) = \frac{1}{(2 \pi \sigma_{\epsilon}^2)^{m/2}} \prod_{i \leq j}
-	\exp\left\{-\frac{(\mathcal{C}_{ij}(G,\gamma) - \hat{C}_{ij})^2}{2 \sigma_{\epsilon}^2}\right\},
-\end{align*}
-where $m$ is the number of nonmissing values on or above the diagonal in $\hat{C}$.
-Then the posterior distribution is
+Therefore, we use Bayesian inference,
+placing independent exponential priors on the parameters --
+on those movement rates $G_{ij}$ that are not constrained to be zero,
+and on the coalescence rates, $\gamma$.
+Concretely, suppose that the spatial arrangement of populations is given by a graph,
+and only movement rates corresponding to edges in the graph are allowed to be nonzero.
+Write $i \sim j$ to mean that $i$ and $j$ are adjacent in the graph,
+that there are $m_G$ edges in the graph,
+and that each of the $n$ populations has its own coalescence rate.
+Then, the resulting log-posterior density is
 \begin{align} \label{eq:post}
-\mathcal{L}(\hat{C};G,\gamma) \mathcal{L}_{G}(G) \mathcal{L}_{\gamma}(\gamma) = 
-	\frac{\lambda_{G}^{m_G} \lambda_{\gamma}^n}{(2 \pi \sigma_{\epsilon}^2)^{m/2}}
-	\exp\{-\sum_{i \sim j} \lambda_G G_{ij} -\sum_{i}^n \lambda_{\gamma}\gamma_i
-		-\frac{1}{2 \sigma_{\epsilon}^2} \sum_{i \leq j} (\mathcal{C}_{ij}
-		(G,\gamma) - \hat{C}_{ij})^2 \}
+\mathcal{L}(D, G, \gamma) 
+    &=
+    2 m_G \log(\lambda_G) + n \log(\lambda_\gamma) 
+    - \frac{n(n+1)}{2} \log(2 \pi \sigma^2_\epsilon)
+	- \sum_{i \sim j} \lambda_G G_{ij}  \\
+    &\qquad
+    -\sum_{i=1}^n \lambda_{\gamma}\gamma_i
+		-\frac{1}{2 \sigma_{\epsilon}^2} \sum_{i \leq j} \left(
+            \mathcal{C}_{ij}(G,\gamma) - D_{ij}
+        \right)^2 
 \end{align}
-with the same support over $G$ and $\gamma$ as in their individual priors.
-To sample from this distribution, 
-we will use the Metropolis-Hastings algorithm \citep{brooks2011handbook}. 
+Here $1/\lambda_\gamma$ and $1/\lambda_G$ are the prior means of $\gamma_i$ and $G_{ij}$,
+respectively.
 
+Inference with commute times is done in exactly the same way,
+except that $q$ replaces $\gamma$,
+and instead of $\mathcal{C}(G,\gamma)$ we use $\comdist(G, q)$
+as defined in equation \eqref{eq:commute_approx}.
 
-\paragraph{Incomplete observations}
-With real world data, 
-unless the number of states is small or we have a large amount of data,
-our pairwise average coalescent time matrix will have a large number of unobserved values.
-For example, if our landscape is a $20 \times 20$ grid and we take $100$ samples, 
-each from a different grid square,
-we would have only $100(101)/2$ out of $400(401)/2$ of the unique values for $H$. 
-(Note that we are including the self-comparisons in this example;
-if the organisms were haploid or inbreeding were substantial,
-our $H$ matrix would have only $99(100)/2$ usable values.)
+It is not required in this approach to have samples from every spatial location,
+allowing inference on incompletely sampled spatial discretizations.
 To carry out inference in this situation,
 we simply use Equation \ref{eq:post},
-but the rightmost sum will be only over observed entries of H.
+but only summing over observed entries of $D_{ij}$.
 
-%%%%%%%%%%%%%%%%
+\paragraph{MCMC methods}
+To sample from the posterior distribution of equation \eqref{eq:post}, 
+we used R \citep{R} 
+to implement a standard Metropolis-Hastings algorithm with Gaussian proposals \citep{brooks2011handbook}.
+Starting locations were chosen by sampling from the prior distribution.
+Before the usual ``burn-in'' phase before sampling for inference begins,
+we included a period of ``pre-burn-in'' which used the same MCMC procedure
+with a larger $\sigma_\epsilon$, to allow the chain to more quickly converge on the high-posterior
+portion of parameter space.
+Typically, we ran MCMC for $10^6$ iterations of pre-burn-in 
+and $3 \time 10^6$ iterations of burn-in,
+followed by $4 \times 10^6$ iterations which were used to estimate posterior distributions.
+We used standard methods to assess convergence and mixing.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Test cases and simulations}
 
-\plr{describe graphs and slim sims}
+We compared inference under coalescence and commute time models
+using both data ``from the model'' and more realistic simulations.
+For the first category, we designed a number of graphs to test particular aspects of inference,
+with migration rates specified on each directed edge
+(plotted below using igraph \citep{igraph}).
+Then we calculated exact coalescence and commute times on these graphs,
+and added Gaussian noise independently to each entry of the resulting matrices
+(while preserving symmetry)
+as described above.
+Particular parameters and levels of noise are given in the Results.
 
-\plr{MCMC methods: pre-burnin, burnin, number of iterations, trace plots}
+These simulations are expected to be nearly equivalent to population-based simulations
+(either forwards-time or coalescent);
+the only difference being that noise terms about the theoretical mean should be somewhat correlated.
+
+\paragraph{Forwards-time simulations}
+To produce realistic data, we implemented forwards-time simulations using SLiM v3.0 \citep{haller2017},
+with individuals living across continuous, two-dimensional space (sometimes with barriers),
+from which we recorded genomic data.
+We performed three types of simulation:
+uniform migration on a continuous square landscape, 
+uniform migration on a rectangular landscape with barriers to migration, 
+and biased migration on a square landscape.
+Each simulation had $10^4$ diploid, hermaphroditic individuals with nonoverlapping generations.
+Mates were selected from nearby individuals using a Gaussian kernel with standard deviation $\sigma_d$,
+truncated at $3 \sigma_d$.
+Offspring are dispersed away from the mother using the same kernel,
+conditioned to lie within the habitable area.
+In each simulation, $\sigma_d$ was chosen 
+so that there were an average of 0.25 individuals per $\sigma_d^2$ units of area.
+In order to prevent excessive population clumpiness \citep{felsensten1975pain}, 
+we also model local competition. 
+To do this, we use the same truncated Gaussian kernel to define an ``interaction strength''
+between each pair of nearby individuals;
+then, the fitness of each individual is set to $\exp(-x/40)$, 
+where $x$ is the sum of their interaction strengths with other individuals.
+This reduces fitness for individuals in denser areas.
+Individuals are chosen to reproduce proportional to their fitness.
+Clumpiness is similar to what is seen in 
+Figure \ref{fig:ind_locs_5x3b_1}
+
+Individuals have 10 pairs of ``chromosomes'' with $2 \times 10^5$ loci each 
+and a recombination rate of $10^{-8}$ per generation per locus.
+Mutation rate was $10^{-8}$ per locus for the simulation with uniform migration and no barrier,
+and $10^{-7}$ for the remaining simulations.
+In all cases, the number of mutations was more than adequate to reliably estimate genetic distance.
+
+To compute genetic distances,
+geographic space was partitioned into rectangular regions as depicted below.
+within each region, 
+individuals are sampled uniformly for ``genotyping'' 
+from among those within the middle three quarters of each dimension of rectangle,
+as shown for one situation in Figure \ref{fig:ind_locs_5x3b_1}.
+This protocol was chosen as a compromise between sampling all individuals 
+from near the center of each location,
+which could result in a large number of close relatives being sampled, 
+leading to an underestimate of the mean genetic distance for individuals in that location
+and uniform sampling from the whole area of each grid, 
+which may result in many sampled individuals being very close to other grid squares.
+Mean genetic distances for each pair of regions is then computed as described above
+from genome sequence provided by SLiM.
+To estimate uncertainty, we computed the standard error of these mean distances
+using the minumum number of individuals in each location.
+
+Before being passed to the MCMC inference method,
+we rescaled genetic distances so that the movement rates resulting from the inference
+would be approximately of order one.
+We did this by multiplying genetic distances by a constant
+so that the rescaled mean of the entries of $D$
+is equal to the number of locations in the discretization. 
+
 
 
 %%%%%%%%%%%%%%%%%%
@@ -697,7 +725,7 @@ and one asymmetric graph where there is a bias in moving towards one direction i
 For the symmetric and unbiased asymmetric graphs, movement parameters are chosen randomly as before.
 In the biased asymmetric graph, all parameters for moving left or down are 2 while 
 all parameters moving right or up are 0.5.
-Differences between true mean coalescence times ($H$) and mean commute times ($\Dcom$) 
+Differences between true mean coalescence times ($H$) and mean commute times ($\comdist$) 
 are shown for each graph in Figure \ref{fig:4x4coalvcomH}. 
 The differences are fairly small in the uniform and symmetric cases, moderate in the asymmetric case, 
 and extreme in the biased asymmetric case.
@@ -712,7 +740,7 @@ mean absolute errors in $\hat{g}$ of 0.30 and 0.12 respectively for the uniform 
 0.49 and 0.053 for the symmetric graph, 
 0.87 and 0.035 for the asymmetric graph,
 and 3.27 and 0.053 for the biased asymmetric graph, respectively.
-We can see that, as expected based on the differences between $H$ and $\Dcom$,
+We can see that, as expected based on the differences between $H$ and $\comdist$,
 the coalescence time inference performs very well in all four test cases
 while the commute time inference performs fairly well in uniform and symmetric cases,
 poorly in the asymmetric case, and very poorly in the biased asymmetric case.
@@ -742,7 +770,7 @@ using the igraph R package.}
 \begin{figure}
 \centering
 % \includegraphics[scale=.8]{4x4coalvcomH}
-\caption{Plots of the true values of $\Dcom$ vs $H$ 
+\caption{Plots of the true values of $\comdist$ vs $H$ 
 for the uniform graph, symmetric graph, the asymmetric graph,
 and the biased asymmetric graph, 
 shown with the $y=x$ line.
@@ -1102,6 +1130,25 @@ practical example (tortoises) shows strong asymmetry
 
 but methods dealing with ill-posedness are necessary
 
+other measures of genetic distance: what do people use in practice?
+
+\paragraph{Consequences for resistance methods}
+We have shown that commute time can show dramatically different patterns
+than coalescence time, especially if there is systematic bias in dispersal.
+How should this affect the results of resistance-based methods to genomic data,
+besides general inaccuracy?
+Suppose, for instance, that seed dispersal for a species of tree
+is biased downhill,
+and the landscape is dominated by a large valley.
+Since lineages tend to move uphill,
+genetic distance between locations on opposite slopes of the valley will be relatively large,
+so resistance methods will infer a barrier along the bottom of the valley
+when no barrier to dispersal exists.
+On the other hand, if there is a ridge instead of a valley,
+resistance methods will show no barrier (and relatively high movement rates),
+even if there is very little uphill dispersal.
+This could lead to a falsely high assessment of gene flow across the top of the ridge.
+
 
 With these methods, we provide a framework for
 inferring demographic parameters of 
@@ -1121,7 +1168,7 @@ While the primary focus is coalescence time based inference,
 we also compare the results with that of resistance distance (i.e., commute time) based inference.
 Coalescence based inference typically has lower error than commute time based inference,
 along with the benefit that you can also infer coalescence rates. 
-The commute time plus diversity estimate, $\Dcom$, 
+The commute time plus diversity estimate, $\comdist$, 
 provides a good estimate of the coalescence times, $H$,
 when gene flow rates are symmetric ($G_{ij} = G_{ji}$), 
 but can be very wrong when they are asymmetric, 
@@ -1158,6 +1205,15 @@ even when the landscape is otherwise relatively well connected.
 Further work could involve more precise study of the relationship
 between reverse time gene flow rates and forwards time migration rates.
 
+
+\plr{pasted in: nonmarkov lineages}
+Even though the population dynamics in forwards time are Markov, the dynamics of lineages traced back
+in time (the coalescent process) may not be. For example, if fecundity is variable and population density
+is low, two lineages near each other are more likely to share a recent common origin, so knowing how one
+lineage moves gives you information about how the other lineage is likely to move. This effect becomes
+negligible as population density increases [Barton et al., 2002]), so it should not be an issue if the offspring
+of any one parent are typically interspersed with the offspring of many others. The methods I develop here
+model the coalescent process as Markov, which should be a good approximation for many systems.
 
 
 \bibliography{references}
