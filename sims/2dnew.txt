@@ -1,0 +1,119 @@
+initialize() {
+ //set aspect ratio of map
+ aspectRatio = 1;
+ defineConstant("ASPF",sqrt(aspectRatio));
+
+ //size of population
+ popSize = 10000; 
+ defineConstant("POP",popSize);
+
+ //scaling factor based on population (effectively make area bigger)
+ scaleFactor = 100/sqrt(popSize);  //relative to pop size of 10k in one unit of area
+ defineConstant("SCALEF",scaleFactor);
+
+ //standard deviation of competition kernel
+ compSD = 0.005;
+ defineConstant("COMPSD",compSD);
+
+ //standard deviation of mate selection
+ mateSD = 0.005;
+ defineConstant("MATESD",mateSD);
+
+ //chromosomes
+ defineConstant("C", 10);
+ //chromosome length
+ defineConstant("GC", 2e5);
+
+ //print(paste("1","2"));
+ 
+ //make filepath
+ //filePath = paste0(c("~/Documents/data/slim/",popSize,"/",C,"/",ASPF,"/0/"));
+ defineConstant("FPATH",paste0(c(OUTDIR,"/")));
+
+ initializeSLiMOptions(dimensionality="xy");
+ initializeMutationRate(1e-8);
+ initializeMutationType("m1", 0.5, "f", 0.0);
+ initializeGenomicElementType("g1", m1, 1.0);
+ //initializeGenomicElement(g1, 0, 0);
+ initializeRecombinationRate(1e-8);
+ // spatial competition
+ initializeInteractionType(1, "xy", reciprocal=T, maxDistance=3*COMPSD*SCALEF); 
+ i1.setInteractionFunction("n", 3.0, COMPSD*SCALEF);
+ // spatial mate choice
+ initializeInteractionType(2, "xy", reciprocal=T, maxDistance=3*MATESD*SCALEF);
+ i2.setInteractionFunction("n", 1.0, MATESD*SCALEF);
+
+ //split genome into chromosomes
+ pos=0;
+ for(i in 1:C){
+ 	initializeGenomicElement(g1,pos,pos+GC-1);
+	pos = pos + GC;
+ }
+}
+
+1 late() {
+sim.addSubpop("p1", POP);
+p1.setSpatialBounds(c(0.0,0.0,ASPF,1/ASPF));
+for (ind in p1.individuals)
+ ind.setSpatialPosition(p1.pointUniform());
+}
+
+1: late() {
+i1.evaluate();
+i2.evaluate();
+}
+
+fitness(NULL) {
+ totalStrength = i1.totalOfNeighborStrengths(individual);
+return exp(-totalStrength / 40); 
+}
+
+1: mateChoice() {
+// spatial mate choice
+return i2.strength(individual);
+}
+
+modifyChild() {
+do pos = parent1.spatialPosition + rnorm(2, 0, 0.005*SCALEF);
+while (!p1.pointInBounds(pos));
+ child.setSpatialPosition(pos);
+return T;
+}
+
+//2000 late() { sim.outputFixedMutations(); } 
+10000 late() {	sample_ind = sample(p1.individuals,POP);
+		print("working...");
+		sample_ind.genomes.outputMS(filePath=paste0(c(FPATH,"ms.txt")),append=F); 
+		writeFile(paste0(c(FPATH,"positions.txt")),"index x y",append=F);
+		for (ind in sample_ind){		
+			writeFile(paste0(c(FPATH,"positions.txt")), 
+				paste(c(ind.index,format("%f",ind.spatialPosition[0:1]))),append=T);
+		}
+		}
+50000 late() {	sample_ind = sample(p1.individuals,POP);
+		sample_ind.genomes.outputMS(filePath=paste0(c(FPATH,"ms1.txt")),append=F); 
+		writeFile(paste0(c(FPATH,"positions1.txt")),"index x y",append=F);
+		for (ind in sample_ind){		
+			//ind.genomes.outputMS();
+			writeFile(paste0(c(FPATH,"positions1.txt")), 
+				paste(c(ind.index,format("%f",ind.spatialPosition[0:1]))),append=T);
+		}
+		}
+100000 late() {	sample_ind = sample(p1.individuals,POP);
+		sample_ind.genomes.outputMS(filePath=paste0(c(FPATH,"ms2.txt")),append=F); 
+		writeFile(paste0(c(FPATH,"positions2.txt")),"index x y",append=F);
+		for (ind in sample_ind){		
+			//ind.genomes.outputMS();
+			writeFile(paste0(c(FPATH,"positions2.txt")), 
+				paste(c(ind.index,format("%f",ind.spatialPosition[0:1]))),append=T);
+		}
+		}
+200000 late() {	sample_ind = sample(p1.individuals,POP);
+		sample_ind.genomes.outputMS(filePath=paste0(c(FPATH,"ms3.txt")),append=F); 
+		writeFile(paste0(c(FPATH,"positions3.txt")),"index x y",append=F);
+		for (ind in sample_ind){		
+			//ind.genomes.outputMS();
+			writeFile(paste0(c(FPATH,"positions3.txt")), 
+				paste(c(ind.index,format("%f",ind.spatialPosition[0:1]))),append=T);
+		}
+		}
