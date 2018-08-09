@@ -325,9 +325,10 @@ In matrix notation, this is
 \end{align}
 where $\diag(\gamma)$ is the matrix with the vector $\gamma$ on the diagonal and zeros elsewhere,
 and $\circ$ is the componentwise product.
-This can also be seen by working with the product Markov chain $(X_t, Y_t)$,
+In practice, we solve this by working with the product Markov chain $(X_t, Y_t)$,
 whose generator matrix is $G \otimes I + I \otimes G$,
 where $I$ is the identity matrix and $\otimes$ is the Kronecker product.
+\plr{say a bit more about how we solve this?}
 
 Equation \eqref{eqn:C_matrix} is linear in $G$ and $\gamma$,
 and so after rearrangement can be solved with standard linear algebra.
@@ -345,8 +346,8 @@ but this is not guaranteed in general.
 \paragraph{Constraints and uniqueness}
 We have seen that to find the movement rates of a continuous-time Markov chain
 given the coalescence or commute times
-we must solve equations \eqref{eqn:C_matrix} or \eqref{eqn:R_from_H} and \eqref{G_from_H} for $G$,
-and that these do not hae unique solutions.
+we must solve equations \eqref{eqn:C_matrix} or \eqref{eqn:R_from_H} and \eqref{eqn:G_from_H} for $G$,
+and that these do not have unique solutions.
 The situation is worse when one needs to infer coalescence rates ($\gamma$) as well.
 However, usually in applications the locations lie across geographical space,
 so that many of the entries of $G$ can be assumed to be zero.
@@ -808,6 +809,7 @@ as we would expect based on the differences discussed above.
     for the uniform graph, symmetric graph, the asymmetric graph,
     and the biased asymmetric graph, 
     shown with the $y=x$ line.
+    \plr{TODO: make this a 2x2 grid instead of 4x1}
     See Figure \ref{fig:4x4_grids} to see overall graph structure.}
     \label{fig:4x4coalvcomH}
 \end{figure}
@@ -834,7 +836,35 @@ in which organisms are distributed across continuous geography,
 and ``populations'' are constructed by necessity, often driven by sampling locations.
 
 \paragraph{Process noise}
-Talk about Figure \ref{fig:h_val_comp}.
+The mean coalescence times of lineages that we compute analytically
+are exact for large, randomly mating populations,
+but the word ``mean'' indicates an average across several levels of randomness:
+and observed, empirical mean estimated using a sample of genotyeps
+will differ slightly depending on both the individuals sampled (``sampling noise'')
+and the stochasticity of the population history itself (``process noise'').
+For more discussion of this latter contribution in other contexts, see
+\citet{waples}, \citet{wakeley}, or \citet{ralph_empirical}.
+In populations living across continuous geography,
+both sources of noise can be substantially larger due to randomness in spatial locations.
+A hint of this is visible in Figure \ref{fig:ind_locs_5x3b_1},
+where we see that the distribution of individuals across the landscape
+is fairly patchy.
+This might make inference using a discretization of continuous space considerably more difficult.
+
+To quantify the relative contributions of the different sources of noise,
+we coompared mean genetic distances, calculated in the same way,
+between nonoverlapping sets of samples from the same simulation,
+and between different simulations.
+These simulations were done using SLiM as described in the Methods
+on a square, $4 \times 4$ landscape with no barriers.
+We found that process noise was much larger than sampling noise --
+as shown in Figure \ref{fig:h_val_comp},
+discrepancies between simulations are about five times that seen
+between different samples from the same simulation.
+An implication of this is that uncertainties in genetic distance
+estimated from the data will be (possibly large) underestimates,
+a fact also pointed out for effective population size by \citet{waples}.
+
 
 \begin{figure}
 \centering
@@ -890,11 +920,16 @@ here giving us a total of 750 individuals.
 
 \begin{figure}
 \centering
-     \includegraphics[scale=.8]{figs/post_dists_5x3b_1_new}
-    \caption{Boxplots of the posterior distributions for $g$ 
-    for the first replicate of the $5 \times 3$ landscape with barriers.
-    Boxes for gene flow rates for edges that cross the barrier are colored in red.}
-    \label{fig:post_dists_5x3b_1}
+     \includegraphics[height=0.3\textheight]{figs/grid_5x3b_1}
+     \includegraphics[height=0.3\textheight]{figs/post_dists_5x3b_1_new}
+    \caption{
+    \textbf{(top)}
+    Posterior medians of movement rates for a replicate of the continuous landscape
+    with barriers depicted in Figure \ref{fig:ind_locs_5x3b_1}.
+    \textbf{(bottom)}
+    Boxplots of the same posterior distributions,
+    colored red for gene flow rates of edges that cross the barrier.
+    } \label{fig:post_dists_5x3b_1}
 \end{figure}
 
 The gene flow rates across the barriers are reliably estimated to be very small
@@ -908,8 +943,7 @@ We would then discretize the landscape such that individuals on opposite sides o
 potential obstruction are in separate grid spaces.
 
 
-\subsection*{Continuous Landscape with Biased Migration}
-
+\paragraph{Continuous Landscape with Biased Migration}
 The third situation that we will discuss is where migration is biased.
 We will be using a square landscape as in the first case, 
 but the offspring locations of offspring are not centered around the parent.
@@ -1056,7 +1090,8 @@ simply because individuals sampled in region 3 are geographically far from regio
 
 \begin{figure}
 \centering
- \includegraphics[scale=.34]{figs/tort_land5}
+ \includegraphics[width=0.45\textwidth]{figs/fancy_watershed_assignments}
+ \includegraphics[width=0.45\textwidth]{figs/tort_graph_results}
 \caption{Left: Locations of the sampled tortoises.
     \plr{add mountain shadings and ocean; remove bits on the other side of the Colorado}
     Right: Sample maximum posterior estimates 
@@ -1065,96 +1100,34 @@ simply because individuals sampled in region 3 are geographically far from regio
     } \label{fig:tort_land}
 \end{figure}
 
-
 \begin{figure}
 \centering
  \includegraphics[width=0.8\textwidth]{figs/tort_post_g}
  \includegraphics[width=0.8\textwidth]{figs/tort_post_gam}
 \caption{
-Boxplots of the posterior distributions for 
-\textbf{(top)} movement rates, and
-\textbf{(bottom)} coalescence rates,
-for the Mojave desert tortoise data set.
-Parameters are labeled as in Figure \ref{fig:tort_land}.
-\label{fig:tort_post}
+    Boxplots of the posterior distributions for 
+    \textbf{(top)} movement rates, and
+    \textbf{(bottom)} coalescence rates,
+    for the Mojave desert tortoise data set.
+    Parameters are labeled as in Figure \ref{fig:tort_land}.
+    } \label{fig:tort_post}
 \end{figure}
 
 \begin{figure}
 \centering
  \includegraphics[scale=.8]{figs/tort_h_comp}
-\caption{Mean coalescence times calculated from the sample maximum likelihood model parameters 
-plotted against the observed mean coalescence times calculated from the data, 
-measured in the mean of pairwise $\pi$.
-The mean absolute value relative differences between the two is 0.4\%.}
-\label{fig:tort_h_comp}
+\caption{
+    Mean coalescence times calculated from the sample maximum likelihood model parameters 
+    plotted against the observed mean coalescence times calculated from the tortoise data, 
+    measured in the mean of pairwise $\pi$.
+    The mean absolute value relative differences between the two is 0.4\%.
+    } \label{fig:tort_h_comp}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%
 \section*{Discussion}
 
-resistance distance can mislead, especially in the presence of biased migration
-
-coalescence time analogue is feasible but more computationally intensive
-
-practical example (tortoises) shows strong asymmetry
-
-but methods dealing with ill-posedness are necessary
-
-other measures of genetic distance: what do people use in practice?
-
-\paragraph{Consequences for resistance methods}
-We have shown that commute time can show dramatically different patterns
-than coalescence time, especially if there is systematic bias in dispersal.
-How should this affect the results of resistance-based methods to genomic data,
-besides general inaccuracy?
-Suppose, for instance, that seed dispersal for a species of tree
-is biased downhill,
-and the landscape is dominated by a large valley.
-Since lineages tend to move uphill,
-genetic distance between locations on opposite slopes of the valley will be relatively large,
-so resistance methods will infer a barrier along the bottom of the valley
-when no barrier to dispersal exists.
-On the other hand, if there is a ridge instead of a valley,
-resistance methods will show no barrier (and relatively high movement rates),
-even if there is very little uphill dispersal.
-This could lead to a falsely high assessment of gene flow across the top of the ridge.
-\plr{Also applies to least-cost path analysis.}
-
-\paragraph{Difficulty of inference}
-What determines the feasability of inferring movement rates from genetic distances?
-Using coalescence times instead of commute times greatly improves accuracy in many situations,
-but there are still a number of factors that determine the tractability of the problem.
-Observation noise is clearly an issue;
-we found that estimation errors of a few percent was enough to seriously degrade accuracy.
-However, genetic distances can be estimated to much higher accuracy using modern genomic data.
-Perhaps more seriously,
-a rate of coalescence relative to movement can also make the problem essentially nonidentifiable.
-This is clear at least in the limit: with very low coalescence, 
-the population loses any isolation by distance and looks panmictic.
-In continuous landscapes, this balance is measured by Wright's local effective population size,
-which is proportional to the number of other individuals 
-within a circle of radius equal to the mean dispersal distance.
-\plr{more about continuous landscapes and discretization}
-
-\paragraph{Circuitscape}
-Could we use coalescence time in place of commute time
-for workflows that compute values on a given map of movement rates
-that are then compared to genetic distance?
-In principle this could be done,
-but not at the same (impressively fine) geographic resolution that is currently possible,
-e.g., using Circuitscape \citep{circuitscape}.
-This is because if we have $n$ sampled locations
-on a landscape discretized into $N$ regions,
-the computational complexity of finding commute times is $nN$,
-but coalescence time scales as $N^2$.
-This is because each $N$-vector of hitting times to a particular location can be found independently,
-but the entire $N \times N$ matrix of coalescence times must be found together.
-However, as we discuss above, this fine geographic resolution is in some sense illusory --
-for each fine-resolution map there should be coarser maps that give almost identical coalescence times.
-However, we are not aware of existing theory providing guidance on how to find these.
-
-\plr{from the thesis; merge in}
 With these methods, we provide a framework for
 inferring demographic parameters of 
 populations living on a habitat spread over a two dimensional landscape 
@@ -1174,7 +1147,7 @@ we also compare the results with that of resistance distance (i.e., commute time
 Coalescence based inference typically has lower error than commute time based inference,
 along with the benefit that you can also infer coalescence rates. 
 The commute time plus diversity estimate, $\comdist$, 
-provides a good estimate of the coalescence times, $H$,
+provides a good estimate of the coalescence times, $C$,
 when gene flow rates are symmetric ($G_{ij} = G_{ji}$), 
 but can be very wrong when they are asymmetric, 
 including extreme discrepencies 
@@ -1211,7 +1184,86 @@ Further work could involve more precise study of the relationship
 between reverse time gene flow rates and forwards time migration rates.
 
 
-\plr{pasted in: nonmarkov lineages}
+\paragraph{Consequences for resistance methods}
+We have shown that commute time can show dramatically different patterns
+than coalescence time, especially if there is systematic bias in dispersal.
+How should this affect the results of resistance-based methods to genomic data,
+besides general inaccuracy?
+Suppose, for instance, that seed dispersal for a species of tree
+is biased downhill,
+and the landscape is dominated by a large valley.
+Since lineages tend to move uphill,
+genetic distance between locations on opposite slopes of the valley will be relatively large,
+so resistance methods will infer a barrier along the bottom of the valley
+when no barrier to dispersal exists.
+On the other hand, if there is a ridge instead of a valley,
+resistance methods will show no barrier (and relatively high movement rates),
+even if there is very little uphill dispersal.
+This could lead to a falsely high assessment of gene flow across the top of the ridge.
+\plr{Also applies to least-cost path analysis.}
+
+\paragraph{Circuitscape}
+Could we use coalescence time in place of commute time
+for workflows that compute values on a given map of movement rates
+that are then compared to genetic distance?
+In principle this could be done,
+but not at the same (impressively fine) geographic resolution that is currently possible,
+e.g., using Circuitscape \citep{circuitscape}.
+This is because if we have $n$ sampled locations
+on a landscape discretized into $N$ regions,
+the computational complexity of finding commute times is $nN$,
+but coalescence time scales as $N^2$.
+This is because each $N$-vector of hitting times to a particular location can be found independently,
+but the entire $N \times N$ matrix of coalescence times must be found together.
+However, as we discuss above, this fine geographic resolution is in some sense illusory --
+for each fine-resolution map there should be coarser maps that give almost identical coalescence times.
+However, we are not aware of existing theory providing guidance on how to find these.
+
+\paragraph{Difficulty of inference}
+What determines the feasability of inferring movement rates from genetic distances?
+Using coalescence times instead of commute times greatly improves accuracy in many situations,
+but there are still a number of factors that determine the tractability of the problem.
+Observation noise is clearly an issue;
+we found that estimation errors of a few percent was enough to seriously degrade accuracy.
+However, genetic distances can be estimated to much higher accuracy using modern genomic data.
+Perhaps more seriously,
+a rate of coalescence relative to movement can also make the problem essentially nonidentifiable.
+This is clear at least in the limit: with very low coalescence, 
+the population loses any isolation by distance and looks panmictic.
+In continuous landscapes, this balance is measured by Wright's local effective population size,
+which is proportional to the number of other individuals 
+within a circle of radius equal to the mean dispersal distance.
+\plr{more about continuous landscapes and discretization}
+
+\paragraph{The effect of history}
+The models we discuss here assume that population sizes and migration rates
+have been constant on the time scale given by the within-species coalescent time.
+This is rarely true in practice \citep{avise,barton}.
+However, geographic differences in mean relatedness
+are established on a shorter time scale --
+the time scale over which a lineage, moving randomly across the landscape,
+``forgets'' where it started
+(i.e., the mixing time of the Markov chain).
+This is the time it takes for the uncertainty in lineage movement
+to reach the scale of the species range.
+For instance,
+the width of the tortoise range is roughly 500km,
+and if mean dispersal distance is 10km (a high estimate),
+the standard deviation of ancestor location $t$ generations ago is $10\sqrt{t}$,
+so the mixing time of tortoise lineages across the modern landscape,
+not accounting for barriers, is of order 2500 generations,
+or about 50,000 years.
+The landscape of the Mojave has changed substantially over tihs time \citep{pleistocene_mojave},
+which suggests that models incorporating change over time 
+may be required to model modern tortoise diversity.
+However, the effects of recent history are strongest,
+so landscapes estimated assuming constant populations
+may give a reasonable picture of the landscape averged over recent times.
+
+
+\paragraph{Assumptions}
+Modeling lineages as a Markov chain is nearly ubiquitous in population genetics today,
+but may not be appropriate.
 Even though the population dynamics in forwards time are Markov, the dynamics of lineages traced back
 in time (the coalescent process) may not be. For example, if fecundity is variable and population density
 is low, two lineages near each other are more likely to share a recent common origin, so knowing how one
@@ -1219,6 +1271,12 @@ lineage moves gives you information about how the other lineage is likely to mov
 negligible as population density increases [Barton et al., 2002]), so it should not be an issue if the offspring
 of any one parent are typically interspersed with the offspring of many others. The methods I develop here
 model the coalescent process as Markov, which should be a good approximation for many systems.
+
+\paragraph{other points:}
+Practical example (tortoises) shows strong asymmetry.
+Methods dealing with ill-posedness are necessary.
+Other measures of genetic distance: what do people use in practice?
+
 
 
 \bibliography{references}
@@ -1272,22 +1330,6 @@ $$
     G = (\diag(1/H^{-1} 1) - 1 1^T) H^{-1} .
 $$
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Finding $G$ from $R$}
-
-The resistance distance is given by
-$R = H + H^T$, so if we can modify $H$ by a skew-symmetric matrix,
-we won't change $R$.
-Can we do this and retain a valid $G$?
-I.e., does $R$ uniquely specify $G$?
-Let $Z + Z^T = 0$. 
-Since $G$ is a continuous function of $H$, if all entries of $G$ are nonzero
-we can find a small enough $\epsilon$ such that the $G'$ corresponding to $H' = H + \epsilon Z$
-is also a valid generator matrix.
-If $G$ has zero entries this may not be true.
-To find a direction that we can change $H$ in that doesn't mess this up,
-we could differentiate $dG/dH$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Further inference results}
@@ -1397,15 +1439,5 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
     \label{fig:4x4_grids}
 \end{figure}
 
-
-\begin{figure}
-\centering
-     \includegraphics[scale=.8]{figs/grid_5x3b_1}
-    \caption{Medians of the posterior distributions of the inferred values of $g$ 
-    for the first replicate of the $5 \times 3$ landscape with barriers.
-    The gene flow rate across the barriers are small, 
-    but there is no clear pattern amoung the rest of the values.}
-    \label{fig:grid_5x3b_1}
-\end{figure}
 
 \end{document}
