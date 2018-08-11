@@ -1,0 +1,90 @@
+initialize() {
+    initializeSLiMModelType("nonWF");
+    initializeTreeSeq();
+
+     //set aspect ratio of map
+     aspectRatio = 1;
+     defineConstant("ASPF",sqrt(aspectRatio));
+
+     defineConstant("K", 100);  // carrying-capacity per unit square
+     defineConstant("S", 0.5);  // sigma_S, the spatial interaction and dispersal distance
+     defineConstant("L", 4);    // mean lifetime at stationarity
+     defineConstant("W", 8.0);  // width and height of the simulated area
+
+     //chromosomes
+     defineConstant("C", 10);
+     //chromosome length
+     defineConstant("GC", 1e8);
+
+     //make filepath
+     defineConstant("FPATH",paste0(c(OUTDIR,"/")));
+
+     initializeSLiMOptions(dimensionality="xy");
+     initializeMutationRate(0.0);
+     initializeMutationType("m1", 0.5, "f", 0.0);
+     initializeGenomicElementType("g1", m1, 1.0);
+     initializeRecombinationRate(1e-8);
+
+    // spatial competition and mate choice
+    initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S * 3);
+    i1.setInteractionFunction("n", 1.0, S);
+
+     //split genome into chromosomes
+     pos=0;
+     for(i in 1:C){
+        initializeGenomicElement(g1,pos,pos+GC-1);
+        pos = pos + GC;
+     }
+}
+
+reproduction() {
+    // choose our nearest neighbor as a mate, within the max distance
+    mate = i1.drawByStrength(individual, 1);
+    if (mate.size()) {
+        for (i in seqLen(rpois(1, 1/L))) {
+            offspring = subpop.addCrossed(individual, mate);
+            pos = individual.spatialPosition + rnorm(2, 0, S);
+            offspring.setSpatialPosition(p1.pointReflected(pos));
+        }
+    }
+}
+
+1 early() {
+    sim.addSubpop("p1", W * W * K);
+    p1.setSpatialBounds(c(0.0,0.0,ASPF,1/ASPF));
+    for (ind in p1.individuals)
+        ind.setSpatialPosition(p1.pointUniform());
+    i1.evaluate();
+}
+
+early() {
+    // density-dependant mortality
+    i1.evaluate();
+    inds = p1.individuals;
+    competition = i1.totalOfNeighborStrengths(inds);
+    inds.fitnessScaling = 2 / (1 + (L + 1) / (L - 1) * (competition / (K * 2 * PI * S^2)));
+}
+
+1: mateChoice() {
+    // spatial mate choice
+    return i1.strength(individual);
+}
+
+modifyChild() {
+    do pos = parent1.spatialPosition + rnorm(2, 0, S);
+    while (!p1.pointInBounds(pos));
+        child.setSpatialPosition(pos);
+    return T;
+}
+
+10000 late() {	
+    sim.treeSeqOutput(paste0(FPATH, "pop_10000.trees"), simplify=T);
+}
+
+50000 late() {
+    sim.treeSeqOutput(paste0(FPATH, "pop_50000.trees"), simplify=T);
+}
+
+100000 late() {
+    sim.treeSeqOutput(paste0(FPATH, "pop_100000.trees"), simplify=T);
+}

@@ -1,0 +1,96 @@
+Let's check the assertion that
+$$
+    H \pi \propto 1 ,
+$$
+and that
+$$
+G = (\diag(1/\pi) - 1 1^T) H^{-1} .
+$$
+(Note also that by taking the diagonal of this,
+we get that $\pi = 1/\diag(GH + 1)$.)
+
+Functions to make random $G$,
+and compute $H$:
+```{r funs}
+make_G <- function (n, symmetric=FALSE) {
+    G <- matrix(rexp(n*n), nrow=n)
+    diag(G) <- 0
+    if (symmetric) { G <- (G + t(G))/2 }
+    diag(G) <- (-1) * rowSums(G)
+    return(G)
+}
+
+get_H <- function (G) {
+    n <- ncol(G)
+    negones <- rep(-1, n-1)
+    sapply(1:ncol(G), function (k) {
+               x <- numeric(n)
+               x[-k] <- solve(G[-k,-k], negones)
+               return(x)
+        } )
+}
+
+get_pi <- function(G) {
+    H <- get_H(G)
+    pi <- solve(H, rep(1, nrow(G)))
+    return(pi/sum(pi))
+}
+```
+
+First let's check that $\pi \propto H^{-1} 1$:
+```{r calcs}
+n <- 11
+GG <- replicate(10000, make_G(n), simplify=FALSE)
+pivecs <- lapply(GG, function (G) {
+            H <- get_H(G)
+            pi <- solve(H, rep(1, n))
+            return(pi)
+        })
+piG <- sapply(seq_along(GG), function (k) pivecs[[k]] %*% GG[[k]])
+range(piG)
+range(sapply(pivecs, sum))
+```
+
+Now let's see: if $G$ is symmetric and $\gamma$ is constant,
+is $H$ symmetric?
+```{r more_funs}
+get_R <- function (G, q) {
+    H <- get_H(G)
+    R <- sweep(sweep((H + t(H))/4, 1, q, "+"), 2, q, "+")
+    return(R)
+}
+get_C <- function (G, g) {
+    GG <- kronecker(G, diag(nrow(G))) + kronecker(diag(nrow(G)), G)
+    state1 <- kronecker(row(G), diag(nrow(G)))
+    state2 <- kronecker(diag(nrow(G)), row(G))
+    coal_states <- (state1 == state2)
+    coal_rates <- ifelse(diag(coal_states), g[diag(state1)], 0)
+    diag(GG) <- diag(GG) - coal_rates
+    C <- solve(GG, rep(-1, nrow(GG)))
+    dim(C) <- dim(G)
+    return(C)
+}
+```
+
+Check those are correct:
+```{r check_funs}
+G <- make_G(n)
+g <- rexp(n)
+C <- get_C(G, g)
+range(G %*% C + C %*% t(G) - diag(g * diag(C)))
+```
+
+Ok, now for symmetry.
+```{r check_sym}
+G <- make_G(n, TRUE)
+H <- get_H(G)
+pi <- get_pi(G)
+g <- rep(2, n)
+C <- get_C(G, g)
+R <- get_R(G, rep(sum(g), n))
+
+range(pi)
+range(H - t(H))
+```
+Huh, $H$ is *not* symmetric.
+
