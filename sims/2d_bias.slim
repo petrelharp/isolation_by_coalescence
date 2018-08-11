@@ -44,7 +44,7 @@ reproduction() {
     if (mate.size()) {
         for (i in seqLen(rpois(1, 1/L))) {
             offspring = subpop.addCrossed(individual, mate);
-            pos = individual.spatialPosition + rnorm(2, 0, 4*S);
+            pos = individual.spatialPosition + rnorm(2, 0.001, 4*S);
             offspring.setSpatialPosition(p1.pointReflected(pos));
         }
     }
@@ -90,7 +90,7 @@ late() {
 // 100000 late() {
 //     sim.treeSeqOutput(paste0(c(FPATH, "pop_100000.trees")), simplify=T);
 // }
-//
+// 
 // 500000 late() {
 //     sim.treeSeqOutput(paste0(c(FPATH, "pop_500000.trees")), simplify=T);
 // }

@@ -2,7 +2,7 @@ initialize() {
      initializeSLiMModelType("nonWF");
 
      //set aspect ratio of map
-     aspectRatio = 1;
+     aspectRatio = sqrt(5/3);
      defineConstant("ASPF",sqrt(aspectRatio));
 
      defineConstant("K", 200);  // carrying-capacity per unit square (20% overestimate)
@@ -16,7 +16,7 @@ initialize() {
      defineConstant("GC", 1e8);
 
      //make filepath
-     OUTDIR="test05";
+     OUTDIR="test06";
      defineConstant("FPATH",paste0(c(OUTDIR,"/")));
 
      initializeSLiMOptions(dimensionality="xy");
@@ -44,7 +44,11 @@ reproduction() {
     if (mate.size()) {
         for (i in seqLen(rpois(1, 1/L))) {
             offspring = subpop.addCrossed(individual, mate);
-            pos = individual.spatialPosition + rnorm(2, 0, 4*S);
+            do 
+            { 
+                pos = individual.spatialPosition + rnorm(2, 0.001, 4*S);
+            }
+            while (p1.spatialMapValue("5x3b", pos) == 0.0); //reroll until not in the barrier
             offspring.setSpatialPosition(p1.pointReflected(pos));
         }
     }
@@ -52,9 +56,19 @@ reproduction() {
 
 1 late() {
     sim.addSubpop("p1", asInteger(0.8 * W * W * K));
+    mapValues = matrix(rep(1.0, 300*500), nrow=300, ncol=500);
+    mapValues[94:104, 200:399] = 0;
+    mapValues[195:205, 100:299] = 0;
+    mapValues = t(mapValues[,(ncol(mapValues)-1):0]);
+    p1.defineSpatialMap("5x3b", "xy", gridSize=NULL, values=mapValues);
+
     p1.setSpatialBounds(c(0.0,0.0,W*ASPF,W/ASPF));
-    for (ind in p1.individuals)
-        ind.setSpatialPosition(p1.pointUniform());
+    for (ind in p1.individuals) {
+        do pos = p1.pointUniform();
+        while (p1.spatialMapValue("5x3b", pos) == 0.0); //reroll until not in the barrier
+        ind.setSpatialPosition(pos);
+    }
+
 }
 
 2: early() {
