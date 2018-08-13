@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
-outdir = "test06/"
+outdir = "run_003003/"
 treefiles = [outdir + "pop_{:03d}.trees".format(x) for x in range(1, 21)]
 
 for treefile in treefiles:
@@ -13,7 +13,7 @@ for treefile in treefiles:
     outfile = treefile + ".locs.png"
     ts = pyslim.load(treefile, slim_format=True)
     locations = np.array([i.location for i in ts.individuals()])
-    fig = plt.figure(figsize=(5,5))
+    fig = plt.figure(figsize=(max(locations[:,0]),max(locations[:,1])))
     plt.scatter(locations[:,0], locations[:,1], marker='.')
     plt.savefig(outfile, dpi=288)
 

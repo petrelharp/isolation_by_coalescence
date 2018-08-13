@@ -1,14 +1,37 @@
 initialize() {
      initializeSLiMModelType("nonWF");
-
-     //set aspect ratio of map
-     aspectRatio = 1;
-     defineConstant("ASPF",sqrt(aspectRatio));
+     // should define TYPE
+     source(paste(c(OUTDIR, "parameters.slim"), sep="/"));
 
      defineConstant("K", 200);  // carrying-capacity per unit square (20% overestimate)
      defineConstant("S", 0.1);  // sigma_S, the spatial interaction and dispersal distance
      defineConstant("L", 4);    // mean lifetime at stationarity
      defineConstant("W", 8.0);  // width and height of the simulated area
+     defineConstant("DISPERSAL_S", 2 * S); // dispersal distance
+
+     //set aspect ratio of map
+     if (TYPE == "barrier") {
+          catn("Simulation type: barrier");
+          aspectRatio = 5/3;
+          defineConstant("LOWER_Y", (W / sqrt(aspectRatio) ) / 3);
+          defineConstant("UPPER_Y", 2 * (W / sqrt(aspectRatio) ) / 3);
+          defineConstant("LOWER_LEFT", 1 * (W * sqrt(aspectRatio) ) / 5);
+          defineConstant("LOWER_RIGHT", 3 * (W * sqrt(aspectRatio) ) / 5);
+          defineConstant("UPPER_LEFT", 2 * (W * sqrt(aspectRatio) ) / 5);
+          defineConstant("UPPER_RIGHT", 4 * (W * sqrt(aspectRatio) ) / 5);
+          defineConstant("BARRIER_HALFWIDTH", DISPERSAL_S * 3 / 2);
+     } else {
+          aspectRatio = 1;
+     }
+     defineConstant("ASPF",sqrt(aspectRatio));
+
+     if (TYPE == "biased") {
+          catn("Simulation type: biased");
+          bias = 0.001;
+     } else {
+          bias = 0.0;
+     }
+     defineConstant("BIAS", 0.001);
 
      //chromosomes
      defineConstant("C", 10);
@@ -16,7 +39,6 @@ initialize() {
      defineConstant("GC", 1e8);
 
      //make filepath
-     OUTDIR="test05";
      defineConstant("FPATH",paste0(c(OUTDIR,"/")));
 
      initializeSLiMOptions(dimensionality="xy");
@@ -44,7 +66,7 @@ reproduction() {
     if (mate.size()) {
         for (i in seqLen(rpois(1, 1/L))) {
             offspring = subpop.addCrossed(individual, mate);
-            pos = individual.spatialPosition + rnorm(2, 0, 4*S);
+            pos = individual.spatialPosition + rnorm(2, BIAS, DISPERSAL_S);
             offspring.setSpatialPosition(p1.pointReflected(pos));
         }
     }
@@ -63,6 +85,13 @@ reproduction() {
     inds = p1.individuals;
     competition = i1.totalOfNeighborStrengths(inds);
     inds.fitnessScaling = 2 / (1 + (L + 1) / (L - 1) * (competition / (K * 2 * PI * S^2)));
+    if (TYPE == "barrier") {
+        x = p1.individuals.x;
+        y = p1.individuals.y;
+        lower = (abs(y - LOWER_Y) < BARRIER_HALFWIDTH) & (x > LOWER_LEFT) & (x < LOWER_RIGHT);
+        upper = (abs(y - UPPER_Y) < BARRIER_HALFWIDTH) & (x > UPPER_LEFT) & (x < UPPER_RIGHT);
+        inds.fitnessScaling = inds.fitnessScaling * asFloat(!(lower | upper));
+    }
 }
 
 late() {
