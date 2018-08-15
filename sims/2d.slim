@@ -104,22 +104,22 @@ late() {
     catn(" " + clock());
 }
 
-1:20 late() {
-    sim.treeSeqOutput(paste0(c(FPATH, "pop_", format("%03d", sim.generation), ".trees")), simplify=T);
+// 1:20 late() {
+//     sim.treeSeqOutput(paste0(c(FPATH, "pop_", format("%03d", sim.generation), ".trees")), simplify=T);
+// }
+
+10000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_10000.trees")), simplify=T);
 }
 
-// 10000 late() {
-//     sim.treeSeqOutput(paste0(c(FPATH, "pop_10000.trees")), simplify=T);
-// }
-// 
-// 50000 late() {
-//     sim.treeSeqOutput(paste0(c(FPATH, "pop_50000.trees")), simplify=T);
-// }
-// 
-// 100000 late() {
-//     sim.treeSeqOutput(paste0(c(FPATH, "pop_100000.trees")), simplify=T);
-// }
-//
-// 500000 late() {
-//     sim.treeSeqOutput(paste0(c(FPATH, "pop_500000.trees")), simplify=T);
-// }
+50000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_50000.trees")), simplify=T);
+}
+
+100000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_100000.trees")), simplify=T);
+}
+
+500000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_500000.trees")), simplify=T);
+}
