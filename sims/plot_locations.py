@@ -2,11 +2,13 @@ import msprime
 import pyslim
 import numpy as np
 import matplotlib
+import glob
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
-outdir = "run_003003/"
-treefiles = [outdir + "pop_{:03d}.trees".format(x) for x in range(1, 21)]
+outdir = "run_031087/"
+# treefiles = [outdir + "pop_{:03d}.trees".format(x) for x in range(1, 21)]
+treefiles = glob.glob(outdir + "pop_*.trees")
 
 for treefile in treefiles:
     # treefile = outdir + "pop_100.trees"
