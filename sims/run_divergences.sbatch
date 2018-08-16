@@ -18,9 +18,7 @@ then
 fi
 
 echo "Running:"
-echo "   slim -d \"OUTDIR='$OUTDIR'\" 2d.slim"
-
-cp 2d.slim $OUTDIR
+echo "  ./get_divergences.py -o $OUTDIR -u 1e-9"
 
 /usr/bin/time --format='elapsed: %E / kernel: %S / user: %U / mem: %M' \
      ./get_divergences.py -o $OUTDIR -u 1e-9 &> $OUTDIR/run_divergences.log
