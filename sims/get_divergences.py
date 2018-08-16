@@ -1,14 +1,75 @@
+#!/usr/bin/env python3
+description = '''Compute mean pairwise divergences across a discritization of the landscape.'''
+
 import msprime
 import pyslim
 import numpy as np
+import os, glob
 
-samples_per_cell = 40
-num_subsamples = 2
+### command-line parsing: execute this with '-h' for help
+import argparse
+
+parser = argparse.ArgumentParser(description=description)
+parser.add_argument("--basedir", "-o", type=str, dest="basedir", required=True,
+                    help="name of directory to save output files to.")
+parser.add_argument("--logfile", "-g", type=str, dest="logfile", 
+                    help="Name of log file [default: outdir/divergences.log]")
+parser.add_argument("--samples_per_cell", "-s", type=int, dest="samples_per_cell", 
+                    default=40, help="Number of samples per cell.")
+parser.add_argument("--num_subsamples", "-k", type=int, dest="num_subsamples", 
+                    default=2, help="Number of indpendent subsamples.")
+parser.add_argument("--mutation_rate", "-u", type=float, dest="mutation_rate", 
+                    help="Mutation rate.")
+
+args = parser.parse_args()
+
+if not os.path.isdir(args.basedir):
+    os.mkdir(args.basedir)
+
+if args.logfile is None:
+    args.logfile = os.path.join(args.basedir, "sim_trees.log")
+
+logfile = open(args.logfile, "w")
+
+print(args, file=logfile)
+
+outdir = args.basedir
+samples_per_cell = args.samples_per_cell
+num_subsamples = args.num_subsamples
+mutation_rate = args.mutation_rate
 num_chroms = 1
 
-for outdir in ["run_015334", "run_003033", "run_010760"]:
+def grid_samples(ts, n, m, prob=1.0, shrink=0.75):
+    '''
+    Returns a list of lists of node IDs, the ones that fall in the middle
+    shrink of each rectangle given by discretizing into an (nxm) grid.
+    '''
+    samples = [[[] for _ in range(n)] for _ in range(m)]
+    locs = np.array(ts.tables.individuals.location)
+    locs.resize((int(len(ts.tables.individuals.location,)/3), 3))
+    max_x = np.ceil(100*max(locs[:,0]))/100
+    max_y = np.ceil(100*max(locs[:,1]))/100
+    dx = max_x / n
+    dy = max_y / m
+    for ind in ts.individuals():
+        if np.random.uniform() < prob:
+            i = int(np.floor(ind.location[0] / dx))
+            j = int(np.floor(ind.location[1] / dy))
+            # distance to center of cell
+            x_diff = ind.location[0]/dx - (i + 0.5)
+            y_diff = ind.location[1]/dy - (j + 0.5)
+            if (abs(x_diff) < shrink / 2) and (abs(y_diff) < shrink / 2):
+                samples[i][j].extend(ind.nodes)
+    # put these in random order
+    for a in samples:
+        for b in a:
+            np.random.shuffle(b)
+    return samples
 
-    treefile = outdir + "/pop_100000.trees"
+
+for treefile in glob.glob(os.path.join(outdir, "*.trees")):
+    logfile.write("Reading {}".format(treefile))
+    logfile.flush()
     decap = pyslim.load(treefile, slim_format=True)
 
     # recapitate
@@ -25,34 +86,7 @@ for outdir in ["run_015334", "run_003033", "run_010760"]:
                 start_time = decap.slim_generation,
                 Ne=2e4)
 
-    ts = msprime.mutate(recap, rate=1e-8)
-
-    def grid_samples(ts, n, m, prob=1.0, shrink=0.75):
-        '''
-        Returns a list of lists of node IDs, the ones that fall in the middle
-        shrink of each rectangle given by discretizing into an (nxm) grid.
-        '''
-        samples = [[[] for _ in range(n)] for _ in range(m)]
-        locs = np.array(ts.tables.individuals.location)
-        locs.resize((int(len(ts.tables.individuals.location,)/3), 3))
-        max_x = np.ceil(100*max(locs[:,0]))/100
-        max_y = np.ceil(100*max(locs[:,1]))/100
-        dx = max_x / n
-        dy = max_y / m
-        for ind in ts.individuals():
-            if np.random.uniform() < prob:
-                i = int(np.floor(ind.location[0] / dx))
-                j = int(np.floor(ind.location[1] / dy))
-                # distance to center of cell
-                x_diff = ind.location[0]/dx - (i + 0.5)
-                y_diff = ind.location[1]/dy - (j + 0.5)
-                if (abs(x_diff) < shrink / 2) and (abs(y_diff) < shrink / 2):
-                    samples[i][j].extend(ind.nodes)
-        # put these in random order
-        for a in samples:
-            for b in a:
-                np.random.shuffle(b)
-        return samples
+    ts = msprime.mutate(recap, rate=mutation_rate)
 
     sample_grid = grid_samples(ts, 4, 4, prob=1.0, shrink=0.75)
     samples = [a for b in sample_grid for a in b]
@@ -76,3 +110,5 @@ for outdir in ["run_015334", "run_003033", "run_010760"]:
         outfile = treefile + "." + str(subs) + ".divs.tsv"
         header = '\t'.join(['chrom' + str(j) for j in range(1, num_chroms + 1)])
         np.savetxt(outfile, divs, delimiter='\t', header=header)
+
+logfile.flush()
