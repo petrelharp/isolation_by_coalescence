@@ -27,7 +27,7 @@ if not os.path.isdir(args.basedir):
     os.mkdir(args.basedir)
 
 if args.logfile is None:
-    args.logfile = os.path.join(args.basedir, "sim_trees.log")
+    args.logfile = os.path.join(args.basedir, "divergences.log")
 
 logfile = open(args.logfile, "w")
 

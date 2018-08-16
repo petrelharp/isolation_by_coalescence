@@ -23,7 +23,7 @@ echo "   slim -d \"OUTDIR='$OUTDIR'\" 2d.slim"
 cp 2d.slim $OUTDIR
 
 /usr/bin/time --format='elapsed: %E / kernel: %S / user: %U / mem: %M' \
-     ./get-divergences -o $OUTDIR -u 1e-9 &> $OUTDIR/run_divergences.log
+     ./get_divergences.py -o $OUTDIR -u 1e-9 &> $OUTDIR/run_divergences.log
 
 echo "Done!"
 

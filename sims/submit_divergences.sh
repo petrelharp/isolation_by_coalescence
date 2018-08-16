@@ -15,4 +15,4 @@ OUTDIR="$1"
 MUTRATE="$2"
 
 export OUTDIR
-sbatch -o $OUTDIR/slurm_${TAG}.out -e $OUTDIR/slurm_${TAG}.out ./run_divergences.sbatch 
+sbatch -o $OUTDIR/slurm_divergences_${TAG}.out -e $OUTDIR/slurm_divergences_${TAG}.out ./run_divergences.sbatch 
