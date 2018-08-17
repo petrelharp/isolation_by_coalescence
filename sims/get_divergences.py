@@ -20,6 +20,10 @@ parser.add_argument("--num_subsamples", "-k", type=int, dest="num_subsamples",
                     default=2, help="Number of indpendent subsamples.")
 parser.add_argument("--mutation_rate", "-u", type=float, dest="mutation_rate", 
                     help="Mutation rate.")
+parser.add_argument("--grid_width", "-n", type=float, dest="grid_width", 
+                    help="Number of cells across the landscape (x direction) in the discretization.")
+parser.add_argument("--grid_height", "-m", type=float, dest="grid_height", 
+                    help="Number of cells up the landscape (y direction) in the discretization.")
 
 args = parser.parse_args()
 
@@ -38,6 +42,8 @@ samples_per_cell = args.samples_per_cell
 num_subsamples = args.num_subsamples
 mutation_rate = args.mutation_rate
 num_chroms = 1
+grid_width = args.grid_width
+grid_height = args.grid_height
 
 def grid_samples(ts, n, m, prob=1.0, shrink=0.75):
     '''
@@ -86,9 +92,7 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
                 start_time = decap.slim_generation,
                 Ne=2e4)
 
-    ts = msprime.mutate(recap, rate=mutation_rate)
-
-    sample_grid = grid_samples(ts, 4, 4, prob=1.0, shrink=0.75)
+    sample_grid = grid_samples(recap, n=grid_width, m=grid_height, prob=1.0, shrink=0.75)
     samples = [a for b in sample_grid for a in b]
     # extract nonoverlapping subsamples
     num_subs_per_cell = [min(samples_per_cell, int(len(a)/num_subsamples)) for a in samples]
@@ -98,15 +102,24 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
     for subs in range(num_subsamples):
         subsamples = [[a[j] for j in range(subs * k, (subs + 1) * k)] 
                       for a, k in zip(samples, num_subs_per_cell)]
+        samplefile = open(treefile + "." + str(subs) + ".samples.tsv", 'w')
+        samplefile.write("\t".join(['id', 'population', 'x', 'y', 'individual']) + "\n")
+        for k in range(len(subsamples)):
+            for a in subsamples[k]:
+                ind = recap.individual(recap.node(a).individual)
+                samplefile.write("{}\t{}\t{}\t{}\t{}\n".format(a, k, ind.location[0], ind.location[1], recap.node(a).individual))
+        samplefile.close()
+        # we want individual divergences
+        the_subsamples = [x for y in subsamples for x in y]
+        # simplify first for speed
+        sub_ts = recap.simplify(the_subsamples)
+        mut_ts = msprime.mutate(sub_ts, rate=mutation_rate)
         # breaks at the chromosomes
         windows = np.linspace(0.0, ts.sequence_length, num_chroms + 1)
         # bs = msprime.BranchLengthStatCalculator(ts)
-        bs = msprime.SiteStatCalculator(ts)
-        divs = np.array(bs.divergence(samples, windows=windows))
-        samplefile = open(treefile + "." + str(subs) + ".samples.tsv", 'w')
-        for a in samples:
-            samplefile.write("\t".join(map(str,a)) + "\n")
-        samplefile.close()
+        bs = msprime.SiteStatCalculator(mut_ts)
+        divs = np.array(bs.divergence([[x] for x in range(len(the_subsamples))], 
+                                      windows=windows))
         outfile = treefile + "." + str(subs) + ".divs.tsv"
         header = '\t'.join(['chrom' + str(j) for j in range(1, num_chroms + 1)])
         np.savetxt(outfile, divs, delimiter='\t', header=header)
