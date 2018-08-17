@@ -20,9 +20,9 @@ parser.add_argument("--num_subsamples", "-k", type=int, dest="num_subsamples",
                     default=2, help="Number of indpendent subsamples.")
 parser.add_argument("--mutation_rate", "-u", type=float, dest="mutation_rate", 
                     help="Mutation rate.")
-parser.add_argument("--grid_width", "-n", type=float, dest="grid_width", 
+parser.add_argument("--grid_width", "-n", type=int, dest="grid_width", 
                     help="Number of cells across the landscape (x direction) in the discretization.")
-parser.add_argument("--grid_height", "-m", type=float, dest="grid_height", 
+parser.add_argument("--grid_height", "-m", type=int, dest="grid_height", 
                     help="Number of cells up the landscape (y direction) in the discretization.")
 
 args = parser.parse_args()
@@ -115,8 +115,8 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
         sub_ts = recap.simplify(the_subsamples)
         mut_ts = msprime.mutate(sub_ts, rate=mutation_rate)
         # breaks at the chromosomes
-        windows = np.linspace(0.0, ts.sequence_length, num_chroms + 1)
-        # bs = msprime.BranchLengthStatCalculator(ts)
+        windows = np.linspace(0.0, mut_ts.sequence_length, num_chroms + 1)
+        # bs = msprime.BranchLengthStatCalculator(sub_ts)
         bs = msprime.SiteStatCalculator(mut_ts)
         divs = np.array(bs.divergence([[x] for x in range(len(the_subsamples))], 
                                       windows=windows))

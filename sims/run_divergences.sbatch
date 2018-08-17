@@ -17,11 +17,32 @@ then
     exit 1
 fi
 
+: ${MUTRATE?Must define MUTRATE}
+if [ -z "$MUTRATE" ]
+then
+    echo "Must define MUTRATE (is empty)."
+    exit 1
+fi
+
+: ${WIDTH?Must define WIDTH}
+if [ -z "$WIDTH" ]
+then
+    echo "Must define WIDTH (is empty)."
+    exit 1
+fi
+
+: ${HEIGHT?Must define HEIGHT}
+if [ -z "$HEIGHT" ]
+then
+    echo "Must define HEIGHT (is empty)."
+    exit 1
+fi
+
 echo "Running:"
-echo "  ./get_divergences.py -o $OUTDIR -u 1e-9"
+echo "  ./get_divergences.py -o $OUTDIR -u $MUTRATE -n $WIDTH -m $HEIGHT"
 
 /usr/bin/time --format='elapsed: %E / kernel: %S / user: %U / mem: %M' \
-     ./get_divergences.py -o $OUTDIR -u 1e-9 &> $OUTDIR/run_divergences.log
+     ./get_divergences.py -o $OUTDIR -u $MUTRATE -n $WIDTH -m $HEIGHT &> $OUTDIR/run_divergences.log
 
 echo "Done!"
 
