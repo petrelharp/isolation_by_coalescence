@@ -50,7 +50,7 @@ def grid_samples(ts, n, m, prob=1.0, shrink=0.75):
     Returns a list of lists of node IDs, the ones that fall in the middle
     shrink of each rectangle given by discretizing into an (nxm) grid.
     '''
-    samples = [[[] for _ in range(n)] for _ in range(m)]
+    samples = [[[] for _ in range(m)] for _ in range(n)]
     locs = np.array(ts.tables.individuals.location)
     locs.resize((int(len(ts.tables.individuals.location,)/3), 3))
     max_x = np.ceil(100*max(locs[:,0]))/100
