@@ -77,7 +77,7 @@ def grid_samples(ts, n, m, prob=1.0, shrink=0.75):
 
 
 for treefile in glob.glob(os.path.join(outdir, "*.trees")):
-    logfile.write("Reading {}".format(treefile))
+    logfile.write("Reading {}\n".format(treefile))
     logfile.flush()
     decap = pyslim.load(treefile, slim_format=True)
 
@@ -104,8 +104,10 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
         # simplify first for speed
         sub_ts = decap.simplify(the_subsamples)
         sub_ts = pyslim.SlimTreeSequence.load_tables(sub_ts.tables)
-        recap = sub_ts.recapitate(recombination_rate=1e-9, Ne=1e3)
+        recap = sub_ts.recapitate(recombination_rate=1e-9, Ne=500)
         mut_ts = msprime.mutate(sub_ts, rate=mutation_rate)
+        logfile.write("Recapitated; added {} mutations to {} trees. Now computing statistics.\n".format(mut_ts.num_mutations, mut_ts.num_trees))
+        logfile.flush()
         # breaks at the chromosomes
         windows = np.linspace(0.0, mut_ts.sequence_length, num_chroms + 1)
         # bs = msprime.BranchLengthStatCalculator(sub_ts)
