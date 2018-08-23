@@ -208,16 +208,16 @@ by introducing another set of model parameters, $q$,
 that fill the same role as the coalescence rates, $\gamma$.
 Then, we use commute time to approximate genetic distance as
 \begin{align} \label{eq:commute_approx}
-	D_{ij} \approx \comdist{ij} = R_{ij}/4 + q_{i}/2 + q_{j}/2 .
+	D_{ij} \approx \comdist_{ij} = R_{ij}/4 + q_{i}/2 + q_{j}/2 .
 \end{align}
 The factor of four appears to make commute time more similar to coalescence time:
 the commute time covers the path from $i$ to $j$ twice
 (once in both directions),
 while the coalescence time covers the distance only once,
 and in half the time, because two particles are moving.
-Furthermore, coalescence time includes within-location diversity,
+Furthermore, coalescence time includes within-location diversity
 because particles do not coalesce instantly --
-commute time is most analogous to the first meeting time.
+therefore commute time is most analogous to the first meeting time.
 For a conceptual picture of the differences between the coalescence time and commute time,
 see Figure \ref{fig:concept_coalcom}. 
 
@@ -249,7 +249,7 @@ This means that if the Markov chain is at location $X_t$ at time $t$,
 then for $x \neq y$, the probability the chain jumps from $x$ to $y$ is proportional to $G_{xy}$,
 i.e., $\PP{X_{t+\epsilon} = y \given X_t = y} = \epsilon G_{xy} + O(\epsilon^2)$,
 and $G_{xx} = - \sum_{y \neq x} G_{xy}$.
-We will need to find the \emph{hitting times} of the chain,
+We will need to find the \emph{hitting times} of the chain --
 i.e., for each pair of states $x$ and $y$, 
 the mean time until the chain first hits $y$ after being started at $x$.
 We denote this quantity $H_{xy}$.
@@ -349,7 +349,7 @@ Equation \eqref{eqn:C_matrix} is linear in $G$ and $\gamma$,
 and so after rearrangement can be solved with standard linear algebra
 (and is related to the Sylvester equation \citep{sylvester_eqn}).
 However, the solution is again not necessarily unique:
-suppose that we have a matrix $Z$ such that $ZH$ is antisymmetric.
+suppose that we have a matrix $Z$ such that $ZC$ is antisymmetric.
 Then $(G + Z) C + C (G + Z)^T = GC + CG^T$,
 and so a Markov chain with generator matrix $G + Z$ has the same coalescence times
 as the original chain.
@@ -387,7 +387,7 @@ This suggests that although nonuniqueness of solutions may not be a problem in p
 as long as geography is discretized into sufficiently many locations.
 However, another problem appears at finer geographic resolutions:
 although solutions may be in principle unique,
-the problems become \emph{ill-conditioned}, 
+the problems become \emph{ill-conditioned} 
 in the sense that arbitrarily small variations in the input times
 (even numerical instability)
 produce large differences in the inferred rates.
@@ -415,7 +415,7 @@ and so the two methods are equivalent for symmetric island models
 (where the populations are arranged on a ring 
 and migration rates only depend on the distance between them).
 Hitting times are not symmetric for a square grid with uniform migration
-(the mean time to hit the center from a corner is les than the reverse),
+(the mean time to hit the center from a corner is less than the reverse),
 but the square grid is quite close to the torus, which does have symmetric hitting times.
 
 
@@ -520,7 +520,7 @@ except that $\epsilon_{ij} = \epsilon_{ji}$.
 so that resulting values are still positive.)
 Using the calculations above, 
 given $G$ and $\gamma$ we can compute the corresponding coalescence times
--- call these $\mathcal{C}(G, \gamma)$ --
+-- which we call $\mathcal{C}(G, \gamma)$ --
 so our model is that $D$ has a Gaussian distribution 
 with mean $\mathcal{C}(G, \gamma)$.
 The maximum likelihood estimate of $G$ could be found directly;
@@ -530,8 +530,8 @@ and does not allow us to impose constraints
 
 Therefore, we use Bayesian inference,
 placing independent exponential priors on the parameters --
-on those movement rates $G_{ij}$ that are not constrained to be zero,
-and on the coalescence rates, $\gamma$.
+the movement rates, $G_{ij}$, that are not constrained to be zero
+and the coalescence rates, $\gamma$.
 Concretely, suppose that the spatial arrangement of populations is given by a graph,
 and only movement rates corresponding to edges in the graph are allowed to be nonzero.
 Write $i \sim j$ to mean that $i$ and $j$ are adjacent in the graph,
@@ -562,7 +562,7 @@ It is not required in this approach to have samples from every spatial location,
 allowing inference on incompletely sampled spatial discretizations.
 To carry out inference in this situation,
 we simply use Equation \ref{eq:post},
-but only summing over observed entries of $D_{ij}$.
+but only sum over observed entries of $D_{ij}$.
 
 \paragraph{MCMC methods}
 To sample from the posterior distribution of equation \eqref{eq:post}, 
@@ -574,7 +574,7 @@ we included a period of ``pre-burn-in'' which used the same MCMC procedure
 with a larger $\sigma_\epsilon$, to allow the chain to more quickly converge on the high-posterior
 portion of parameter space.
 Typically, we ran MCMC for $10^6$ iterations of pre-burn-in 
-and $3 \time 10^6$ iterations of burn-in,
+and $3 \times 10^6$ iterations of burn-in,
 followed by $4 \times 10^6$ iterations which were used to estimate posterior distributions,
 although for small graphs fewer iterations were necessary.
 We used standard methods to assess convergence and mixing.
@@ -622,7 +622,7 @@ where $x$ is the sum of their interaction strengths with other individuals.
 This reduces fitness for individuals in denser areas.
 Individuals are chosen to reproduce proportional to their fitness.
 Clumpiness is similar to what is seen in 
-Figure \ref{fig:ind_locs_5x3b_1}
+Figure \ref{fig:ind_locs_5x3b_1}.
 
 Individuals have 10 pairs of ``chromosomes'' with $2 \times 10^5$ loci each 
 and a recombination rate of $10^{-8}$ per generation per locus.
