@@ -77,6 +77,7 @@ reproduction() {
     p1.setSpatialBounds(c(0.0,0.0,W*ASPF,W/ASPF));
     for (ind in p1.individuals)
         ind.setSpatialPosition(p1.pointUniform());
+    sim.treeSeqRememberIndividuals(p1.individuals);
 }
 
 2: early() {
