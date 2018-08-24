@@ -1,6 +1,6 @@
 initialize() {
      initializeSLiMModelType("nonWF");
-     // should define TYPE
+     // should define TYPE: 'flat', 'biased', 'barrier', 'valley', or 'expansion'
      source(paste(c(OUTDIR, "parameters.slim"), sep="/"));
 
      defineConstant("K", 200);  // carrying-capacity per unit square (20% overestimate)
@@ -9,9 +9,10 @@ initialize() {
      defineConstant("W", 8.0);  // width and height of the simulated area
      defineConstant("DISPERSAL_S", 2 * S); // dispersal distance
 
+     catn("Simulation type", TYPE);
      //set aspect ratio of map
-     if (TYPE == "barrier") {
-          catn("Simulation type: barrier");
+     if (TYPE == "barrier" | TYPE == "valley" | TYPE == "expansion") {
+          catn("Simulation geometry: 5x3");
           aspectRatio = 5/3;
           defineConstant("LOWER_Y", (W / sqrt(aspectRatio) ) / 3);
           defineConstant("UPPER_Y", 2 * (W / sqrt(aspectRatio) ) / 3);
@@ -21,20 +22,32 @@ initialize() {
           defineConstant("UPPER_RIGHT", 4 * (W * sqrt(aspectRatio) ) / 5);
           defineConstant("BARRIER_HALFWIDTH", DISPERSAL_S * 3 / 2);
      } else {
+          catn("Simulation geometry: square");
           aspectRatio = 1;
      }
-     defineConstant("ASPF",sqrt(aspectRatio));
+     defineConstant("ASPF", sqrt(aspectRatio));
+     defineConstant("WIDTH", W * ASPF);
+     defineConstant("HEIGHT", W / ASPF);
+     
+     if (TYPE == "valley") {
+          valley_effect = - 0.5;
+     } else {
+          valley_effect = 0.0;
+     }
+     defineConstant("VALLEY_EFFECT", valley_effect);
+     defineConstant("VALLEY_LEFT", 2 * WIDTH / 5);
+     defineConstant("VALLEY_RIGHT", 3 * WIDTH / 5);
 
      if (TYPE == "biased") {
           catn("Simulation type: biased");
-          bias = 0.001;
+          bias = 0.01;
      } else {
           bias = 0.0;
      }
      defineConstant("BIAS", bias);
 
      //chromosomes
-     defineConstant("C", 10);
+     defineConstant("C", 1);
      //chromosome length
      defineConstant("GC", 1e8);
 
@@ -64,7 +77,8 @@ reproduction() {
     // choose our nearest neighbor as a mate, within the max distance
     mate = i1.drawByStrength(individual, 1);
     if (mate.size()) {
-        for (i in seqLen(rpois(1, 1/L))) {
+        fecundity = 1/L * (1.0 + VALLEY_EFFECT * asFloat(individual.x > VALLEY_LEFT & individual.x < VALLEY_RIGHT));
+        for (i in seqLen(rpois(1, fecundity))) {
             offspring = subpop.addCrossed(individual, mate);
             pos = individual.spatialPosition + rnorm(2, BIAS, DISPERSAL_S);
             offspring.setSpatialPosition(p1.pointReflected(pos));
@@ -74,9 +88,18 @@ reproduction() {
 
 1 late() {
     sim.addSubpop("p1", asInteger(0.8 * W * W * K));
-    p1.setSpatialBounds(c(0.0,0.0,W*ASPF,W/ASPF));
-    for (ind in p1.individuals)
-        ind.setSpatialPosition(p1.pointUniform());
+    p1.setSpatialBounds(c(0.0,0.0,WIDTH,HEIGHT));
+    for (ind in p1.individuals) {
+        xy = p1.pointUniform();
+        if (TYPE == "expansion") {
+            if (xy[0] < WIDTH/2.0) {
+                xy[0] = xy[0] / 2.5;
+            } else {
+                xy[0] = WIDTH - (WIDTH - xy[0]) / 2.5;
+            }
+        }
+        ind.setSpatialPosition(xy);
+    }
 }
 
 2: early() {
@@ -92,6 +115,7 @@ reproduction() {
         upper = (abs(y - UPPER_Y) < BARRIER_HALFWIDTH) & (x > UPPER_LEFT) & (x < UPPER_RIGHT);
         inds.fitnessScaling = inds.fitnessScaling * asFloat(!(lower | upper));
     }
+    inds.fitnessScaling = pmin(0.9, inds.fitnessScaling * pmin(1.0, inds.x) * pmin(1.0, WIDTH - inds.x) * pmin(1.0, inds.y) * pmin(1.0, HEIGHT - inds.y));
 }
 
 late() {
