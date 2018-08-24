@@ -10,6 +10,7 @@
 \bibliographystyle{plainnat}
 
 \newcommand{\comdist}{\widetilde R}
+\newcommand{\comdistfn}{\widetilde \mathcal{R}}
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
@@ -72,7 +73,7 @@ This is a potentially important source of information,
 as direct observation can be difficult \citep[especially of long-distance movement]{dispersal_estimation},
 or even impossible, if some of the populations in question no longer exist.
 
-The idea of ``resistance'' is an important tool in the lanscape genomics toolbox.
+The idea of ``resistance distance'' is an important tool in the lanscape genomics toolbox.
 Introduced by \citet{mcrae},
 it makes use of a mathematical equivalence between random walks and electrical resistance
 \citep{resistance}:
@@ -90,11 +91,11 @@ then that landscape variable is likely a good indicator of the regions of the ma
 where gene flow occurs.
 For instance,
 if the conductance across a grid cell in a discretization of the landscape
-is set equal to its elevation,
+is higher in flatter areas,
 and this produces effective resistance values 
 that are significantly correlated with genetic distances,
-then one might conclude that the species in question tends to disperse more at higher elevations,
-perhaps along ridgelines.
+then one might conclude that the species in question tends to disperse more readily through flatter areas,
+perhaps along river valleys.
 \plr{reference some examples}
 Other methods \citep{eems} seek to build \emph{de novo} 
 a map of conductance values that produces resistances 
@@ -119,6 +120,7 @@ If so, would using coalescence time do better?
 To better contrast the two,
 we refer to ``commute time'' rather than ``resistance'' throughout,
 although the two concepts are equivalent.
+\plr{CHANGE TO mostly RESISTANCE STARTING AT SIMPLE EXAMPLE}
 
 In this paper, we contrast 
 coalescence time and commute time,
@@ -153,11 +155,11 @@ are two ways to do this.
 
 
 The \emph{commute time} of a Markov chain between locations $i$ and $j$
-is the mean time it takes a particle moving according to the rules of the chain, 
+is the expected time for a particle that moves according to the rules of the chain, 
 started at $i$, to first reach $j$ and then return.
 We will denote this by $R_{ij}$, to emphasize that it is also the effective resistance
 between $i$ and $j$.
-The \emph{coalescence time} is the mean time it takes two particles started at $i$ and $j$
+The \emph{coalescence time} is the expected time for two particles started at $i$ and $j$
 to \emph{coalesce},
 which happens at a given rate whenever they are in the same location.
 We will denote this by $C_{ij}$.
@@ -205,19 +207,19 @@ $i$ and $j$ matches $D_{ij}$ -- but the commute time of a location to itself is 
 so we must account for local diversity.
 We do this in the same way as \citet{petkova2016visualizing},
 by introducing another set of model parameters, $q$, 
-that fill the same role as the coalescence rates, $\gamma$.
+that fill an analogous role to the coalescence rates, $\gamma$.
 Then, we use commute time to approximate genetic distance as
 \begin{align} \label{eq:commute_approx}
-	D_{ij} \approx \comdist{ij} = R_{ij}/4 + q_{i}/2 + q_{j}/2 .
+	D_{ij} \approx \comdist_{ij} = R_{ij}/4 + q_{i}/2 + q_{j}/2 .
 \end{align}
 The factor of four appears to make commute time more similar to coalescence time:
 the commute time covers the path from $i$ to $j$ twice
 (once in both directions),
 while the coalescence time covers the distance only once,
 and in half the time, because two particles are moving.
-Furthermore, coalescence time includes within-location diversity,
+Furthermore, coalescence time includes within-location diversity
 because particles do not coalesce instantly --
-commute time is most analogous to the first meeting time.
+therefore, commute time is most analogous to the first meeting time.
 For a conceptual picture of the differences between the coalescence time and commute time,
 see Figure \ref{fig:concept_coalcom}. 
 
@@ -249,7 +251,7 @@ This means that if the Markov chain is at location $X_t$ at time $t$,
 then for $x \neq y$, the probability the chain jumps from $x$ to $y$ is proportional to $G_{xy}$,
 i.e., $\PP{X_{t+\epsilon} = y \given X_t = y} = \epsilon G_{xy} + O(\epsilon^2)$,
 and $G_{xx} = - \sum_{y \neq x} G_{xy}$.
-We will need to find the \emph{hitting times} of the chain,
+We will need to find the \emph{hitting times} of the chain --
 i.e., for each pair of states $x$ and $y$, 
 the mean time until the chain first hits $y$ after being started at $x$.
 We denote this quantity $H_{xy}$.
@@ -297,7 +299,7 @@ and to reserve $C$ for the coalescence time.
 
 Although commute times are uniquely determined by movement rates, the reverse is not true.
 Commute times only depend on the symmetric part of $H$ --
-given an antisymmetric matrix $Z$ (so that $Z + Z^T = 0$),
+given an skew-symmetric matrix $Z$ (so that $Z + Z^T = 0$),
 any Markov chain that has hitting times given by $H_\epsilon = H + \epsilon Z$ for some $\epsilon$
 will have the same commute times.
 The resulting hitting times may not be valid --
@@ -343,13 +345,12 @@ and $\circ$ is the componentwise product.
 In practice, we solve this by working with the product Markov chain $(X_t, Y_t)$,
 whose generator matrix is $G \otimes I + I \otimes G$,
 where $I$ is the identity matrix and $\otimes$ is the Kronecker product.
-\plr{say a bit more about how we solve this?}
 
 Equation \eqref{eqn:C_matrix} is linear in $G$ and $\gamma$,
 and so after rearrangement can be solved with standard linear algebra
 (and is related to the Sylvester equation \citep{sylvester_eqn}).
 However, the solution is again not necessarily unique:
-suppose that we have a matrix $Z$ such that $ZH$ is antisymmetric.
+suppose that we have a matrix $Z$ such that $ZC$ is antisymmetric.
 Then $(G + Z) C + C (G + Z)^T = GC + CG^T$,
 and so a Markov chain with generator matrix $G + Z$ has the same coalescence times
 as the original chain.
@@ -387,10 +388,10 @@ This suggests that although nonuniqueness of solutions may not be a problem in p
 as long as geography is discretized into sufficiently many locations.
 However, another problem appears at finer geographic resolutions:
 although solutions may be in principle unique,
-the problems become \emph{ill-conditioned}, 
+the problems become \emph{ill-conditioned} 
 in the sense that arbitrarily small variations in the input times
 (even numerical instability)
-produce large differences in the inferred rates.
+may produce large differences in the inferred rates.
 Very roughly speaking, this occurs because as the spatial resolution increases,
 the matrix $G$ converges to a second-order elliptic differential operator \citep{pde};
 such operators are deformations of the Laplacian \citep{laplacian},
@@ -415,7 +416,7 @@ and so the two methods are equivalent for symmetric island models
 (where the populations are arranged on a ring 
 and migration rates only depend on the distance between them).
 Hitting times are not symmetric for a square grid with uniform migration
-(the mean time to hit the center from a corner is les than the reverse),
+(the mean time to hit the center from a corner is less than the reverse),
 but the square grid is quite close to the torus, which does have symmetric hitting times.
 
 
@@ -433,34 +434,17 @@ G =
          G_{21}  & -G_{21}
     \end{bmatrix}.
 \end{align*}
-Writing out equation \ref{eqn:C_matrix}, we get three unique equations
-for the coalescence times:
-\plr{simplify these equations and remove matrix version?}
+Equation \ref{eqn:C_matrix} equates two $2 \times 2$ matrices,
+so provides four equations. Only three of these are unique;
+simplifying these and using that $C_{12} = C_{21}$, these are:
 \begin{align*}
-   -C_{11} G_{12} + C_{21} G_{12} - C_{11} G_{12} + C_{12} G_{12} - C_{11} \gamma_1 &= -1 \\
-    C_{11} G_{21} - C_{21} G_{21} - C_{21} G_{12} + C_{22} G_{12}                   &= -1 \\
-    C_{12} G_{21} - C_{22} G_{21} + C_{21} G_{21} - C_{22} G_{21} - C_{22} \gamma_2 &= -1 .
+    2 \left(C_{12} - C_{11} \right) G_{12} - C_{11} \gamma_1 &= -1 \\
+    \left(C_{11} - C_{12} \right) G_{21} + \left(C_{22} - C_{12}\right) G_{12} &= -1 \\
+    2 \left( C_{12} - C_{22} \right) G_{21} - C_{22} \gamma_2 &= -1 .
 \end{align*}
 Given $C$, we have three equations for the four unknowns, 
-$G_{12}$, $G_{21}$, $\gamma_{1}$, and $\gamma_{2}$.
-By grouping terms together, factoring back into matrix form, 
-and writing $C_{ji}$ instead of $C_{ij}$ when $i > j$,
-we have
-\begin{align*}
-\begin{bmatrix}
--2C_{11} + 2C_{12} & 0                 & -C_{11} & 0       \\
--C_{12} + C_{22}   & C_{11} - C_{12}   & 0       & 0       \\
-0                  & 2C_{12} - 2C_{22} & 0       & -C_{22}
-\end{bmatrix}
-\begin{bmatrix}
-G_{12} \\ G_{21} \\ \gamma(1) \\ \gamma(2)
-\end{bmatrix}
-=
-\begin{bmatrix}
--1 \\ -1 \\ -1
-\end{bmatrix}.
-\end{align*}
-This is small enough to be solved symbolically. 
+$G_{12}$, $G_{21}$, $\gamma_{1}$, and $\gamma_{2}$,
+which we can solve symbolically.
 The valid solutions to these equations are those with $G_{12}$, $G_{21}$, $\gamma_1$,
 and $\gamma_2$ nonnegative.
 If $C_{11} \neq C_{12}$, 
@@ -520,7 +504,7 @@ except that $\epsilon_{ij} = \epsilon_{ji}$.
 so that resulting values are still positive.)
 Using the calculations above, 
 given $G$ and $\gamma$ we can compute the corresponding coalescence times
--- call these $\mathcal{C}(G, \gamma)$ --
+-- which we call $\mathcal{C}(G, \gamma)$ --
 so our model is that $D$ has a Gaussian distribution 
 with mean $\mathcal{C}(G, \gamma)$.
 The maximum likelihood estimate of $G$ could be found directly;
@@ -530,8 +514,8 @@ and does not allow us to impose constraints
 
 Therefore, we use Bayesian inference,
 placing independent exponential priors on the parameters --
-on those movement rates $G_{ij}$ that are not constrained to be zero,
-and on the coalescence rates, $\gamma$.
+the movement rates, $G_{ij}$, that are not constrained to be zero
+and the coalescence rates, $\gamma$.
 Concretely, suppose that the spatial arrangement of populations is given by a graph,
 and only movement rates corresponding to edges in the graph are allowed to be nonzero.
 Write $i \sim j$ to mean that $i$ and $j$ are adjacent in the graph,
@@ -539,6 +523,7 @@ that there are $m_G$ edges in the graph,
 and that each of the $n$ populations has its own coalescence rate.
 Then, the resulting log-posterior density is
 \begin{align} \label{eq:post}
+    \begin{split}
 \mathcal{L}(D, G, \gamma) 
     &=
     2 m_G \log(\lambda_G) + n \log(\lambda_\gamma) 
@@ -549,20 +534,21 @@ Then, the resulting log-posterior density is
 		-\frac{1}{2 \sigma_{\epsilon}^2} \sum_{i \leq j} \left(
             \mathcal{C}_{ij}(G,\gamma) - D_{ij}
         \right)^2 
+    \end{split}
 \end{align}
 Here $1/\lambda_\gamma$ and $1/\lambda_G$ are the prior means of $\gamma_i$ and $G_{ij}$,
 respectively.
 
 Inference with commute times is done in exactly the same way,
 except that $q$ replaces $\gamma$,
-and instead of $\mathcal{C}(G,\gamma)$ we use $\comdist(G, q)$
-as defined in equation \eqref{eq:commute_approx}.
+and instead of $\mathcal{C}(G,\gamma)$ we use $\comdistfn(G, q)$,
+which is the matrix $\comdist$ computed from $G$ and $q$ by solving equation \eqref{eq:commute_approx}.
 
 It is not required in this approach to have samples from every spatial location,
 allowing inference on incompletely sampled spatial discretizations.
 To carry out inference in this situation,
 we simply use Equation \ref{eq:post},
-but only summing over observed entries of $D_{ij}$.
+but only sum over observed entries of $D_{ij}$.
 
 \paragraph{MCMC methods}
 To sample from the posterior distribution of equation \eqref{eq:post}, 
@@ -574,7 +560,7 @@ we included a period of ``pre-burn-in'' which used the same MCMC procedure
 with a larger $\sigma_\epsilon$, to allow the chain to more quickly converge on the high-posterior
 portion of parameter space.
 Typically, we ran MCMC for $10^6$ iterations of pre-burn-in 
-and $3 \time 10^6$ iterations of burn-in,
+and $3 \times 10^6$ iterations of burn-in,
 followed by $4 \times 10^6$ iterations which were used to estimate posterior distributions,
 although for small graphs fewer iterations were necessary.
 We used standard methods to assess convergence and mixing.
@@ -588,9 +574,9 @@ using both data ``from the model'' and more realistic simulations.
 For the first category, we designed a number of graphs to test particular aspects of inference,
 with migration rates specified on each directed edge
 (plotted below using igraph \citep{igraph}).
-Then we calculated exact coalescence and commute times on these graphs,
-and added Gaussian noise independently to each entry of the resulting matrices
-(while preserving symmetry)
+Given the edge weights ($G$) and the coalescence rates ($\gamma$) of a graph,
+we produced data by calculating exact coalescence times ($\mathcal{C}(G,\gamma)$),
+to whose entries we added independent Gaussian noise while preserving symmetry,
 as described above.
 Particular parameters and levels of noise are given in the Results.
 
@@ -622,7 +608,7 @@ where $x$ is the sum of their interaction strengths with other individuals.
 This reduces fitness for individuals in denser areas.
 Individuals are chosen to reproduce proportional to their fitness.
 Clumpiness is similar to what is seen in 
-Figure \ref{fig:ind_locs_5x3b_1}
+Figure \ref{fig:ind_locs_5x3b_1}.
 
 Individuals have 10 pairs of ``chromosomes'' with $2 \times 10^5$ loci each 
 and a recombination rate of $10^{-8}$ per generation per locus.
@@ -685,13 +671,17 @@ and 14 movement parameters,
 so that with a global coalescence rate there are 15 unknowns
 but with individual coalescence rates there are 20 unknowns,
 which is close to nonidentifiable.
-(For commute time inference, we analogously constrained all values of $q$ to be identical or not.)
+(We will not present results from an analogous version of resistance distance inference
+that constrains all values of $q$ to be identical
+because the true values are not identical, even if all coalescence rates are,
+and in practice the method infers true values of $q$ extremely reliably.)
 To quantify accuracy across these random graphs in different situations,
 we computed, for each model fit on a particular random graph,
 the absolute difference between the posterior median of each movement parameter
 and the true value.
 We then averaged these across movement parameters to produce a measure of accuracy for that model fit,
 reported below as ``mean absolute error''.
+
 
 \paragraph{Varying noise}
 Unsurprisingly, coalescence time inference became less accurate as the amount of noise increased.
@@ -745,9 +735,10 @@ on this graph, with noise standard deviation equal to
 1/1000 of the mean coalescence time (left)
 and 1/100 of the mean coalescence time (right).
 Although increased noise in the data increased uncertainty in the estimated values,
-coalescence time inference correctly inferred the location of the barrier
-(as well as high-dispersal connections) in both cases.
-Commute time inference \plr{did what?}
+coalescence time inference correctly inferred not only the location of the barrier
+but also the migration rates along all other edges within a reasonable margin of error.
+Commute time inference also identified the barrier,
+but was much less accurate for the other values.
 We also explored making the problem harder,
 by first (a) dropping rows and columns from the data corresponding to populations 2, 5, 7, and 15;
 and then (b) allowing a separate coalescence rate for each location,
@@ -769,8 +760,8 @@ having 105 equations and 59 unknowns.
     as are those between $\{8,9\}$ and $\{13,14\}$.
     Values for the non-zero movement rates 
     were chosen by rounding independent draws of an exponential random variable with mean 1 
-    up to the nearest tenth.}
-    \label{fig:5x3b_grid}
+    up to the nearest tenth.
+    } \label{fig:5x3b_grid}
 \end{figure}
 
 \begin{figure}
@@ -780,7 +771,8 @@ having 105 equations and 59 unknowns.
     for the 5 $\times$ 3 graph with barriers 
     for each of the analysis cases.
     See Figure \ref{fig:5x3b_grid} to see movement parameter locations.
-    \plr{TODO: replace bottom two panels with same thing for commute time}
+    \plr{TODO: replace bottom two panels with same thing for commute time (eg figs/5x3b100\_com.pdf);
+         put this figure in the supplement}
 }
     \label{fig:5x3boxplots}
 \end{figure}
@@ -797,7 +789,7 @@ but coalescence time to $i$ only reaquires lineages to leave $i$,
 if, for instance, there is a low rate of migration back into $i$,
 then commute times to $i$ could be quite long even while coalescence times are not.
 For instance, suppose there are three populations arranged in a line,
-and lineages currently in the outer populations are much more likely to come from the central island
+and lineages currently in the outer populations are much more likely to come from the central population
 than the other way around.
 Since lineages quickly move to the center and coalesce regardless of starting position,
 coalescence time (and genetic diversity) will be relatively low between all individuals.
@@ -839,7 +831,7 @@ as we would expect based on the differences discussed above.
 \begin{figure}
 \centering
      \includegraphics[scale=.8]{figs/4x4coalvcomH}
-    \caption{Plots of the true values of $\comdist$ vs $H$ 
+    \caption{Plots of the true values of $\comdist$ vs $C$ 
     for the uniform graph, symmetric graph, the asymmetric graph,
     and the biased asymmetric graph, 
     shown with the $y=x$ line.
@@ -1176,8 +1168,8 @@ Typically, there is more error and uncertainty in the posterior distributions of
 when there is more noise, slower coalescence rate, more missing values,
 and multiple parameters for coalescence rate.
 
-While the primary focus is coalescence time based inference,
-we also compare the results with that of resistance distance (i.e., commute time) based inference.
+In addition to developing a method for inferring migration rates using pairwise coalescence times,
+we compare the results with that of resistance distance (i.e., commute time) based inference.
 Coalescence based inference typically has lower error than commute time based inference,
 along with the benefit that you can also infer coalescence rates. 
 The commute time plus diversity estimate, $\comdist$, 

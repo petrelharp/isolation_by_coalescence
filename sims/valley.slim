@@ -1,7 +1,9 @@
 initialize() {
      initializeSLiMModelType("nonWF");
-     // should define TYPE
-     source(paste(c(OUTDIR, "parameters.slim"), sep="/"));
+     // should define TYPE: 'flat', 'biased', 'barrier', or 'valley'
+     // source(paste(c(OUTDIR, "parameters.slim"), sep="/"));
+     defineConstant("TYPE", "biased");
+     defineConstant("OUTDIR", "~/projects/isolation_by_coalescence/sims/temp");
 
      defineConstant("K", 200);  // carrying-capacity per unit square (20% overestimate)
      defineConstant("S", 0.1);  // sigma_S, the spatial interaction and dispersal distance
@@ -25,9 +27,9 @@ initialize() {
      }
      defineConstant("ASPF",sqrt(aspectRatio));
 
-     if (TYPE == "biased") {
+     if (TYPE == "biased" | TYPE == "valley") {
           catn("Simulation type: biased");
-          bias = 0.001;
+          bias = 0.01;
      } else {
           bias = 0.0;
      }
@@ -66,6 +68,10 @@ reproduction() {
     if (mate.size()) {
         for (i in seqLen(rpois(1, 1/L))) {
             offspring = subpop.addCrossed(individual, mate);
+            bias = BIAS;
+            if ((TYPE == "valley") & (individual.x + individual.y > W)) {
+            	bias = -1 * BIAS;
+            }
             pos = individual.spatialPosition + rnorm(2, BIAS, DISPERSAL_S);
             offspring.setSpatialPosition(p1.pointReflected(pos));
         }
@@ -77,7 +83,6 @@ reproduction() {
     p1.setSpatialBounds(c(0.0,0.0,W*ASPF,W/ASPF));
     for (ind in p1.individuals)
         ind.setSpatialPosition(p1.pointUniform());
-    sim.treeSeqRememberIndividuals(p1.individuals);
 }
 
 2: early() {
@@ -93,6 +98,7 @@ reproduction() {
         upper = (abs(y - UPPER_Y) < BARRIER_HALFWIDTH) & (x > UPPER_LEFT) & (x < UPPER_RIGHT);
         inds.fitnessScaling = inds.fitnessScaling * asFloat(!(lower | upper));
     }
+    inds.fitnessScaling = inds.fitnessScaling * pmin(1.0, inds.x) * pmin(1.0, W - inds.x) * pmin(1.0, inds.y) * pmin(1.0, W - inds.y);
 }
 
 late() {

@@ -104,7 +104,7 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
         # simplify first for speed
         sub_ts = decap.simplify(the_subsamples)
         sub_ts = pyslim.SlimTreeSequence.load_tables(sub_ts.tables)
-        recap = sub_ts.recapitate(recombination_rate=1e-9, Ne=500)
+        recap = sub_ts.recapitate(recombination_rate=1e-9, Ne=1e3)
         mut_ts = msprime.mutate(sub_ts, rate=mutation_rate)
         logfile.write("Recapitated; added {} mutations to {} trees. Now computing statistics.\n".format(mut_ts.num_mutations, mut_ts.num_trees))
         logfile.flush()
