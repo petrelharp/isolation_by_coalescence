@@ -27,7 +27,7 @@ initialize() {
 
      if (TYPE == "biased") {
           catn("Simulation type: biased");
-          bias = 0.001;
+          bias = 0.01;
      } else {
           bias = 0.0;
      }
@@ -101,8 +101,10 @@ late() {
 }
 
 1: late() {
-    cat(sim.generation + " " + p1.individualCount);
-    catn(" " + clock());
+    if ((sim.generation % 200) == 0) {
+        cat(sim.generation + " " + p1.individualCount);
+        catn(" " + clock());
+    }
 }
 
 // 1:20 late() {
