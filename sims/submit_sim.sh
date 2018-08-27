@@ -3,7 +3,7 @@
 USAGE="
 Usage:
    $0 TYPE
-where TYPE should be 'flat', 'biased' or 'barrier'
+where TYPE should be 'flat', 'biased', 'barrier', 'valley', or 'expansion'
 "
 
 if [ $# -lt 1 ]
