@@ -729,8 +729,8 @@ We then test the method's ability to locate barriers to migration
 on the $5 \times 3$ grid with asymmetric gene flow shown in Figure \ref{fig:5x3b_grid}. 
 Each nonzero movement rate is determined randomly as before.
 Coalescence rates are set to 1 everywhere.
-Figure \ref{fig:5x3boxplots} shows posterior distributions of the movement rates
-for both coalescence and commute time inference
+Figure \ref{fig:5x3b_post_coalvcom} shows posterior distributions of the movement rates
+for both coalescence time and resistance distance inference
 on this graph, with noise standard deviation equal to
 1/1000 of the mean coalescence time (left)
 and 1/100 of the mean coalescence time (right).
@@ -766,15 +766,15 @@ having 105 equations and 59 unknowns.
 
 \begin{figure}
 \centering
-     \includegraphics[scale=0.8]{figs/5x3boxplots}
+     \includegraphics[scale=1]{figs/5x3b_post_coalvcom}
     \caption{Posterior distributions for values of $g$ 
     for the 5 $\times$ 3 graph with barriers 
-    for each of the analysis cases.
+    with two different noise levels with both coalescence time and resistance distance inference.
     See Figure \ref{fig:5x3b_grid} to see movement parameter locations.
-    \plr{TODO: replace bottom two panels with same thing for commute time (eg figs/5x3b100\_com.pdf);
-         put this figure in the supplement}
+    %\plr{TODO: replace bottom two panels with same thing for commute time (eg figs/5x3b100\_com.pdf);
+    %     put this figure in the supplement}
 }
-    \label{fig:5x3boxplots}
+    \label{fig:5x3b_post_coalvcom}
 \end{figure}
 
 
@@ -806,7 +806,7 @@ and movement rates up or to the right are 0.5.
 For inference, we added noise with standard deviation $1/500^\text{th}$ of the mean value.
 
 Differences between true mean coalescence times ($C$) and mean commute times ($\comdist$) 
-are shown in Figure \ref{fig:4x4coalvcomH}:
+are shown in Figure \ref{fig:RvsC}:
 they are fairly small in the uniform and symmetric cases, moderate in the asymmetric case, 
 and extreme in the biased asymmetric case.
 This difference suggests that commute time inference may be strongly misled 
@@ -831,19 +831,19 @@ as we would expect based on the differences discussed above.
 
 \begin{figure}
 \centering
-     \includegraphics[scale=.8]{figs/4x4coalvcomH}
+     \includegraphics[scale=1]{figs/RvsC}
     \caption{Plots of the true values of $\comdist$ vs $C$ 
     for the uniform graph, symmetric graph, the asymmetric graph,
     and the biased asymmetric graph, 
     shown with the $y=x$ line.
-    \plr{TODO: make this a 2x2 grid instead of 4x1}
+    %\plr{TODO: make this a 2x2 grid instead of 4x1}
     See Figure \ref{fig:4x4_grids} to see overall graph structure.}
-    \label{fig:4x4coalvcomH}
+    \label{fig:RvsC}
 \end{figure}
 
 \begin{figure}
 \centering
-     \includegraphics[scale=.8]{figs/4x4box}
+     \includegraphics[scale=1]{figs/4x4boxplots_paper}
     \caption{Boxplots of the posterior distributions for $g$ for commute time and coalescence time
     based inference for the uniform graph, symmetric graph, 
     the asymmetric graph, and the biased symmetric graph.
@@ -1179,7 +1179,7 @@ when gene flow rates are symmetric ($G_{ij} = G_{ji}$),
 but can be very wrong when they are asymmetric, 
 including extreme discrepencies 
 when there is an overall bias in the direction of the asymmetry across the landscape 
-(Figure \ref{fig:4x4coalvcomH}).
+(Figure \ref{fig:RvsC}).
 When inference is performed on discrete landscapes 
 with varying degrees of migrational asymmetry, 
 coalescence time based inference is more accurate than commute time inference in all tested cases
@@ -1540,9 +1540,9 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
      \includegraphics[scale=0.8]{figs/5x3boxplots}
     \caption{Posterior distributions for values of $g$ 
     for the 5 $\times$ 3 graph with barriers 
-    for each of the analysis cases.
+    for each of the analysis cases with coalescence time inference.
     See Figure \ref{fig:5x3b_grid} to see movement parameter locations.
-    \plr{TODO: put bottom two panels on top; on the bottom put the same thing for commute time}
+    %\plr{TODO: put bottom two panels on top; on the bottom put the same thing for commute time}
 }
     \label{fig:5x3boxplots_mult_gam}
 \end{figure}
