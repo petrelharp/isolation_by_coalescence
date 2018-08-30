@@ -11,7 +11,7 @@ initialize() {
 
      catn("Simulation type", TYPE);
      //set aspect ratio of map
-     if (TYPE == "barrier" | TYPE == "valley" | TYPE == "expansion") {
+     if (TYPE == "barrier") {
           catn("Simulation geometry: 5x3");
           aspectRatio = 5/3;
           defineConstant("LOWER_Y", (W / sqrt(aspectRatio) ) / 3);
@@ -35,8 +35,8 @@ initialize() {
           valley_effect = 0.0;
      }
      defineConstant("VALLEY_EFFECT", valley_effect);
-     defineConstant("VALLEY_LEFT", 2 * WIDTH / 5);
-     defineConstant("VALLEY_RIGHT", 3 * WIDTH / 5);
+     defineConstant("VALLEY_LEFT", 3 * WIDTH / 8);
+     defineConstant("VALLEY_RIGHT", 5 * WIDTH / 8);
 
      if (TYPE == "biased") {
           catn("Simulation type: biased");
@@ -91,13 +91,6 @@ reproduction() {
     p1.setSpatialBounds(c(0.0,0.0,WIDTH,HEIGHT));
     for (ind in p1.individuals) {
         xy = p1.pointUniform();
-        if (TYPE == "expansion") {
-            if (xy[0] < WIDTH/2.0) {
-                xy[0] = xy[0] / 2.5;
-            } else {
-                xy[0] = WIDTH - (WIDTH - xy[0]) / 2.5;
-            }
-        }
         ind.setSpatialPosition(xy);
     }
 }
@@ -108,14 +101,32 @@ reproduction() {
     inds = p1.individuals;
     competition = i1.totalOfNeighborStrengths(inds);
     inds.fitnessScaling = 2 / (1 + (L + 1) / (L - 1) * (competition / (K * 2 * PI * S^2)));
-    if (TYPE == "barrier") {
-        x = p1.individuals.x;
-        y = p1.individuals.y;
-        lower = (abs(y - LOWER_Y) < BARRIER_HALFWIDTH) & (x > LOWER_LEFT) & (x < LOWER_RIGHT);
-        upper = (abs(y - UPPER_Y) < BARRIER_HALFWIDTH) & (x > UPPER_LEFT) & (x < UPPER_RIGHT);
-        inds.fitnessScaling = inds.fitnessScaling * asFloat(!(lower | upper));
-    }
-    inds.fitnessScaling = pmin(0.9, inds.fitnessScaling * pmin(1.0, inds.x) * pmin(1.0, WIDTH - inds.x) * pmin(1.0, inds.y) * pmin(1.0, HEIGHT - inds.y));
+    inds.fitnessScaling = pmin(0.9, inds.fitnessScaling * pmin(1.0, 5*inds.x) * pmin(1.0, 5*(WIDTH - inds.x)) * pmin(1.0, 5*inds.y) * pmin(1.0, 5*(HEIGHT - inds.y)));
+}
+
+s1 1000000000 early() {
+	inds = p1.individuals;
+	x = inds.x;
+	y = inds.y;
+	lower = (abs(y - LOWER_Y) < BARRIER_HALFWIDTH) & (x > LOWER_LEFT) & (x < LOWER_RIGHT);
+	upper = (abs(y - UPPER_Y) < BARRIER_HALFWIDTH) & (x > UPPER_LEFT) & (x < UPPER_RIGHT);
+	inds.fitnessScaling = inds.fitnessScaling * asFloat(!(lower | upper));
+}
+
+s2 1000000000 early() {
+	inds = p1.individuals;
+	x = inds.x;
+	y = inds.y;
+	inds.fitnessScaling = inds.fitnessScaling * asFloat(pmin(x, WIDTH - x) < WIDTH / 5);
+}
+
+2 late() {
+	if (TYPE == "barrier") {
+		sim.rescheduleScriptBlock(s1, start=2);
+	}
+	if (TYPE == "expansion") {
+		sim.rescheduleScriptBlock(s2, start=100000, end=500000 - 500);
+	}
 }
 
 late() {
