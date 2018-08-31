@@ -886,7 +886,7 @@ and observed, empirical mean estimated using a sample of genotyeps
 will differ slightly depending on both the individuals sampled (``sampling noise'')
 and the stochasticity of the population history itself (``process noise'').
 For more discussion of this latter contribution in other contexts, see
-\citet{waples}, \citet{wakeley}, or \citet{ralph_empirical}.
+\citet{wakeley2012genealogies}, \citet{waples2009modeling}, or \citet{ralph2015empirical}.
 In populations living across continuous geography,
 both sources of noise can be substantially larger due to randomness in spatial locations.
 A hint of this is visible in Figure \ref{fig:ind_locs_5x3b_1},
@@ -1218,7 +1218,8 @@ alongside a finer resolution resistance distance method
 in order to check for evidence of asymmetric gene flow patterns.
 
 Although commute and coalescence times can be quite different,
-we show that they are equal (with a particular choice of local diversity)
+as also noted by \citet{mcrae2006isolation}, 
+they are equal (with a particular choice of local diversity)
 if populations are arranged on a ring or torus
 with symmetric migration.
 The similarity of these models to rectangular grids
@@ -1234,8 +1235,49 @@ even when the landscape is otherwise relatively well connected.
 Further work could involve more precise study of the relationship
 between reverse time gene flow rates and forwards time migration rates.
 
+\paragraph{Other methods}
+Other methods that use resistance distance have substantial advantages over the method we present here.
+Circuitscape \citep{mcrae2008using} produces maps of much higher resolution 
+than is presently possible with coalescent times.
+\citet{hanks2013circuit} connects the problem to intrinsic conditional autoregressive models, 
+providing a Bayesian model of an underlying Gaussian Markov random field.
+EEMS \citep{petkova2014visualizing} integrates over possible tesselations of the region
+to obtain a landscape at the best possible resolution supported by the data.
+
+Although we present a new method, based on coalescence times,
+our focus is on understanding the underlying modeling issues
+rather than replacing these other tools.
+Most promisingly, a very recent method, MAPS \citep{alasadi2018estimating}
+is based on EEMS, but instead of resistance distances,
+uses pairwise sharing of long genomic segments (``IBD segments'', \citet{browning2013improving}),
+which have been shown to carry substantial information about recent demography
+\citep{ralph2013geography,palamara2013inference,browning2015accurate}.
+Furthermore, the likelihood model underlying MAPS is based on coalescent theory,
+and thus should not be subject to the drawbacks of resistance distance.
+However, application requires fairly dense genotyping and a good genetic map,
+something not available for many species.
+
+Other widely-used inference methods, such as
+MIGRATE \citep{beerli1999maximum,beerli2010unified},
+BayesAss \citep{wilson2003bayesian}, 
+and IMa \citet{hey2007integration}
+use likelihoods derived from a coalescent model --
+and use much more of the data than we do.
+However, because they use locus-specific data rather than an average across loci,
+these methods can only be applied to a relatively small number of populations and loci,
+because of computational efficiency.
+
+
 \paragraph{Asymmetric dispersal}
-(Review of asymmetric situations.)
+We have found that asymmetric rates of lineage movement
+are most likely to produce qualitative differences between coalescence times and resistance distances,
+and thereby mislead models based on resistance distance.
+This asymmetry occurs if one region receives a greater proportion of each new generation as migrants
+from another population than that other population does from it.
+This is expected, for instance,
+if organismal dispersal is biased by wind or water currents \citep{gaines2003avoiding,morrissey2009maintenance},
+or in the presence of source-sink dynamics \citep{dias1996sources,lenormand2002limits}.
+XXX MORE
 
 \citet{hanks2017modeling} developed a method that allows asymmetry
 by modeling genetic similarity as deriving from an underlying random field
@@ -1320,13 +1362,6 @@ may give a reasonable picture of the landscape averged over recent times.
 
 \paragraph{Limitations of data}
 Something about microsats versus RADseq versus whole-genome.
-\plr{XXX}
-
-\paragraph{Landscapes or discrete demes?}
-Other inference methods \citep{wilson2003bayesian,beerli1999maximum,beerli2010unified,hey2007integration}
-work with coalescence inference, but only with a small number of loci and populations,
-because of computational efficiency.
-We're somewhere in between.
 \plr{XXX}
 
 

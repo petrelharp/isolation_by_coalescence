@@ -22,7 +22,7 @@ Both hill1972effective and whitlock1997effective use recursions involving (effec
 
 ## Resistance
 
-McRae 2006 - models linearized Fst (which is Fst / (1-Fst) = (pi[i,j] - pi[i,i])/2*pi[i,i]);
+McRae 2006 (mcrae2006isolation) - models linearized Fst (which is Fst / (1-Fst) = (pi[i,j] - pi[i,i])/2*pi[i,i]);
     cites Slatkin to say it's a difference of coalescence times;
     and then on an isotropic graph coalescence is one-quarter commute times.
     Says that in nonisotropic cases it's a convenient approximation
