@@ -74,21 +74,21 @@ as direct observation can be difficult \citep[especially of long-distance moveme
 or even impossible, if some of the populations in question no longer exist.
 
 The idea of ``resistance distance'' is an important tool in the lanscape genomics toolbox.
-Introduced by \citet{mcrae},
+Introduced by \citet{mcrae2006isolation},
 it makes use of a mathematical equivalence between random walks and electrical resistance
 \citep{resistance}:
 the expected time for a continuous-time Markov chain that starts at node $x$
 to first hit node $y$ and then return to $x$ (the ``commute time'')
 is equal to the effective resistance between $x$ and $y$ in an electrical network
 whose conductances are given by the movement rates of the Markov chain \citep{levin}.
-Both electrical resistance and commute time between two nodes
-average over all possible paths through the network between the two.
-For this reason, it is thought that if genetic distances between samples
-from different parts of the landscape
-are significantly correlated with the effective resistances between those locations,
-with local conductances assigned based on the values of some landscape variable,
-then that landscape variable is likely a good indicator of the regions of the map 
-where gene flow occurs.
+This measure therefore averages over all possible paths through the network between the two.
+For this reason, 
+if assigning local conductances based on the values of some landscape variable
+results in a significant positive correlation between 
+genetic distances between samples from different parts of the landscape
+and the effective resistances between those locations,
+then this is taken as good evidence that the landscape variable is a good indicator of
+where gene flow occurs \citep{mcrae2007circuit,cushman2006complex,more_examples}.
 For instance,
 if the conductance across a grid cell in a discretization of the landscape
 is higher in flatter areas,
@@ -96,12 +96,14 @@ and this produces effective resistance values
 that are significantly correlated with genetic distances,
 then one might conclude that the species in question tends to disperse more readily through flatter areas,
 perhaps along river valleys.
-\plr{reference some examples}
-Other methods \citep{eems} seek to build \emph{de novo} 
+More recent methods \citep{petkova2016visualizing,hanks2013circuit} seek to build \emph{de novo} 
 a map of conductance values that produces resistances 
 most strongly correlated with observed genetic distance,
 and then interpret regions of low conductance in the resulting map as barriers to gene flow.
 
+As motivated by \citet{mcrae2006isolation},
+commute time (i.e., resistance distance) is a more computationally tractable approximation
+to \emph{coalescence time}, a more accurate model of genetic distance data.
 Genetic distances between two genomes sampled from the landscape
 do derive from an average across a large number of paths between those points --
 the lineages along which each segment of genetic material has been inherited
@@ -117,25 +119,32 @@ rather than commute time, the quantity that corresponds to resistance.
 This naturally raises the question: 
 Are methods that depend on effective resistances being misled?
 If so, would using coalescence time do better?
-To better contrast the two,
-we refer to ``commute time'' rather than ``resistance'' throughout,
-although the two concepts are equivalent.
+
+\citet{mcrae2006isolation} showed that coalescence time and resistance distance are equal
+(up to shift and scaling) in isotropic landscapes such as a ring \citep{matsen_wakeley},
+and found that the two were highly correlated in several test cases.
+However, all these test cases involved symmetric rates of gene flow,
+which is likely not the case in many situations, e.g.,
+in rivers \citep{morrissey2009maintenance,sundqvist2016directional,hanks2017modeling},
+source-sink dynamics \citep{source_sink},
+or after population expansions \citep{expansions}.
+
 \plr{CHANGE TO mostly RESISTANCE STARTING AT SIMPLE EXAMPLE}
 
 In this paper, we contrast 
-coalescence time and commute time,
+coalescence time and resistance distance,
 and develop an inference method for movement rates on a landscape
 using both as estimated from genetic distances.
 As we will see,
 although the two methods are conceptually similar,
 commute time inference may get the wrong answer if data derive from a coalescent process,
-as does real genetic data.
+as does real genetic data, especially in the presence of asymmetry.
 We also explore the question of identifiability.
 Resistance-based methods are often used to predict distances based on a few layers of geographical data
 (land cover, slope, etcetera).
 Some methods find the combination of landscape layers to best explain genetic distance,
 which allows very fine geographic resolution \citep{infer_resistance}.
-Others methods such as EEMS \citep{eems} infer conductances without such prior information;
+Others methods such as EEMS \citep{petkova2016visualizing} infer conductances without such prior information;
 however, the geographical resolution is much coarser.
 One reason for this difference in resolution
 is that EEMS uses more computationally intensive Bayesian methods.
@@ -143,8 +152,10 @@ However, we show that this is a more general problem --
 inference of movement rates, in either a coalescence or commute time framework,
 is an ill-conditioned problem,
 implying the need for regularization to obtain reliable inference.
-Using maps for prior information, or restricting the geographical resolution of the results,
-are two ways to do this.
+This explains the results of \citet{graves2013current},
+who found a large area of resistance parameters
+that produced equivalently good fits to genetic distance
+(i.e., nonidentifiability, analogous to a flat likelihood surface).
 
 
 % \plr{I didn't find myself wanting to explain isolation by distance here:
@@ -174,6 +185,9 @@ and then discuss their computation and application.
 There are a number of ways to calculate measures of dissimilarity using genetic data \citep{distances}.
 In this paper we use mean pairwise divergence:
 for two genomes, it is calculated as the density of sites at which the two differ.
+It is more common in the literature to use $F_{ST}/(1-F_{ST})$,
+but the two are highly correlated for good theoretical reasons \citet{slatkin_fst,rousset1997genetic},
+especially for SNP data.
 The genomes differ at a site only if there has been a mutation in some ancestor on the lineages leading
 from the two genomes back to their most recent common ancestor at that site;
 under an infinite-sites model with average mutation rate $\mu$ per site and per meiosis,
@@ -336,6 +350,8 @@ shows that $C$ satisfies the following equation:
         -1 + \gamma_z C_{zz} \quad & \text{if} \; x = z.
     \end{cases}
 \end{align}
+Similar recursions are common in the literature,
+going back at least to \citet{hill1972effective} (see also \citet{whitlock1997effective}).
 In matrix notation, this is
 \begin{align} \label{eqn:C_matrix}
     G C + C G^T - \diag(\gamma) \circ C = -\bone \bone^T,
@@ -1218,6 +1234,13 @@ even when the landscape is otherwise relatively well connected.
 Further work could involve more precise study of the relationship
 between reverse time gene flow rates and forwards time migration rates.
 
+\paragraph{Asymmetric dispersal}
+(Review of asymmetric situations.)
+
+\citet{hanks2017modeling} developed a method that allows asymmetry
+by modeling genetic similarity as deriving from an underlying random field
+whose space-time covariance is given by the covariance of the (forwards-time) population fluctuations.
+
 
 \paragraph{Consequences for resistance methods}
 We have shown that commute time can show dramatically different patterns
@@ -1294,6 +1317,17 @@ may be required to model modern tortoise diversity.
 However, the effects of recent history are strongest,
 so landscapes estimated assuming constant populations
 may give a reasonable picture of the landscape averged over recent times.
+
+\paragraph{Limitations of data}
+Something about microsats versus RADseq versus whole-genome.
+\plr{XXX}
+
+\paragraph{Landscapes or discrete demes?}
+Other inference methods \citep{wilson2003bayesian,beerli1999maximum,beerli2010unified,hey2007integration}
+work with coalescence inference, but only with a small number of loci and populations,
+because of computational efficiency.
+We're somewhere in between.
+\plr{XXX}
 
 
 \paragraph{Assumptions}

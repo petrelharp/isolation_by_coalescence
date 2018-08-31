@@ -79,7 +79,7 @@ def grid_samples(ts, n, m, prob=1.0, shrink=0.75):
 for treefile in glob.glob(os.path.join(outdir, "*.trees")):
     logfile.write("Reading {}\n".format(treefile))
     logfile.flush()
-    decap = pyslim.load(treefile, slim_format=True)
+    decap = pyslim.load(treefile)
 
     sample_grid = grid_samples(decap, n=grid_width, m=grid_height, prob=1.0, shrink=0.75)
     samples = [a for b in sample_grid for a in b]
@@ -101,10 +101,8 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
         samplefile.close()
         # we want individual divergences
         the_subsamples = [x for y in subsamples for x in y]
-        # simplify first for speed
-        sub_ts = decap.simplify(the_subsamples)
-        sub_ts = pyslim.SlimTreeSequence.load_tables(sub_ts.tables)
         recap = sub_ts.recapitate(recombination_rate=1e-9, Ne=1e3)
+        sub_ts = pyslim.SlimTreeSequence(recap.simplify(the_subsamples))
         mut_ts = msprime.mutate(sub_ts, rate=mutation_rate)
         logfile.write("Recapitated; added {} mutations to {} trees. Now computing statistics.\n".format(mut_ts.num_mutations, mut_ts.num_trees))
         logfile.flush()
