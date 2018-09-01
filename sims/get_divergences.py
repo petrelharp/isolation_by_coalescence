@@ -84,7 +84,7 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
     sample_grid = grid_samples(decap, n=grid_width, m=grid_height, prob=1.0, shrink=0.75)
     samples = [a for b in sample_grid for a in b]
     # extract nonoverlapping subsamples
-    num_subs_per_cell = [min(samples_per_cell, int(len(a)/num_subsamples)) for a in samples]
+    num_subs_per_cell = [min(2*samples_per_cell, int(len(a)/num_subsamples)) for a in samples]
     for a in num_subs_per_cell:
         assert(a > 0)
 
