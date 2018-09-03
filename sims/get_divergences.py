@@ -101,7 +101,7 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
         samplefile.close()
         # we want individual divergences
         the_subsamples = [x for y in subsamples for x in y]
-        recap = sub_ts.recapitate(recombination_rate=1e-9, Ne=1e3)
+        recap = decap.recapitate(recombination_rate=1e-9, Ne=1e3)
         sub_ts = pyslim.SlimTreeSequence(recap.simplify(the_subsamples))
         mut_ts = msprime.mutate(sub_ts, rate=mutation_rate)
         logfile.write("Recapitated; added {} mutations to {} trees. Now computing statistics.\n".format(mut_ts.num_mutations, mut_ts.num_trees))
