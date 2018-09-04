@@ -84,7 +84,7 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
     sample_grid = grid_samples(decap, n=grid_width, m=grid_height, prob=1.0, shrink=0.75)
     samples = [a for b in sample_grid for a in b]
     # extract nonoverlapping subsamples
-    num_subs_per_cell = [min(samples_per_cell, int(len(a)/num_subsamples)) for a in samples]
+    num_subs_per_cell = [min(2*samples_per_cell, int(len(a)/num_subsamples)) for a in samples]
     for a in num_subs_per_cell:
         assert(a > 0)
 
@@ -101,7 +101,7 @@ for treefile in glob.glob(os.path.join(outdir, "*.trees")):
         samplefile.close()
         # we want individual divergences
         the_subsamples = [x for y in subsamples for x in y]
-        recap = sub_ts.recapitate(recombination_rate=1e-9, Ne=1e3)
+        recap = decap.recapitate(recombination_rate=1e-9, Ne=1e3)
         sub_ts = pyslim.SlimTreeSequence(recap.simplify(the_subsamples))
         mut_ts = msprime.mutate(sub_ts, rate=mutation_rate)
         logfile.write("Recapitated; added {} mutations to {} trees. Now computing statistics.\n".format(mut_ts.num_mutations, mut_ts.num_trees))
