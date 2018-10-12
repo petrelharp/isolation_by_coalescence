@@ -6,6 +6,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{xcolor}
 \usepackage{natbib}
+% \usepackage{subcaption}
 
 \bibliographystyle{plainnat}
 
@@ -987,28 +988,22 @@ potential obstruction are in separate grid spaces.
 
 
 \paragraph{Continuous Landscape with Biased Migration}
-We simulated several situations with an effective bias in migration on a continuous landscape.
-First, the ``biased'' situation, was a square landscape as above,
+We also simulated three situations on a continuous landscape that had an effective bias in migration.
+First, the \textbf{biased} situation, was a square landscape as above,
 but with mean offspring location one tenth of a standard deviation up and to the right of the parent's location.
+% (or 0.05\% of the edge length of the landscape)
 This produces reverse-time gene flow down and to the left.
-Second, we simulated a ``valley'' in a $3 \times 5$ landscape as above, 
+Second, we simulated a \textbf{valley} in a landscape with a $3 \times 5$ aspect ratio as above, 
 in which fecundity of individuals in the middle 1/4 of the landscape was reduced by 50\%.
 This produces gene flow ``uphill'', away from the ridge,
 and thus an effective barrier across the ridge.
-Third, we simulated a recent ``expansion'',
+Third, we simulated a recent \textbf{expansion},
 in which the middle 4/5 of the landscape was uninhabitable 400,000 generations,
 until 500 generations before the present day.
 The resulting expansion produces gene flow back away from the center,
 similar to the ``valley''.
-\textbf{MAKE FIGURE OF THESE?}
-\textbf{Merge with berow.}
 
-The third situation that we will discuss is where migration is biased.
-We will be using a square landscape as in the first case, 
-but the offspring locations of offspring are not centered around the parent.
-Instead, the mean of the distribution of the locations
-is one tenth of a standand deviation (or 0.05\% of the edge length of the landscape) 
-up and to the right of their parent's location.
+
 This results in reverse time gene flow down and to the left 
 as in the biased asymmetric graph in Section \ref{sec:biased_migration}.
 In terms of population genetics, 
@@ -1553,6 +1548,77 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
     \label{fig:4x4_grids}
 \end{figure}
 
+\begin{figure}
+\centering
+    \includegraphics[width=0.45\textwidth]{figs/valley_locations}
+    \includegraphics[width=0.45\textwidth]{figs/valley_eems}
+    \includegraphics[width=0.45\textwidth]{figs/valley_commute_graph}
+    \includegraphics[width=0.45\textwidth]{figs/valley_coal_graph}
+    \includegraphics[width=0.45\textwidth]{figs/valley_commute_dists}
+    \includegraphics[width=0.45\textwidth]{figs/valley_coal_dists}
+    \caption{
+        Results from the \textbf{valley} simulation:
+        \textbf{(top left)} Positions of all individuals at the end of simulation.
+        \textbf{(top right)} mean migration rates as estimated by EEMS.
+        Below are shown
+        posterior median migration rates 
+            as estimated using 
+            \textbf{(middle left)} the commute time method and
+            \textbf{(middle right)} the the commute time method.
+        Last are shown the posterior distributions, for
+            \textbf{(bottom left)} the commute time method and
+            \textbf{(bottom right)} the the commute time method.
+        \label{sfig:valley_results}
+    }
+\end{figure}
+
+\begin{figure}
+\centering
+    \includegraphics[width=0.45\textwidth]{figs/expansion_locations}
+    \includegraphics[width=0.45\textwidth]{figs/expansion_eems}
+    \includegraphics[width=0.45\textwidth]{figs/expansion_commute_graph}
+    \includegraphics[width=0.45\textwidth]{figs/expansion_coal_graph}
+    \includegraphics[width=0.45\textwidth]{figs/expansion_commute_dists}
+    \includegraphics[width=0.45\textwidth]{figs/expansion_coal_dists}
+    \caption{
+        Results from the \textbf{expansion} simulation:
+        \textbf{(top left)} Positions of all individuals at the end of simulation.
+        \textbf{(top right)} mean migration rates as estimated by EEMS.
+        Below are shown
+        posterior median migration rates 
+            as estimated using 
+            \textbf{(middle left)} the commute time method and
+            \textbf{(middle right)} the the commute time method.
+        Last are shown the posterior distributions, for
+            \textbf{(bottom left)} the commute time method and
+            \textbf{(bottom right)} the the commute time method.
+        \label{sfig:expansion_results}
+    }
+\end{figure}
+
+\begin{figure}
+\centering
+    \includegraphics[width=0.45\textwidth]{figs/barrier_locations}
+    \includegraphics[width=0.45\textwidth]{figs/barrier_eems}
+    \includegraphics[width=0.45\textwidth]{figs/barrier_commute_graph}
+    \includegraphics[width=0.45\textwidth]{figs/barrier_coal_graph}
+    \includegraphics[width=0.45\textwidth]{figs/barrier_commute_dists}
+    \includegraphics[width=0.45\textwidth]{figs/barrier_coal_dists}
+    \caption{
+        Results from the \textbf{barrier} simulation:
+        \textbf{(top left)} Positions of all individuals at the end of simulation.
+        \textbf{(top right)} mean migration rates as estimated by EEMS.
+        Below are shown
+        posterior median migration rates 
+            as estimated using 
+            \textbf{(middle left)} the commute time method and
+            \textbf{(middle right)} the the commute time method.
+        Last are shown the posterior distributions, for
+            \textbf{(bottom left)} the commute time method and
+            \textbf{(bottom right)} the the commute time method.
+        \label{sfig:barrier_results}
+    }
+\end{figure}
 
 \end{document}
 
