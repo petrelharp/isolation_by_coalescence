@@ -1,12 +1,4 @@
 
-1. Rewrite SLiM sims to have larger $\sigma_d$ and bigger genomes.
-2. Run commute time inference on SLiM results.
-3. Run commute time inference on tortoises.
-4. Read and cite Hanks and Hooten.
-5. Note that circuit theory assumes symmetry, ensures identifiability
-6. Note that resistance and coalescence are the same with isotropic graphs (mcrae2006)
-7. Make point that we're no longer data-limited, unlike the reams of papers using IBR on 10 microsats.
-
 # Literature notes
 
 hanks2017modeling -- discusses asymmetry, with application to trout in a stream network

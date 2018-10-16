@@ -2,6 +2,8 @@
 
 all: isolation_by_coalescence.pdf
 
+isolation_by_coalescence.pdf : references.bib figs/conceptn.pdf
+
 clean: 
 	-rm *.aux *.log *.lof *.lot *.fff *.ttt *.out *.bbl *.blg
 
