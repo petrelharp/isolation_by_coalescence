@@ -394,15 +394,14 @@ Since movement rates in each direction can be different,
 there are $4n$ free parameters, each corresponding to an off-diagonal entry of $G$.
 Coalescence rates provide another $n$ parameters.
 
-Since commute times are symmetric, and $R_{zz} = 0$, 
-equation \eqref{eqn:R_from_H} provides $n (n-1)/2$ informative equations.
-This is larger than $4n$, the number of parameters,
+Since coalescence times are symmetric, 
+equation \eqref{eqn:C_matrix} provides $n (n+1)/2$ informative equations.
+This is larger than $4n+n$, the number of parameters,
 for a grid with at least nine nodes (i.e., $3 \times 3$),
 so the system of equations will usually have a unique solution
 for grids larger than this, except in special cases.
-The same calculation holds for commute times, 
-except that (a) we get an additional $n$ equations from the diagonal entries,
-but (b) this is counteracted by the additional $n$ coalescence parameters.
+The same calculation holds for commute times 
+except that there are $n$ local diversity parameters instead of $n$ coalescence parameters.
 
 This suggests that although nonuniqueness of solutions may not be a problem in practice,
 as long as geography is discretized into sufficiently many locations.
