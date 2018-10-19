@@ -140,7 +140,7 @@ and develop an inference method for movement rates on a discrete landscape
 using both as estimated from genetic distances.
 As we will see,
 although the two methods are conceptually similar,
-commute time inference may get the wrong answer if data derive from a coalescent process,
+commute time inference may get the wrong answer if data are derived from a coalescent process,
 especially in the presence of asymmetry.
 We also explore the question of identifiability.
 Resistance-based methods are often used to predict distances based on a few layers of geographical data
@@ -378,7 +378,8 @@ so that $G + \epsilon Z$ remains the generator of a valid Markov chain.
 \paragraph{Constraints and uniqueness}
 We have seen that to find the movement rates of a continuous-time Markov chain
 given the coalescence or commute times
-we must solve equations \eqref{eqn:C_matrix} or \eqref{eqn:R_from_H} and \eqref{eqn:G_from_H} for $G$,
+we must solve either equation \eqref{eqn:C_matrix} 
+or equations \eqref{eqn:G_from_H} and \eqref{eqn:R_from_H} for $G$,
 and that these do not have unique solutions.
 The situation is worse when one needs to infer coalescence rates ($\gamma$) as well.
 However, usually in applications the locations lie across geographical space,
@@ -425,7 +426,7 @@ For more discussion of related problems, see
 
 \paragraph{When are coalescence and commute times equal?}
 If in a given biological situation commute and coalescence times are equal --
-i.e., if given $G$ and $\gamma$, there was a $q$ that made $\comdist = C$ --
+i.e., if given $G$ and $\gamma$, there was a $q$ that made $C = \comdist$ --
 then inference with either model would be equivalent.
 This was demonstrated in some situations by \citet{mcrae2006isolation}.
 We have already shown that this is not the case in general,
@@ -612,7 +613,6 @@ and \url{https://github.com/petrelharp/isolation_by_coalescence} (including the 
 \section*{Results}
 %%%%%%%%%%%%%%%%%%
 
-\plr{transition paragraph}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1214,11 +1214,10 @@ if the width of a species' range is roughly 500km,
 and if mean dispersal distance is 10km,
 the standard deviation of ancestor location $t$ generations ago is $10\sqrt{t}$,
 so the mixing time of a lineages across the landscape,
-not accounting for barriers, is of order 2500 generations,
-or about 50,000 years.
-The landscape of many areas has changed substantially over this time, % \citep{pleistocene_mojave},
+not accounting for barriers, is of order 2500 generations.
+The habitat of many species would have changed substantially over this time, % \citep{pleistocene_mojave}
 which suggests that models incorporating change over time 
-may be required to model modern tortoise diversity.
+may be required to model modern diversity.
 However, the effects of recent history are strongest,
 so landscapes estimated assuming constant populations
 may give a reasonable picture of the landscape averaged over recent times.
@@ -1243,12 +1242,12 @@ of any one parent are typically interspersed with the offspring of many others.
 
 Thanks to David Levin for useful suggestions regarding hitting time calculations,
 to Paul Marjoram for useful comments,
-and to Brad Shaffer and Evan McCartney-Melstad for useful discussions
-and providing the genetic distance data for desert tortoises.
+to Brad Shaffer and Evan McCartney-Melstad for discussions about landscape modeling,
+and to John Novembre, Hussein Al-Asadi and Benjamin Peter for help with EEMS
+and general input.
 We would also like to gratefully acknowledge the immense positive impact that Brad McRae \citep[1966--2017;][]{lawler2018tribute}
 has had on landscape genetics and conservation biology through the introduction of landscape resistance.
 We hope this paper helps to carry forward this work.
-\plr{ERIK: also John, Hossein, Desi, ???}
 
 
 \bibliography{references}
