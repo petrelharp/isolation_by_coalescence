@@ -313,7 +313,7 @@ defining $R = H + H^T$, i.e.:
 
 Although commute times are uniquely determined by movement rates, the reverse is not true.
 Commute times only depend on the symmetric part of $H$ --
-given an skew-symmetric matrix $Z$ (so that $Z + Z^T = 0$),
+given a skew-symmetric matrix $Z$ (so that $Z + Z^T = 0$),
 any Markov chain that has hitting times given by $H_\epsilon = H + \epsilon Z$ for some $\epsilon$
 will have the same commute times.
 The resulting hitting times may not be valid --
@@ -1445,7 +1445,7 @@ for any isotropic conservative migration model.
 \caption{Boxplots of the mean absolute error
 defined to be the absolute value difference between the true value and posterior median,
 averaged across movement parameters $g$ for each of the 25 graphs in each situation.
-Each box is labeled with the relative amount of noise added to $H$ to make $\hat{H}$.
+Each box is labeled with the relative amount of noise added to $C$ to produce the values used for inference.
 The top left shows the results for symmetric graphs 
 when there is a single coalescence parameter for all locations,
 the top right for symmetric graphs 
@@ -1462,7 +1462,7 @@ when there is a separate coalescence parameter for each location.}
 \includegraphics[scale=.6]{figs/mult_noise_iqr}
 \caption{Boxplots of the mean interquartile ranges of the posterior distributions of $g$
 for each of the 25 graphs in each situation.
-Each box is labeled with the relative amount of noise added to $H$ to make $\hat{H}$.
+Each box is labeled with the relative amount of noise added to $C$ to produce the values used for inference.
 Subplot locations for each situation are the same as in Figure \ref{fig:mult_noise}.
 %The top left shows the results for symmetric graphs 
 %when there is a single coalescence parameter for all locations,
