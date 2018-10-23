@@ -743,13 +743,13 @@ having 105 equations and 59 unknowns.
 
 \begin{figure}
 \centering
-     \includegraphics[scale=1]{figs/5x3b_post_coalvcom}
+     \includegraphics[scale=1]{figs/5x3b_post_coalvcom2}
     \caption{
         Coalescence time inference is much more accurate than resistance inference:
         posterior distributions for gene flow rates in the 5 $\times$ 3 graph with barriers,
         compared to true values (in green),
-        using \textbf{(top)} coalescence time and \textbf{(bottom)} resistance distance inference,
-        with \textbf{(left)} low noise and \textbf{(right)} high noise,
+        using \textbf{(left)} coalescence time and \textbf{(right)} resistance distance inference,
+        with \textbf{(top)} low noise and \textbf{(bottom)} high noise,
         See Figure \ref{fig:5x3b_grid} to match parameter labels to positions on the graph.
     \label{fig:5x3b_post_coalvcom}
 }
@@ -825,12 +825,12 @@ as we would expect based on the differences discussed above.
 
 \begin{figure}
 \centering
-     \includegraphics[scale=1]{figs/4x4boxplots_paper}
+     \includegraphics[scale=1]{figs/4x4boxplots_paper2}
     \caption{
         Boxplots of the posterior distributions of movement rates
         inferred using the
-        \textbf{(left)} resistance distances
-        and \textbf{(right)} coalescence times
+        \textbf{(left)} coalescence times
+        and \textbf{(right)} resistance distances
         shown in Figure \ref{fig:RvsC};
         i.e., on the $4 \times 4$ graphs with
         \textbf{(top)} uniform,
@@ -1533,7 +1533,7 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
     for a $4 \times 4$ discretization of a square landscape with uniform migration.
     Between the 16 geographic regions, there are 136 comparisons;
     these are shown for two nonverlapping samples taken from three independent replicate simulations,
-    each plotted agains the the mean value across all replicates.
+    each plotted against the the mean value across all replicates.
     Colors denote simulation replicate,
     and point type (circle/triangle) denotes the sample.
     Without sampling or process noise, all points would fall on the $y=x$ line.
@@ -1571,19 +1571,14 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
     \includegraphics[width=0.45\textwidth]{figs/bias_commute_dists}
 \caption{
     \textbf{(Above:)} Posterior medians and \textbf{(below)} posterior distributions
-    of of the inferred values of $g$ 
+    of the inferred values of $g$ 
     for the $4 \times 4$ discretization 
     of the square landscape with biased migration,
     inferred with the
     \textbf{(left)} coalescence time-based,
-    and \textbf{(right)} resistance distance-based method.
-    Reverse time gene flow rates out of the bottom left section are very small,
-    indicating that very few individuals living in that area of the landscape
-    have ancestors from other regions of the graph.
-    Most, but not all of the other gene flow rates are biased 
-    in the direction we would expect.
+    and \textbf{(right)} resistance distance-based method. 
     In the boxplots,
-    black boxes show posterior distributions of gene flow rates down and to the left,
+    black boxes show posterior distributions of gene flow rates up and to the right,
     and the adjacent green box corresponds to gene flow rate along the same edge
     in the opposite direction. 
     }
@@ -1594,10 +1589,10 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
 \centering
     \includegraphics[width=0.45\textwidth]{figs/barrier_locations}
     \includegraphics[width=0.45\textwidth]{figs/barrier_eems}
-    \includegraphics[width=0.45\textwidth]{figs/barrier_commute_graph}
     \includegraphics[width=0.45\textwidth]{figs/barrier_coal_graph}
-    \includegraphics[width=0.45\textwidth]{figs/barrier_commute_dists}
+    \includegraphics[width=0.45\textwidth]{figs/barrier_commute_graph}
     \includegraphics[width=0.45\textwidth]{figs/barrier_coal_dists}
+    \includegraphics[width=0.45\textwidth]{figs/barrier_commute_dists}
     \caption{
         Results from the \textbf{barrier} simulation:
         \textbf{(top left)} Positions of all individuals at the end of simulation.
@@ -1605,11 +1600,11 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
         Below are shown
         posterior median migration rates 
             as estimated using 
-            \textbf{(middle left)} the commute time method and
-            \textbf{(middle right)} the the commute time method.
+            \textbf{(middle left)} the coalescence time method and
+            \textbf{(middle right)} the the resistance distance method.
         Last are shown the posterior distributions, for
-            \textbf{(bottom left)} the commute time method and
-            \textbf{(bottom right)} the the commute time method.
+            \textbf{(bottom left)} the coalescence time method and
+            \textbf{(bottom right)} the the resistance distance method.
         \label{sfig:barrier_results}
     }
 \end{figure}
@@ -1618,10 +1613,10 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
 \centering
     \includegraphics[width=0.45\textwidth]{figs/valley_locations}
     \includegraphics[width=0.45\textwidth]{figs/valley_eems}
-    \includegraphics[width=0.45\textwidth]{figs/valley_commute_graph}
     \includegraphics[width=0.45\textwidth]{figs/valley_coal_graph}
-    \includegraphics[width=0.45\textwidth]{figs/valley_commute_dists}
+    \includegraphics[width=0.45\textwidth]{figs/valley_commute_graph}
     \includegraphics[width=0.45\textwidth]{figs/valley_coal_dists}
+    \includegraphics[width=0.45\textwidth]{figs/valley_commute_dists}
     \caption{
         Results from the \textbf{valley} simulation:
         \textbf{(top left)} Positions of all individuals at the end of simulation.
@@ -1629,11 +1624,11 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
         Below are shown
         posterior median migration rates 
             as estimated using 
-            \textbf{(middle left)} the commute time method and
-            \textbf{(middle right)} the coalescent time method.
+            \textbf{(middle left)} the coalescence time method and
+            \textbf{(middle right)} the the resistance distance method.
         Last are shown the posterior distributions, for
-            \textbf{(bottom left)} the commute time method and
-            \textbf{(bottom right)} the coalescent time method.
+            \textbf{(bottom left)} the coalescence time method and
+            \textbf{(bottom right)} the the resistance distance method.
         \label{sfig:valley_results}
     }
 \end{figure}
@@ -1642,10 +1637,10 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
 \centering
     \includegraphics[width=0.45\textwidth]{figs/expansion_locations}
     \includegraphics[width=0.45\textwidth]{figs/expansion_eems}
-    \includegraphics[width=0.45\textwidth]{figs/expansion_commute_graph}
     \includegraphics[width=0.45\textwidth]{figs/expansion_coal_graph}
-    \includegraphics[width=0.45\textwidth]{figs/expansion_commute_dists}
+    \includegraphics[width=0.45\textwidth]{figs/expansion_commute_graph}
     \includegraphics[width=0.45\textwidth]{figs/expansion_coal_dists}
+    \includegraphics[width=0.45\textwidth]{figs/expansion_commute_dists}
     \caption{
         Results from the \textbf{expansion} simulation:
         \textbf{(top left)} Positions of all individuals at the end of simulation.
@@ -1653,11 +1648,11 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
         Below are shown
         posterior median migration rates 
             as estimated using 
-            \textbf{(middle left)} the commute time method and
-            \textbf{(middle right)} the coalescence time method.
+            \textbf{(middle left)} the coalescence time method and
+            \textbf{(middle right)} the the resistance distance method.
         Last are shown the posterior distributions, for
-            \textbf{(bottom left)} the commute time method and
-            \textbf{(bottom right)} the coalescence time method.
+            \textbf{(bottom left)} the coalescence time method and
+            \textbf{(bottom right)} the the resistance distance method.
         \label{sfig:expansion_results}
     }
 \end{figure}
