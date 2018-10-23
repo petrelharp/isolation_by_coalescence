@@ -576,7 +576,9 @@ within distance $3 \sigma_d$.
 This reduces fitness for individuals in denser areas,
 and produces an equilibrium population density
 of close to one individual per $\sigma_d^2$ units of area.
-Clumpiness of the resulting simulations is similar to what is seen in 
+The probability of survival for individuals within $10\sigma_d$ of the edge of the habitat
+was multiplied by a linear factor that scaled from 0 to 1 with distance from the edge.
+Configuration the resulting simulations was similar to what is seen in 
 Figure \ref{fig:5x3b_continuous}.
 
 Each diploid individual has one pair of homologous chromosomes with $10^8$ loci each 
@@ -861,101 +863,64 @@ are exact for large, randomly mating populations,
 but the word ``mean'' indicates an average across several levels of randomness:
 each observed, empirical mean estimated using a sample of genotypes
 will deviate from this depending on both the individuals sampled (``sampling noise'')
-and the stochasticity of the population history itself (``process noise'').
-For more discussion of this latter contribution in other contexts, see
-\citet{wakeley2012genealogies}, \citet{waples2009modelling}, or \citet{ralph2015empirical}.
-Both sources of noise can be substantially larger 
-in populations living across continuous geography
-than in discrete populations
-due to randomness in spatial locations.
-This is hinted at by Figure \ref{fig:5x3b_continuous},
-where we see that the distribution of individuals across the landscape is fairly patchy:
-a barrier might be inferred in a region that has not happened to have a local population recently
-only because of demographic stochasticity.
-This might make inference using a discretization of continuous space considerably more difficult.
+\citep{ashander2018demographic},
+and the stochasticity of the population history itself (``process noise'')
+\citep{wakeley2012genealogies,waples2009modelling}.
+% Both sources of noise can be substantially larger 
+% in populations living across continuous geography
+% than in discrete populations
+% due to randomness in spatial locations.
+% This is hinted at by Figure \ref{fig:5x3b_continuous},
+% where we see that the distribution of individuals across the landscape is fairly patchy:
+% a barrier might be inferred in a region that has not happened to have a local population recently
+% only because of demographic stochasticity.
+% This might make inference using a discretization of continuous space considerably more difficult.
 
 To quantify the relative contributions of the different sources of noise,
 we compared mean genetic distances, calculated in the same way,
-between nonoverlapping sets of samples from the same simulation,
-and between different simulations.
+between two nonoverlapping sets of samples from each of three identical simulations.
 These simulations were done using SLiM as described in the Methods.
-We found that process noise was much larger than sampling noise --
-as shown in Figure \ref{fig:h_val_comp},
-discrepancies between simulations are about five times that seen
-between different samples from the same simulation.
-An implication of this is that uncertainties in genetic distance
-estimated from the data will be (possibly large) underestimates,
-a fact also pointed out for effective population size by \citet{waples2009modelling}.
+We found that with these parameter values, process and sampling noise were of similar magnitude,
+contributing 6.7\% and 13.8\% of the variance, respectively
+(Supplemental Figure \ref{fig:h_val_comp}).
+% An implication of this is that uncertainties in genetic distance
+% estimated from the data will be (possibly large) underestimates,
+% a fact also pointed out for effective population size by \citet{waples2009modelling}.
 
 
-\begin{figure}
-\centering
-    \includegraphics[width=0.8\textwidth]{figs/h_val_comp}
-\caption{
-    Comparison of mean coalescence times between samples and between replicates
-    for a $4 \times 4$ discretization of a square landscape with uniform migration.
-    All values are plotted against 
-    mean coalescence times calculated using the first set of individuals from the first simulation.
-    Circles show values calculated from a second (non-overlapping) set of individuals 
-    from the same simulation:
-    without sampling noise, all would fall on the $y=x$ line.
-    The other symbols are calculated from two independent simulations:
-    without process noise, these should deviate from $y=x$ no more than the circles.
-    The mean percent absolute differences between each set of coalescence times
-    and the reference values are
-    1.8\% for the second set of individuals from the first simulation,
-    13.2\% for the second simulation, 
-    and 7.3\% for the third simulation.
-    } \label{fig:h_val_comp}
-\end{figure}
-
-Although we found substantial process noise
-with a large, flat landscape with uniform, unbiased migration,
-many biological processes are expected to increase between-replicate stochasticity.
-To demonstrate this, we simulated a square, flat landscape as above,
+\paragraph{Biased migration}
+% Although we found substantial process noise
+% with a large, flat landscape with uniform, unbiased migration,
+% many biological processes are expected to increase between-replicate stochasticity.
+To test inference on a simple, continuous landscape with bias, 
+we simulated a square, flat landscape as above,
 but with \emph{biased migration}: 
 each offspring's location was chosen randomly as before,
 but with mean location $\sigma_d/10$
 up and to the right of the parent's location.
 % (or 0.05\% of the edge length of the landscape)
-This produces reverse-time gene flow down and to the left.
-As a population genetics model,
-this case is similar to a population expansion,
-replacing the leading edge of the expansion with the corner of landscape 
-that migration bias leads away from.
-In this situation, as in an expansion, 
-individuals at the edge may have disproportionately more offspring,
-leading to low genetic diversity and strong drift \citep{edmonds2004mutations,hallatschek2010life}.
-This results in substantially more noise in the data,
-clearly visible in the isolation by distance plots of Figure \ref{fig:ibd_comp}. 
-Despite this large contribution of process noise,
-coalescence time inference correctly infers the bias on a broad scale:
-using both a $2 \times 2$ and a $4 \times 4$ grid,
+This again produces reverse-time gene flow down and to the left.
+% As a population genetics model,
+% this case is similar to a population expansion,
+% replacing the leading edge of the expansion with the corner of landscape 
+% that migration bias leads away from.
+% In this situation, as in an expansion, 
+% individuals at the edge may have disproportionately more offspring,
+% leading to low genetic diversity and strong drift \citep{edmonds2004mutations,hallatschek2010life}.
+% This results in substantially more noise in the data,
+% clearly visible in the isolation by distance plots of Figure \ref{fig:ibd_comp}. 
+% Despite this large contribution of process noise,
+Coalescence time inference correctly infers the bias on a broad scale:
+using a $4 \times 4$ grid,
 inferred gene flow rates down and to the left are consistently much larger
-than those up and to the right 
-(Supplemental Figures \ref{fig:2x2grid_asb}, \ref{fig:grid_bias_4x4_1}, 
-and \ref{fig:post_dists_bias_4x4_1}).
-However, inferred rates show substantial heterogeneity,
+than those up and to the right;
+resistance distance-based results show no clear pattern
+(Supplemental Figure \ref{fig:grid_bias_4x4_1}).
+However, we do not obtain the clear picture of the landscape
+we saw for the corresponding discrete-population model
+(bottom-right plot, Figure \ref{fig:4x4box}):
+inferred rates show substantial heterogeneity,
 likely due to stochasticity of recent demography.
-
-
-\begin{figure}
-\centering
-     \includegraphics[width=0.75\textwidth]{figs/ibd_comp}
-    \caption{
-        Genetic distance against geographic distance
-        between all pairs of sampled individuals
-        on a square landscape with 
-        \textbf{(above)} uniform migration
-        and \textbf{(below)} biased migration.
-        The horizontal lines in the latter plot
-        are likely from comparing genomes of individuals from
-        families that have recently increased in size and geographical spread, 
-        resulting in many pairs of genomes with similar genetic distance 
-        but varying geographic distance.
-    \label{fig:ibd_comp}
-    }
-\end{figure}
 
 
 \paragraph{Identifying a barrier}
@@ -985,14 +950,14 @@ this step might not be straightforward.
 
 \begin{figure}
 \centering
-     \includegraphics[scale=.8]{figs/ind_locs_5x3b_1}
-     \includegraphics[height=0.3\textheight]{figs/grid_5x3b_1}
-     \includegraphics[height=0.3\textheight]{figs/post_dists_5x3b_1_new}
+     \includegraphics{figs/barrier_sample_locations_pretty}
+     \includegraphics[height=0.3\textheight]{figs/barrier_coal_grid}
+     \includegraphics[height=0.3\textheight]{figs/barrier_coal_boxplots}
     \caption{
         \textbf{(top)}
-        Locations of all and selected individuals on the $5 \times 3$ landscape with barriers,
+        Locations of individuals on the $5 \times 3$ landscape with barriers,
         with individuals used to compute the mean genetic distance matrix marked in bold.
-        The red bars show the locations of uninhabitable regions of the landscape,
+        Red bars show uninhabitable regions,
         which are sufficiently thick so that no migration can occur directly across them.
         \textbf{(bottom left)}
         Posterior medians of movement rates inferred using coalescence time inference,
@@ -1076,9 +1041,9 @@ which uses coalescence times instead of the resistance distance approximation,
 which provides good estimates of gene flow in a wider range of situations
 (Figures \ref{fig:5x3b_post_coalvcom} and \ref{fig:4x4box}).
 This weakness of resistance-based methods is not surprising --
-the original papers describing Circuitscape \citep{mcrae2006isolation} and EEMS \citep{petkova2016visualizing}
-present the resistance approximation as a necessary step for computational feasibility --
-but perhaps not widely appreciated.
+the original papers 
+describing Circuitscape \citep{mcrae2006isolation} and EEMS \citep{petkova2016visualizing}
+present the resistance approximation as a necessary step for computational feasibility.
 Results of resistance-based methods should therefore be interpreted with caution:
 for example, high inferred gene flow between two areas
 may actually mean the areas are being fed by a common source.
@@ -1103,10 +1068,10 @@ Reproducible, reliable inference will likely require development of new inferenc
 explicitly incorporating continuous geography.
 
 Although commute and coalescence times can be quite different,
-as also noted by \citet{mcrae2006isolation}, 
 they are equal (with a particular choice of local diversity)
 if populations are arranged on a ring or torus
-with symmetric migration.
+with symmetric migration
+(as also noted by \citet{mcrae2006isolation}).
 The similarity of these models to rectangular grids
 may explain why in other work, resistance distance methods have shown relatively good fit to data
 simulated with symmetric migration rates.
@@ -1542,7 +1507,6 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
     for the 5 $\times$ 3 graph with barriers 
     for each of the analysis cases with coalescence time inference.
     See Figure \ref{fig:5x3b_grid} to see movement parameter locations.
-    %\plr{TODO: put bottom two panels on top; on the bottom put the same thing for commute time}
 }
     \label{fig:5x3boxplots_mult_gam}
 \end{figure}
@@ -1550,63 +1514,80 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
 
 \begin{figure}
 \centering
-     \includegraphics[scale=.8]{figs/4x4_grids}
-    \caption{Plots of the grid structure 
-    for the uniform graph, symmetric graph, the asymmetric graph,
-    and the biased asymmetric graph 
-    using the igraph R package.}
+     \includegraphics[scale=.7]{figs/4x4_grids}
+    \caption{
+        Grid structure and gene flow rates
+        for the uniform graph, symmetric graph, the asymmetric graph,
+        and the biased asymmetric graph 
+        using the igraph R package.
+    }
     \label{fig:4x4_grids}
 \end{figure}
 
 
 \begin{figure}
 \centering
- \includegraphics[scale=.5]{figs/2x2grid_asb}
+    \includegraphics{figs/all_flat_divergences}
 \caption{
-    Medians of the posterior distributions of the inferred values of $g$ 
-    for the first replicate of the $2 \times 2$ discretization of the square landscape with biased migration.
-    The reverse time gene flow rates out of the bottom left section are very small,
-    indicating that very few individuals living in the bottom left of the landscape
-    have ancestors from other regions of the habitat,
-    consistent with migration biased up and to the right.
-    These inferred rates make it clear how strong the bias 
-    against reverse time gene flow out of the lower left corner is.
-    Hardly any individuals in the lower left area have ancestors
-    from other regions of the landscape.
-    This is to be expected as even though the single generation migration bias is small,
-    having a descendant in a location against the bias after a large number of generations
-    becomes less and less likely as the number of generations increases.
-    \label{fig:2x2grid_asb}
+    Comparison of mean coalescence times between samples and between replicates
+    for a $4 \times 4$ discretization of a square landscape with uniform migration.
+    Between the 16 geographic regions, there are 136 comparisons;
+    these are shown for two nonverlapping samples taken from three independent replicate simulations,
+    each plotted agains the the mean value across all replicates.
+    Colors denote simulation replicate,
+    and point type (circle/triangle) denotes the sample.
+    Without sampling or process noise, all points would fall on the $y=x$ line.
+    Among the six sets of observations,
+    simulation replicate explains 6.7\% of the variance,
+    and spatial sampling explains 13.8\% of the variance.
+    } \label{fig:h_val_comp}
+\end{figure}
+
+\begin{figure}
+\centering
+     \includegraphics{figs/example_flat_ibd}
+    \caption{
+        Genetic distance against geographic distance
+        between all pairs of sampled individuals
+        on a square landscape with uniform migration.
+        Red dots denote mean genetic distances
+        between sampled individuals from a $4 \times 4$ discretization of the landscape,
+        as used for instance in Figure \ref{fig:more_barriers}.
+        % and \textbf{(below)} biased migration.
+        % The horizontal lines in the latter plot
+        % are likely from comparing genomes of individuals from
+        % families that have recently increased in size and geographical spread, 
+        % resulting in many pairs of genomes with similar genetic distance 
+        % but varying geographic distance.
+    \label{fig:ibd_comp}
     }
 \end{figure}
 
 \begin{figure}
 \centering
- \includegraphics[scale=.8]{figs/grid_bias_4x4_1}
+    \includegraphics[width=0.45\textwidth]{figs/bias_coal_graph}
+    \includegraphics[width=0.45\textwidth]{figs/bias_commute_graph}
+    \includegraphics[width=0.45\textwidth]{figs/bias_coal_dists}
+    \includegraphics[width=0.45\textwidth]{figs/bias_commute_dists}
 \caption{
-    Medians of the posterior distributions of the inferred values of $g$ 
-    for the first replicate of the $4 \times 4$ discretization 
-    of the square landscape with biased migration.
-    As in the $2 \times 2$ case, 
-    the reverse time gene flow rates out of the bottom left section are very small,
+    \textbf{(Above:)} Posterior medians and \textbf{(below)} posterior distributions
+    of of the inferred values of $g$ 
+    for the $4 \times 4$ discretization 
+    of the square landscape with biased migration,
+    inferred with the
+    \textbf{(left)} coalescence time-based,
+    and \textbf{(right)} resistance distance-based method.
+    Reverse time gene flow rates out of the bottom left section are very small,
     indicating that very few individuals living in that area of the landscape
     have ancestors from other regions of the graph.
     Most, but not all of the other gene flow rates are biased 
     in the direction we would expect.
-    Boxplots of the posterior distributions are shown in 
-    Supplemental Figure \ref{fig:post_dists_bias_4x4_1}.
+    In the boxplots,
+    black boxes show posterior distributions of gene flow rates down and to the left,
+    and the adjacent green box corresponds to gene flow rate along the same edge
+    in the opposite direction. 
     }
 \label{fig:grid_bias_4x4_1}
-\end{figure}
-
-\begin{figure}
-\centering
- \includegraphics[scale=.6]{figs/post_dists_bias_4x4_1}
-\caption{Boxplots of the posterior distributions for $g$ 
-for the first replicate of the $4 \times 4$ discretization of the square landscape with biased migration.
-Black boxes are gene flow rates down and to the left 
-with each green box being the corresponding gene flow rate up and to the right.}
-\label{fig:post_dists_bias_4x4_1}
 \end{figure}
 
 \begin{figure}

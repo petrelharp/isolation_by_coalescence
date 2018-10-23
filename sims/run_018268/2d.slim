@@ -1,0 +1,151 @@
+initialize() {
+     initializeSLiMModelType("nonWF");
+     // should define TYPE: 'flat', 'biased', 'barrier', 'valley', or 'expansion'
+     source(paste(c(OUTDIR, "parameters.slim"), sep="/"));
+
+     defineConstant("K", 200);  // carrying-capacity per unit square (20% overestimate)
+     defineConstant("S", 0.1);  // sigma_S, the spatial interaction and dispersal distance
+     defineConstant("L", 4);    // mean lifetime at stationarity
+     defineConstant("W", 8.0);  // width and height of the simulated area
+     defineConstant("DISPERSAL_S", 2 * S); // dispersal distance
+
+     catn("Simulation type", TYPE);
+     //set aspect ratio of map
+     if (TYPE == "barrier" | TYPE == "valley" | TYPE == "expansion") {
+          catn("Simulation geometry: 5x3");
+          aspectRatio = 5/3;
+          defineConstant("LOWER_Y", (W / sqrt(aspectRatio) ) / 3);
+          defineConstant("UPPER_Y", 2 * (W / sqrt(aspectRatio) ) / 3);
+          defineConstant("LOWER_LEFT", 1 * (W * sqrt(aspectRatio) ) / 5);
+          defineConstant("LOWER_RIGHT", 3 * (W * sqrt(aspectRatio) ) / 5);
+          defineConstant("UPPER_LEFT", 2 * (W * sqrt(aspectRatio) ) / 5);
+          defineConstant("UPPER_RIGHT", 4 * (W * sqrt(aspectRatio) ) / 5);
+          defineConstant("BARRIER_HALFWIDTH", DISPERSAL_S * 3 / 2);
+     } else {
+          catn("Simulation geometry: square");
+          aspectRatio = 1;
+     }
+     defineConstant("ASPF", sqrt(aspectRatio));
+     defineConstant("WIDTH", W * ASPF);
+     defineConstant("HEIGHT", W / ASPF);
+     
+     if (TYPE == "valley") {
+          valley_effect = - 0.5;
+     } else {
+          valley_effect = 0.0;
+     }
+     defineConstant("VALLEY_EFFECT", valley_effect);
+     defineConstant("VALLEY_LEFT", 2 * WIDTH / 5);
+     defineConstant("VALLEY_RIGHT", 3 * WIDTH / 5);
+
+     if (TYPE == "biased") {
+          catn("Simulation type: biased");
+          bias = 0.01;
+     } else {
+          bias = 0.0;
+     }
+     defineConstant("BIAS", bias);
+
+     //chromosomes
+     defineConstant("C", 1);
+     //chromosome length
+     defineConstant("GC", 1e8);
+
+     //make filepath
+     defineConstant("FPATH",paste0(c(OUTDIR,"/")));
+
+     initializeSLiMOptions(dimensionality="xy");
+     initializeTreeSeq();
+     initializeMutationRate(0.0);
+     initializeMutationType("m1", 0.5, "f", 0.0);
+     initializeGenomicElementType("g1", m1, 1.0);
+     initializeRecombinationRate(1e-8);
+
+     // spatial competition and mate choice
+     initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S * 3);
+     i1.setInteractionFunction("n", 1.0, S);
+
+     //split genome into chromosomes
+     pos=0;
+     for(i in 1:C){
+        initializeGenomicElement(g1,pos,pos+GC-1);
+        pos = pos + GC;
+     }
+}
+
+reproduction() {
+    // choose our nearest neighbor as a mate, within the max distance
+    mate = i1.drawByStrength(individual, 1);
+    if (mate.size()) {
+        fecundity = 1/L * (1.0 + VALLEY_EFFECT * asFloat(individual.x > VALLEY_LEFT & individual.x < VALLEY_RIGHT));
+        for (i in seqLen(rpois(1, fecundity))) {
+            offspring = subpop.addCrossed(individual, mate);
+            pos = individual.spatialPosition + rnorm(2, BIAS, DISPERSAL_S);
+            offspring.setSpatialPosition(p1.pointReflected(pos));
+        }
+    }
+}
+
+1 late() {
+    sim.addSubpop("p1", asInteger(0.8 * W * W * K));
+    p1.setSpatialBounds(c(0.0,0.0,WIDTH,HEIGHT));
+    for (ind in p1.individuals) {
+        xy = p1.pointUniform();
+        if (TYPE == "expansion") {
+            if (xy[0] < WIDTH/2.0) {
+                xy[0] = xy[0] / 2.5;
+            } else {
+                xy[0] = WIDTH - (WIDTH - xy[0]) / 2.5;
+            }
+        }
+        ind.setSpatialPosition(xy);
+    }
+}
+
+2: early() {
+    // density-dependant mortality
+    i1.evaluate();
+    inds = p1.individuals;
+    competition = i1.totalOfNeighborStrengths(inds);
+    inds.fitnessScaling = 2 / (1 + (L + 1) / (L - 1) * (competition / (K * 2 * PI * S^2)));
+    if (TYPE == "barrier") {
+        x = p1.individuals.x;
+        y = p1.individuals.y;
+        lower = (abs(y - LOWER_Y) < BARRIER_HALFWIDTH) & (x > LOWER_LEFT) & (x < LOWER_RIGHT);
+        upper = (abs(y - UPPER_Y) < BARRIER_HALFWIDTH) & (x > UPPER_LEFT) & (x < UPPER_RIGHT);
+        inds.fitnessScaling = inds.fitnessScaling * asFloat(!(lower | upper));
+    }
+    inds.fitnessScaling = pmin(0.9, inds.fitnessScaling * pmin(1.0, inds.x) * pmin(1.0, WIDTH - inds.x) * pmin(1.0, inds.y) * pmin(1.0, HEIGHT - inds.y));
+}
+
+late() {
+    // need to evaluate here to be ready for mate choice
+    i1.evaluate();
+}
+
+1: late() {
+    if ((sim.generation % 200) == 0) {
+        cat(sim.generation + " " + p1.individualCount);
+        catn(" " + clock());
+    }
+}
+
+// 1:20 late() {
+//     sim.treeSeqOutput(paste0(c(FPATH, "pop_", format("%03d", sim.generation), ".trees")), simplify=T);
+// }
+
+10000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_10000.trees")), simplify=T);
+}
+
+50000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_50000.trees")), simplify=T);
+}
+
+100000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_100000.trees")), simplify=T);
+}
+
+500000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_500000.trees")), simplify=T);
+}
