@@ -57,7 +57,7 @@ and explore the consequences for inference.
 We implement a Bayesian method to infer effective movement rates and population sizes 
 under both these models,
 and find that inference using commute times
-can dramatically mislead in the presence of biased gene flow.
+can produce misleading results in the presence of biased gene flow.
 We then use forwards-time simulation with continuous geography to demonstrate that
 coalescence-based inference remains more accurate than resistance-based methods on realistic data,
 but difficulties highlight the need for methods 
@@ -115,10 +115,10 @@ Genetic distances between two genomes sampled from the landscape
 do derive from an average across a large number of paths between those points --
 the lineages along which each segment of genetic material has been inherited
 from their most recent common ancestor.
-The more recent this ancestor is,
-the smaller the genetic distance will be.
 Thanks to recombination, there are a large number of such paths, 
 and genetic distance averages over these.
+The more recent these common ancestors tend to be,
+the smaller the genetic distance is.
 It is reasonable in some situations to model these lineages as random walks across the landscape;
 however, the model of genetic distance that one is thus led to
 is \emph{coalescence time} of the random walks, 
@@ -134,13 +134,13 @@ However, all test cases had symmetric migration
 (the same rate of gene flow in both directions along each edge),
 which is likely not the case in many situations, e.g.,
 in rivers \citep{morrissey2009maintenance,sundqvist2016directional,hanks2017modeling},
-source-sink dynamics \citep{dias1996sources},
+with source-sink dynamics \citep{dias1996sources},
 or after population expansions \citep{with2002landscape}.
 
 In this paper, we contrast 
 coalescence time and resistance distance,
-and develop an inference method for movement rates on a discrete landscape
-using both as estimated from genetic distances.
+and develop a method to infer movement rates on a discrete landscape
+using genetic distances.
 As we will see,
 although the two methods are conceptually similar,
 resistance-based inference may get the wrong answer if data are derived from a coalescent process,
@@ -246,7 +246,7 @@ see Figure \ref{fig:concept_coalcom}.
      \includegraphics[scale=.5]{figs/conceptn}
     \caption{
     Illustration of the conceptual differences
-    betweeen coalescence and commute time between states 1 and 3 
+    between coalescence and commute time between states 1 and 3 
     for a continuous time Markov chain with four linearly connected states. 
     Coalescence time (left) is the time for two independently moving particles to meet and coalesce 
     (it is possible for them to be in the same location without coalescing).
@@ -286,7 +286,7 @@ and $\bone$ is the vector composed of all ones,
 then the $z^\text{th}$ column of $H$, except for $H_{zz}$,
 can be computed as $- (G_{-z})^{-1} \bone$.
 This, along with $H_{zz} = 0$, allows computation of $H$
-from the movement rates $G$.
+from the movement rates $G$ \citep{kemeny1983finite}.
 
 Suppose instead we are given the hitting times, $H$, and wish to find the movement rates, $G$.
 This is not the situation we are in -- we have either commute or coalescence times --
@@ -425,6 +425,7 @@ Information about the landscape contained in higher-order modes
 (e.g., finer resolution changes in hitting times)
 is then almost obliterated by the small eigenvalues of $G$,
 making the inverse problem possible in theory but not in practice.
+This implies a fundamental limit to the geographical resolution of inferred maps.
 For more discussion of related problems, see 
 \citet{epstein2008badtruth}, \citet{myers2008learn}, or \citet{terhorst2015fundamental}.
 
@@ -479,9 +480,9 @@ the movement rates, $G_{ij}$, that are not constrained to be zero
 and the coalescence rates, $\gamma$.
 Concretely, suppose that the spatial arrangement of populations is given by a graph,
 and only movement rates corresponding to edges in the graph are allowed to be nonzero.
-Write $i \sim j$ to mean that $i$ and $j$ are adjacent in the graph,
-that there are $m_G$ edges in the graph,
-and that each of the $n$ populations has its own coalescence rate.
+Suppose there are $m_G$ edges in the graph,
+that each of the $n$ populations has its own coalescence rate,
+and write $i \sim j$ to mean that $i$ and $j$ are adjacent in the graph.
 Then, the resulting log-posterior density is
 \begin{align} \label{eq:post}
     \begin{split}
@@ -578,7 +579,7 @@ and produces an equilibrium population density
 of close to one individual per $\sigma_d^2$ units of area.
 The probability of survival for individuals within $10\sigma_d$ of the edge of the habitat
 was multiplied by a linear factor that scaled from 0 to 1 with distance from the edge.
-Configuration the resulting simulations was similar to what is seen in 
+Patchiness of the resulting simulations was similar to what is seen in 
 Figure \ref{fig:5x3b_continuous}.
 
 Each diploid individual has one pair of homologous chromosomes with $10^8$ loci each 
@@ -645,8 +646,8 @@ we performed inference both with and without the assumption
 that coalescence rate is the same everywhere.
 For $3 \times 2$ graphs, there are 21 equations
 and 14 movement parameters,
-so that with a global coalescence rate there are 15 unknowns
-but with individual coalescence rates there are 20 unknowns,
+so that with a global coalescence rate there are 15 unknowns.
+However, with individual coalescence rates there are 20 unknowns,
 which is close to nonidentifiable.
 To quantify accuracy across these random graphs in different situations,
 we computed, for each model fit on a particular random graph,
@@ -659,7 +660,7 @@ reported below as ``mean absolute error''.
 \paragraph{Varying noise}
 Unsurprisingly, coalescence time inference became less accurate as the amount of noise increased.
 As we varied the standard deviation of the noise
-from 1/1000 to 1/50 of the mean value of $C$ for that grid,
+from 1/1000${}^\text{th}$ to 1/50${}^\text{th}$ of the mean value of $C$ for that grid,
 the mean absolute error of inferred gene flow rates ($G_{ij}$) 
 for coalescence time inference with a single coalescence rate
 increased from around 0.05 to 0.4.
@@ -669,7 +670,7 @@ Posterior interquartile ranges increased proportionally,
 although there was substantial variation in accuracy between replicates;
 see Figures \ref{fig:mult_noise} and \ref{fig:mult_noise_iqr}.
 Increasing the number of parameters by allowing multiple coalescence rates
-made the inference problem even harder --
+made the inference problem much harder --
 mean absolute errors no longer depended strongly on the amount of noise added,
 and hovered around 0.4.
 
@@ -686,11 +687,12 @@ inferred gene flow rates were almost uncorrelated with true values.
 \paragraph{Varying coalescence rates}
 Lower coalescence rates mean that lineages wander about the landscape for longer
 before they coalesce, 
-thus greatly reducing the geographic information we get from coalescence times.
+thus greatly reducing the geographic information we get from coalescence times 
+\citep{wilkins2004separationoftimescales}.
 Indeed, coalescence rates had a strong effect on feasibility of the inference problem
 (shown in Figures \ref{fig:mult_gam} and \ref{fig:mult_gam_iqr}):
 lowering the coalescence rate from 10 to 0.1
-(always adding noise with standard deviation 1/200th of the mean value)
+(always adding noise with standard deviation 1/200$^\text{th}$ of the mean value)
 increased mean absolute error of coalescence time inference from around 0.05 to 0.5.
 Again, allowing multiple coalescence rates
 or using resistance distance inference were highly inaccurate in all cases,
@@ -709,8 +711,8 @@ and coalescence rates are set to 1 everywhere.
 Figure \ref{fig:5x3b_post_coalvcom} shows posterior distributions of the movement rates
 for both coalescence time and resistance distance inference
 on this graph, with noise standard deviation equal to
-1/1000 of the mean coalescence time (left)
-and 1/100 of the mean coalescence time (right).
+1/1000${}^\text{th}$ of the mean coalescence time (left)
+and 1/100${}^\text{th}$ of the mean coalescence time (right).
 Although increased noise in the data increased uncertainty in the estimated values,
 coalescence time inference correctly inferred not only the location of the barrier
 but also the migration rates along all other edges within a reasonable margin of error.
@@ -763,7 +765,7 @@ having 105 equations and 59 unknowns.
 Both matrices of coalescence and commute times, $C$ and $R$, are symmetric,
 but they do not deal with asymmetric (biased) migration in the same way.
 Since commute time to location $i$ requires paths both to and from $i$,
-but coalescence time to $i$ only requires lineages to leave $i$,
+but coalescence time to $i$ does not,
 if there is a low rate of migration back into $i$,
 then commute times to $i$ could be quite long even while coalescence times are not.
 For instance, suppose there are three populations arranged in a line,
@@ -795,8 +797,7 @@ the movement rates that give the best fit of resistance distance
 to coalescence time data could be close to the actual rates use to generate the data.
 This does not seem to occur in practice:
 coalescence time inference was substantially more accurate in all cases.
-Posterior distributions of movement parameters are shown in Figure \ref{fig:4x4box},
-produced by applying both inference methods with a noise level of 1/200.
+Posterior distributions of inferred movement parameters are shown in Figure \ref{fig:4x4box}.
 The mean absolute errors for coalescence time inference are 0.12 or less in all cases.
 Resistance distance inference obtains roughly uniform migration rates
 (although varying by a factor of 2) in the uniform case;
@@ -854,7 +855,7 @@ However, this is nearly always a rough approximation to reality,
 in which organisms are distributed across continuous geography,
 and ``populations'' are constructed by necessity, often driven by sampling locations.
 For this reason, we applied coalescence and resistance inference,
-as well as the popular resistance-based method EEMS \citep{petkova2016visualizing},
+as well as the resistance-based method EEMS \citep{petkova2016visualizing},
 to data from simulations on continuous geography.
 
 \paragraph{Process noise}
@@ -875,7 +876,6 @@ and the stochasticity of the population history itself (``process noise'')
 % a barrier might be inferred in a region that has not happened to have a local population recently
 % only because of demographic stochasticity.
 % This might make inference using a discretization of continuous space considerably more difficult.
-
 To quantify the relative contributions of the different sources of noise,
 we compared mean genetic distances, calculated in the same way,
 between two nonoverlapping sets of samples from each of three identical simulations.
@@ -983,7 +983,7 @@ this produces gene flow ``uphill'', away from the ridge.
 Next, we simulated a recent \textbf{expansion},
 in which the middle 4/5 of the landscape was uninhabitable for 400,000 generations,
 until 500 generations before the present day
-(a model of ``secondary contact'').
+(a model of secondary contact).
 The resulting expansion produces gene flow back away from the center,
 similar to the ``valley''.
 
@@ -995,10 +995,10 @@ Coalescence time inference also correctly infers
 the general bias in recent gene flow away from the center,
 although as in other continuous-space simulations, 
 there was substantial noise in the inferred patterns.
-However, the resistance landscapes as inferred by EEMS show patchy, vertical bands of high resistance:
-these patterns are commonly seen when attempting to use EEMS, 
-whose underlying model is inherently symmetric, 
-to describe asymmetric gene flow.
+However, the resistance landscapes as inferred by EEMS show patchy, vertical bands of high resistance.
+These patterns are commonly seen when attempting to use EEMS, 
+whose underlying model of gene flow is symmetric,
+to describe anisotropic gene flow.
 Our analysis above shows that this is an unavoidable consequence of the resistance approximation,
 and our implementation of resistance distance inference,
 which allows asymmetric gene flow, shows similar patterns
@@ -1063,9 +1063,10 @@ but tends to make the inference problem itself more ill-conditioned:
 with more connections,
 changing the value of one connection affects coalescence time less,
 and so inferences about that value must necessarily be less certain.
-This tradeoff implies a high degree of unavoidable uncertainty.
+This tradeoff implies some degree of unavoidable uncertainty.
 Reproducible, reliable inference will likely require development of new inference methods
-explicitly incorporating continuous geography.
+that explicitly model continuous geography.
+
 
 Although commute and coalescence times can be quite different,
 they are equal (with a particular choice of local diversity)
@@ -1075,6 +1076,7 @@ with symmetric migration
 The similarity of these models to rectangular grids
 may explain why in other work, resistance distance methods have shown relatively good fit to data
 simulated with symmetric migration rates.
+
 
 \paragraph{Other methods}
 For comparison on equal footing, we have implemented a resistance-based inference method.
@@ -1151,9 +1153,9 @@ e.g., using Circuitscape \citep{mcrae2006isolation}.
 This is because if we have $n$ sampled locations
 on a landscape discretized into $N$ regions,
 the computational complexity of finding commute times is $nN$,
-but coalescence time scales as $N^2$.
-This is because each $N$-vector of hitting times to a particular location can be found independently,
-but the entire $N \times N$ matrix of coalescence times must be found together.
+but coalescence time scales as $N^2$
+(Each $N$-vector of hitting times to a particular location can be found independently,
+but the entire $N \times N$ matrix of coalescence times must be found together.)
 However, as we discuss above, this fine geographic resolution is in some sense illusory --
 for each fine-resolution map there should be coarser maps that give almost identical coalescence times --
 but we are not aware of existing theory providing guidance on how to find these.
@@ -1189,7 +1191,7 @@ However, geographic differences in mean relatedness
 are established on a shorter time scale --
 the time scale over which a lineage, moving randomly across the landscape,
 ``forgets'' where it started
-(i.e., the mixing time of the Markov chain).
+(i.e., the mixing time of the Markov chain \citep{wilkins2004separationoftimescales}).
 This is the time it takes for the uncertainty in lineage movement
 to reach the scale of the species range.
 For instance,
@@ -1217,6 +1219,10 @@ so knowing how one lineage moves is informative about how the other lineage is l
 This effect becomes small as population density increases, 
 so it should be a relatively minor point if the offspring
 of any one parent are typically interspersed with the offspring of many others. 
+Natural selection also makes the coalescent process non-Markovian.
+Differences in the strength of linked selection along the genome
+could even cause the statistical behavior of lineages to depend
+on the region of the genome being studied \citep{wang2014isolation,li2016local}.
 However, more investigation with continuous-space models is needed.
 
 
@@ -1301,7 +1307,7 @@ then a solution exists.
     \label{fig:valid_range}
 \end{figure}
 
-To produce a comcrete example, suppose that
+To produce a concrete example, suppose that
 $C_{11} = 1$, $C_{12} = 2$, and $C_{22} = 1.5$ in arbitrary time units.
 The other parameters will be non-negative 
 when $1 \leq \gamma_1 \leq 5$,
@@ -1532,8 +1538,8 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
     Comparison of mean coalescence times between samples and between replicates
     for a $4 \times 4$ discretization of a square landscape with uniform migration.
     Between the 16 geographic regions, there are 136 comparisons;
-    these are shown for two nonverlapping samples taken from three independent replicate simulations,
-    each plotted agains the the mean value across all replicates.
+    these are shown for two nonoverlapping samples taken from three independent replicate simulations,
+    each plotted against the mean value across all replicates.
     Colors denote simulation replicate,
     and point type (circle/triangle) denotes the sample.
     Without sampling or process noise, all points would fall on the $y=x$ line.
@@ -1606,10 +1612,10 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
         posterior median migration rates 
             as estimated using 
             \textbf{(middle left)} the commute time method and
-            \textbf{(middle right)} the the commute time method.
+            \textbf{(middle right)} the commute time method.
         Last are shown the posterior distributions, for
             \textbf{(bottom left)} the commute time method and
-            \textbf{(bottom right)} the the commute time method.
+            \textbf{(bottom right)} the commute time method.
         \label{sfig:barrier_results}
     }
 \end{figure}
@@ -1712,7 +1718,7 @@ for instance, the observed bias in lineage movement could be observed
 if the tortoise fecundity in the Ivanpah valley in region 9
 is higher than in the colder, higher-elevation regions to the north.
 Or, it could be the result of a historical range expansion out of the area,
-perhaps out of a more resticted range as climates changed after the last glacial maximum.
+perhaps out of a more restricted range as climates changed after the last glacial maximum.
 The presence of source-sink dynamics would be of great interest for tortoise conservation efforts,
 but it is not clear from this analysis which explanation is more likely.
 Some aspects of the results may even be the produced by sample configuration:
