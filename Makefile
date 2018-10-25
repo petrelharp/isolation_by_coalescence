@@ -2,7 +2,8 @@
 
 all: isolation_by_coalescence.pdf
 
-isolation_by_coalescence.pdf : references.bib figs/conceptn.pdf
+isolation_by_coalescence.pdf : references.bib figs/conceptn.pdf figs/all_flat_divergences.fonts.pdf figs/barrier_sample_locations_pretty.fonts.pdf figs/fancy_watershed_assignments.fonts.pdf
+
 
 clean: 
 	-rm *.aux *.log *.lof *.lot *.fff *.ttt *.out *.bbl *.blg
@@ -30,3 +31,7 @@ clean:
 
 %.eps : %.pdf
 	inkscape --without-gui --export-eps=$@ $<
+
+%.fonts.pdf : %.pdf
+	# this will embed fonts properly
+	inkscape $< --export-pdf=$@

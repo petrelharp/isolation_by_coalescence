@@ -7,6 +7,7 @@
 \usepackage{xcolor}
 \usepackage{natbib}
 % \usepackage{subcaption}
+\usepackage{lineno}
 
 \bibliographystyle{plainnat}
 
@@ -34,12 +35,24 @@
 
 \newcommand{\plr}[1]{{\em \color{blue} #1}}
 
+\newif\ifstupid
+\stupidtrue  % for submission
+% \stupidfalse % for actual reading
+
+\ifstupid
+    % \renewcommand{\includegraphics}[2][]{\relax}
+    \usepackage{endfloat}
+    % \renewcommand{\efloatseparator}{\mbox{}} 
+\fi
+
 \begin{document}
 
 \title{Are populations like a circuit? The relationship between isolation by distance and isolation by resistance}
 \author{Erik Lundgren\footnote{Computational Biology, University of Southern California}, and
         Peter L. Ralph\footnote{Institute for Ecology and Evolution, University of Oregon}}
 \maketitle
+
+\linenumbers
 
 \begin{abstract}
 A number of methods commonly used in landscape genetics
@@ -950,7 +963,7 @@ this step might not be straightforward.
 
 \begin{figure}
 \centering
-     \includegraphics{figs/barrier_sample_locations_pretty}
+     \includegraphics{{figs/barrier_sample_locations_pretty.fonts}.pdf}
      \includegraphics[height=0.3\textheight]{figs/barrier_coal_grid}
      \includegraphics[height=0.3\textheight]{figs/barrier_coal_boxplots}
     \caption{
@@ -1244,9 +1257,21 @@ the Sloan Foundation and the NSF (under DBI-1262645) to PR.
 
 \bibliography{references}
 
+\ifstupid
+\processdelayedfloats
+\fi
+
+\newpage
+
+
 \appendix
 \renewcommand{\thefigure}{S\arabic{figure}}
 \setcounter{figure}{0}
+\ifstupid
+    % for endfloat
+    \renewcommand{\thepostfigure}{S\arabic{postfigure}}
+    \setcounter{postfigure}{0}
+\fi
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1535,7 +1560,7 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
 
 \begin{figure}
 \centering
-    \includegraphics{figs/all_flat_divergences}
+    \includegraphics{{figs/all_flat_divergences.fonts}.pdf}
 \caption{
     Comparison of mean coalescence times between samples and between replicates
     for a $4 \times 4$ discretization of a square landscape with uniform migration.
@@ -1664,6 +1689,10 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
         \label{sfig:expansion_results}
     }
 \end{figure}
+
+\ifstupid
+\processdelayedfloats
+\fi
 
 \end{document}
 
