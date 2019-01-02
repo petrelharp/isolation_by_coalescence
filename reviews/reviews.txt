@@ -1,0 +1,385 @@
+02-Jan-2019
+
+Dear Mr. Ralph:
+
+Your manuscript entitled 'Are populations like a circuit? The relationship between isolation by distance and isolation by resistance' has now been reviewed and assessed by an Editor. Their comments are included below. While the manuscript cannot be accepted in its present form, the Editor has indicated that if you can complete the required revisions satisfactorily, it may then be cleared for acceptance.  The manuscript may or may not undergo further review at the Editor’s discretion.   Please realize that this is not a guarantee that a revised manuscript will be accepted. If the Editor does not regard the revised manuscript as satisfactory, the automatic decision will be to reject the manuscript, possibly with encouragement for a further resubmission at a later stage.
+
+To submit your revised manuscript, log in to your ScholarOne account and click on the 'manuscripts with decisions' link, click 'create a revision' and follow the on-screen instructions. Do not upload your revised manuscripts as a new submission. Please include a point-by-point response to the reviewer comments, including a detailed list of changes made and a rebuttal to any comments with which you disagree, being as specific as possible in your responses.  In addition, please provide a version of your manuscript with the changes tracked or highlighted.  The title and abstract of your article are very important to increasing its visibility. We encourage you to make your article more discoverable online with the following tips: http://media.wiley.com/assets/7158/18/SEO_For_Authors.pdf
+
+Your original files will be available to you when you upload your revised manuscript. Please delete any outdated files before completing the submission.
+
+Should your manuscript be accepted, data archiving must be completed and data must be publicly available prior to publication of your manuscript. Exemptions to this policy may be granted for cases involving sensitive information such as human subject data or the location of endangered species.
+
+In order to schedule publication efficiently, we impose a deadline of 30 days for the return of revised manuscripts. Manuscripts returned after the deadline may be regarded as new submissions, with a new receipt date, and may be subject to the full peer review process.
+
+If you feel that your paper could benefit from English language polishing, you may wish to consider having your paper professionally edited for English language by a service such as Wiley’s at http://wileyeditingservices.com. Please note that while this service will greatly improve the readability of your paper, it does not guarantee acceptance of your paper by the journal.
+
+I look forward to receiving your revised manuscript.
+
+Best Wishes,
+
+Dr. Karen Chambers
+Managing Editor, Molecular Ecology Resources
+E-mail: Manager.MolEcol@wiley.com
+
+Editor Comments to Author:
+
+Dear Drs. Ralph and Lundgren,
+
+We received five reviews for your submitted article. While three are quite positive, two others are more critical. In the balance of comments, all reviewers felt that your article should be published in MER, though significant improvements were requested. Therefore, my decision is to request a revision before accepting your article.
+
+Please respond to all major comments raised by the reviewers. In particular, try to address the following points: 1) Revise figures for clarity and legibility. 2) Include an empirical dataset, as suggested by REV 2. 3) Rewrite for a broader audience of biologists (translating some difficult concepts when possible and as appropriate). 4) Clarify aspects of the statistical methods as indicated by several reviewers.
+
+We appreciate you considering MER for your manuscript,
+
+Sean
+
+Dr. Sean Schoville
+Subject Editor, Molecular Ecology Resources
+
+
+Data Accessibility Comments:
+
+Reviewer Comments to Author:
+
+Reviewer: 1
+
+Comments to the Author
+The authors present a new Bayesian method to fit movement rates between a set of demes to pairwise genetic differentiation, utilizing a MCMC. They first state the basic equations, which closely resemble existing theory of stepping stone models. They extensively compare their computational method to resistance based methods using an own implementation of the latter, both "under the model" as well as using various quite realistic forward in time simulations. Resistance based methods are much faster and can handle much more demes than the method presented here (no case with more than a 5x5 grid is shown). Therefore, as the authors point out, this work will likely not contest the use of resistance distances for visualizing spatial genetic patterns (which is often done in an exploratory way). But importantly, the method here can infer asymmetric and biased rates, unlike almost all existing methods, which presents a major advance – and certainly fills a niche.
+
+Despite the computational limitations, I believe that this paper will provide researchers a good starting point for future development, by both giving a review about difficulties and also a first idea and example for an implementation.
+
+Overall, I think this article makes a very valid contribution for Molecular Ecology Ressources. The authors put their work into the right context and show good knowledge of the relevant literature. The writing is both clear and concise. Importantly, they do not shy away from pointing out the limits of their method, and the very stringent (often unrealistic) assumptions such methods usually make.
+
+I have several comments, but none of them are ``make-or-break'' or fatal flaws. The manuscript is already in a good state. But I hope the authors can use my comments to further improve their work.
+
+Major comments:
+
+.) Clearer point out the current computational limitations of your coalescence time method. It seems it gets tricky with more than about 30 demes? What is the run-time then, does the whole thing blow up? Give an idea how big is too big!
+
+.) What is the exact scaling? The bottleneck seems to be calculating the coalescence times with equation (7). You only say that it ``can be solved with standard linear algebra''. Are you doing Gaussian elimination or something else worse than N**2 (N..Nr Demes). Do you use any speed-ups to deal with the sparse nature of G for neighbor-only migration? Is it faster than getting the coalescence times by iterating time-discretized recursions?
+
+It would be helpful for further progress to describe the exact scaling and the exact algorithm you use.
+
+.) The title of the manuscript is a bit misleading. One would not guess that the introduction of a method to infer biased and asymmetric gene flow is the main point.  ``Isolation by distance'' does not appear often in the manuscript, neither its classic literature (Wright, Maryuama, Malecot, Barton etc.) nor direct investigation of genetic differentiation with geographic distance. But these things are also not the scope of this paper.
+
+.) You could write an outlook stating that your method could be used to fit parameterized models with few parameters. For instance, in case the putative location of a barrier or an area of biased gene flow is known, one could try to infer it without fitting ALL movement parameters, but a simple parametric model, which would implicitly take care of the regularization.
+
+.) You use mean absolute error in movement rate to describe the model fit. I believe this measure can be quite misleading for exponential movement rates. Large rates can be notoriously hard to infer (are you super or super-super well connected is almost the same), so it is easy to be off quite a bit, which drives the average absolute error in rate. Also in practice, one does not care so much about absolute rates but ``relative'' ones. So using a correlation measure R**2  of inferred movement rates with actual movement rates would be a very useful and natural fit parameter.
+
+.) You write you use standard methods to check convergence and mixing of the MCMC chain (line 182). Given the degeneracy and the high dimensionality, where there any problems? E.g., local optima you were stuck sometimes? Or was it always pretty straightforward? Maybe write a few sentences on that!
+
+.) F_ST != Absolute divergence!!! (Line 77-80). F_ST is more a co-variance measure, and for instance heavily influence by sampling a batch of related individuals (whereas the mean of absolute divergence will be unchanged).
+
+.) You have your own implementation of resistance distance methods, by first extracting hitting times. However, you allow non-symmetric rates, something no existing resistance method would do. Given your observation that there is a lot degeneracy for resistance times (adding skew stuff to hitting times), this introduces uncertainty that likely cannot be broken such as with coalescence methods. This could drive the high uncertainty in Fig 5 upper right. Given your good results for Fig. 4 for the symmetric case, this is a bit surprising. Maybe run one scheme where you FIX to a single symmetric movement rate between each pair of demes. This setting would be a fairer comparison (and be much closer to what EEMS etc. actually do – they do not even try to infer asymmetric rates).
+
+
+Minor comments:
+.) Maybe describe the model you use for you calculation and inference, a continuous backward in time Markov model with coalescence rates in demes before the actual recursions, and not bit by bit in there.
+
+.) Line 111 and 112. Do you actually use this tensor product for the movement rates anywhere? And seems Eq. 7 (which has no Tensor product) is all you need.
+
+.) Line 115: Not all ZC skew-symmetric would translate to valid Generators G + Z. The diagonal elements of G have another condition (they have to be minus the sum of all other jumping rates). Would be interesting to explore this a bit more – overall what the dimensionality this degeneracy is (implicit function theorem), and also if there are simple toy examples where they pop up.
+
+.) Eq. 4: H may not be always invertible (H symmetric and positive off-diagonal and 0 on the diagonal is NOT enough). So there might be some pathological cases where multiple G link to one H, maybe even in some simple toy examples.
+
+.) Dimensionality arguments (Line 129 onward) can be a bit misleading when you already now the equations have a non-trivial kernel. Set all non-neighboring elements of G to 0 might not get rid of parts of the kernel. So maybe flag it even more as ``be cautious'' as you already have.
+
+.) You could just call the thing by its name: ``Stepping stone'' model. This term has such a rich history in population genetics!
+
+.) In the main text, you never mention that the mean of the exponential movement rates for simulations is one, only in a figure. One can also kind of see it from the model figures, but it would be nice to have it explicitly stated in the main text.
+
+.) In the figures, probably keep model figure and inference results closely together. This helps the reader, and makes the figures stand more for themselves.
+
+.) Useful result to know: Maryuama’s invariance principle (Nagylaki 1998): That the correctly weighted within coalescence time within demes only depends on the total population size  (given conservative migration) – so it cannot fluctuate too wildly across demes and movement rates! This fact motivates why not fitting too wildly differing within-deme coalescence times/diversities.
+
+.) Line 365: 400 000 generations will look a bit lunatic for someone not in popgen who does not know about rescaling. You could give re-scaled, more realistic values!
+
+.) Line 304-317: Maybe move this section in front of the inference part, as it is useful to know the most ``fundamental'' limit of resistance distances.
+
+
+.) Fig. 7: With EEMS one can see very suspiciously the 4x4 sampling structure - there are red dots in almost all 3x3 centers of the sampling squares. Since EEM is quite fast, could you increase the resolution of sampling?
+
+.) You could experiment with visualizations a bit. EEMS got quite popular as exploratory visualization tool because it produces visually pleasing plots. Do lines with two arrowheads of different sizes near the middle, maybe even colored (blue to red) work?
+
+
+Citations:
+
+The Effects of Genetic and Geographic Structure on Neutral Variation
+Brian Charlesworth, Deborah Charlesworth and Nicholas H. Barton
+Annual Review of Ecology, Evolution, and Systematics
+Vol. 34 (2003), pp. 99-125
+
+Nagylaki, T., 1998 The expected number of heterozygous sites in
+a subdivided population. Genetics 149: 1599
+
+
+
+
+Reviewer: 2
+
+
+This work revisits McRae’s seminal isolation-by-resistance (IBR) model through
+the lens of coalescent theory. The original idea of IBR was to compare patterns of
+genetic distance observed on a landscape with the so-called ``resistance distance''.
+The resistance distance between states i and j in a Markov chain is defined to be
+the ``commute time'': the expected amount of time it takes for the chain to go
+from i to j and back, integrated over all possible paths of the chain. Resistance
+distance comes from electrical circuit theory and is not a model of genetic
+variation across a landscape. Also, it is inherently symmetric in i and j, and
+cannot accomodate asymmetric migration between demes. A more biologically
+realistic model is the structured coalescent. Hence, if data are generated under
+the something resembling the coalescent, then there is scope for improving IBR
+by reducing model misspecification.
+
+This paper implements such a method and conducts comparative analyses on a
+number of simulated data sets. It seems that in general, this method and the
+resistance-based approaches (as exemplified by EEMS) produce somewhat com-
+parable results so long as migration rates are symmetric. The largest differences
+emerge when gene flow is asymmetric, because this fundamentally violates the
+resistance distance model used by EEMS. Here, the authors show convincingly
+that inferring migration rates using the resistance distance approximation can
+be wildly inaccurate compared to the same estimates obtained using coalescent
+methods. To the extent that gene flow is more likely to be asymmetric in many
+natural populations, this seems like an important finding.
+
+My overall impression of this work is fairly positive. The paper is very clearly
+written, and the idea of replacing IBR with a method that is more faithful to
+the underlying biology is appealing. The methods section (as well as appendices)
+feature a very nice and readable summary of the mathematical innovations of
+this work, as well as some interesting discussion of issues of identifiability and
+power. Similarly, discussion section in very well done and really strengthens
+the manuscript. It includes a thorough survey of the related work, as well as a
+forthright discussion of advantages and disadvantages of the proposed method,
+and it raises a number of interesting questions and directions for future research.
+Overall, the paper was a pleasure to read.
+
+I find the main deficiency to be the lack of any analysis of real data. All
+experiments are carried out on simulated data only. This is a puzzling omission.
+The authors went to the trouble of creating an R package (which is good), so
+clearly they intend for the method to be used in practice. Personally, I would
+hesitate to publish the results obtained from a method which had not previously
+been verified to produce reasonable answers in real data. This really feels like
+something the authors ought to have included. It is not necessary that the data
+be novel – reanalyzing (say) the African elephant dataset in the EEMS paper
+would provide for an interesting comparison (even if it cannot be done at an
+equivalent spatial resolution) and would also go long way towards reassuring
+practitioners.
+
+Specific comments
+
+- ``Bayesian inference of movement rates'': In their model the authors assume
+that many entries of the migration rate matrix are zero, and place an
+exponential prior on the rest. Is it safe to assume that we will always want
+to constrain rates between discontiguous cells to zero? Also, given the
+valid concerns that they raise elsewhere about identifiability and power,
+I wonder if the authors considered placing a sparse prior on the entire
+G matrix, enabling the model to adapt to the amount of signal while
+shrinking other migration rates to zero. This might have the effect of
+making the resulting non-zero estimates more stable. (I realize that this
+raises potential problems for inference if the underlying graph becomes
+disconnected.)
+
+- The discussion of ill-conditioning is welcome. From experience, it often
+feels like coalescent-based methods have little power to accurately estimate
+migration unless the rates are large. It might be interesting to shift
+emphasis from estimation to the slightly easier problem of testing: how
+good are these methods at distinguishing between a given null and an
+alternative hypothesis (say, barrier vs. no barrier) for the rate matrix G? I
+think the gain of using a coalescent model might be more apparent in this
+case.
+
+- This method is computationally limited by equation (7), which has a
+complexity of O(d 6 ) for the product Markov chain on d demes mentioned
+a few lines below. At least, that is the cost for solving (7) exactly – but
+given the noisiness of the matrix C, there may be little point in doing that
+anyways. I wonder if the authors have thought at all about obtaining an
+approximate solution to (7), where the error in approximation is chosen
+to in some way to balance out the statistical error inherent in C / D. It
+may also be possible to leverage the fact that the solution G is sparse here.
+(This is more of a suggestion for future research rather than a suggestion
+for revision.)
+
+- Line 350: do the authors have any other guidance on how to discretize the
+landscape?
+
+- Does the issue of having negative entries of G (lines 112-117, Appendix A)
+arise during the course of MCMC sampling, and if so, how is it dealt with?
+
+Typos / minor suggestions
+
+- Line 150: suggest ``commonly'' in place of ``not uncommonly''
+
+- Line 305: strongly misleading?
+
+
+Reviewer: 3
+
+Comments to the Author
+This is an interesting paper on a topic that should be of wide interest to readers of MER.  The main results are useful:
+1)      landscape genetics models based on resistance theory can be misleading if gene flow is asymmetrical
+2)      coalescent-based models deal better with asymmetry but are not a panacea for a variety of reasons.
+On the other hand, I found myself with quite a few questions after reading the manuscript.  Raising new questions is not bad in and of itself, but most of these were questions that could/should have been clarified in the text.  As a consequence, the manuscript is not as effective or useful as it might be.  The problem is not in the writing itself, which generally is careful and precise.  Instead, the main problem involves translating a very technical exercise into something that is accessible to typical readers of the journal.  Some examples are described below.
+
+Although the theme of the paper is relevant to the journal, I think most readers of MER would find the manuscript hard going in many places.  For example, the text at 102-109 and 136-146 would benefit from translation into insights more meaningful to biologists.  The authors do a good job of this in discussing results for asymmetric gene flow at lines 296-299.
+
+The reader also needs to understand the biological consequences of various assumptions.  Examples  where this could be improved include:
+86:  if the genome is selectively neutral ...
+135: as long as long distance migration is disallowed
+163:  C is large compared to sigma
+242: we can estimate amount of noise well
+The text at 468ff relating to the assumption of constant pop size and migration rates does a good job of explaining these consequences.  Perhaps all assumptions could be listed in a single place and their biological consequences explained.
+
+76-96:  How exactly is the pairwise genetic distance calculated?  What does ``density of sites'' mean?  Is it just the fraction of sites at which two genomes differ?  If so it is just pairwise theta as used by Wakeley and others.  Eq 1:  what is Rij and how is q calculated?
+
+G, the movement rate, is clearly a key parameter but is not clearly defined (or if it was I missed it).  What are the units of G?  Geographic distance per unit time?  What are the time units?  Years?  Generations?  If the latter, then does G represent parent-offspring dispersal distance as defined by Wright?  Are generations assumed to be discrete?  If not, can a migrant leave offspring at various different geographic points?
+
+As described, the model deals with groups of individuals (populations) that sometimes exchange individuals.  But much of landscape genetics/genomics deals with continuously-distributed species that don’t have recognizable populations.  Are the results also applicable to scenarios like this?  Why or why not?
+
+The authors identify two sources of noise: Sampling noise (arising from sampling of individuals) and Process noise (stochasticity of population history).  Using SLiM, which I gather controls for random variation in the realized pedigree and hence eliminates (or only reduces?) Process noise, the authors obtain estimates for the relative magnitude of the two sources of noise.  This is useful but seems incomplete for two reasons:
+•       A third source of noise is sampling a finite number of genes or SNPs.  To some extent one can trade off sampling individuals vs loci, but there are limits to how effective that is
+•       The relative magnitudes of the three sources of error are not constant and can vary dramatically depending on parameter values.  Process error is inversely related to Ne but otherwise fixed in magnitude; it does not change when sampling errors change.  This means that Process error becomes relatively more important when there is a lot of replication in sampling.  In particular, genetic sampling error gets very small as the number of SNPs becomes arbitrarily large, in which case it is dwarfed by Process error (e.g., see Figure 6 in our 2009 Mol Ecol paper cited by the authors).
+Also in relation to genomics-scale datasets, two general potential advantages can be identified:
+•       Arbitrarily large numbers of loci can increase precision and statistical power for existing analyses;
+•       Ability to access information related to genome structure and function can provide novel insights and make possible qualitatively new types of analyses
+Lots of people have genomics-scale datasets these days so some discussion of this issue seems important.
+
+``Can our method replace resistance-based methods? Perhaps, but the substantial uncertainty we saw on graphs with only tens of nodes is indicative of a larger problem we face for realistic models. We have seen that discretization of space results in substantial modeling error, in part because of randomness of geographic sampling and unmodeled process noise can lead to overfitting. Partitioning space into a finer grid should help with these problems, but tends to make the inference problem itself more ill-conditioned: with more connections, changing the value of one connection affects coalescence time less, and so inferences about that value must necessarily be less certain. This tradeoff implies some degree of unavoidable uncertainty.  Reproducible, reliable inference will likely require development of new inference methods that explicitly model continuous geography. ``
+        This seems like a fairly crucial paragraph.  But what exactly is the take-home message for biologists interested in practical application of the methodology?
+
+Coalescent rates are critical to model performance, which can be poor if the rate is too low.  It is obvious that the coalescent rate is inversely related to Ne, but in practical terms, what does it mean when the coalescent rate is lowered from 10 to 0.1?
+
+253:  ``we varied the standard deviation of the noise from 1/1000th to 1/50th of the mean value
+of C for that grid.''  This sounds like a CV of 0.001 to 0.02 for noise, both of which would be exceedingly small.  If that is not what is meant, please clarify.
+
+482:  ``if fecundity is variable'' – on what scale?  Among populations?  Among individuals?  Among ages within the same individual? 
+
+172:  ``It is not required in this approach to have samples from every spatial location ...''  Required for what?  Are they saying that unsampled but real (ghost) populations have no effect on precision or bias?
+
+Many of the figures are too small to read easily without a magnifying glass.   Figures 3-5 are large enough but they include miniscule fonts that make it impossible to tell exactly what is plotted.  Green and black do not provide enough contrast.
+
+Minor comments:
+
+19-20:  another limitation of direct observations is that they only provide information about movement of individuals but not gene flow, which requires successful breeding
+57:  the ``wrong answer'' compared to what?
+62:  what is EEMS?
+66: what exactly is a more general problem?
+78:   need a semicolon, not a comma, after ``two genomes''
+184:  why quotes for ``from the model''?
+p. 5 bottom:  ``suppose that the spatial arrangement of populations is given by a graph ...''  ``Graph'' is a very general term and not clear exactly what is meant here.  If the word has a more specific meaning in this context, please define it.
+Fig 6: the barrier is ``sufficiently thick'' to prohibit migration.  ``Thick'' implies distance, but is that a requirement?  Couldn’t the barrier be higher or deeper or less penetrable for a different reason than thickness?
+
+
+
+Reviewer: 4
+
+Comments to the Author
+This is a polished theoretical and methodological contribution towards understanding the genetic processes that affect genetic distance and thus connectivity of species across the landscape. The authors make a little-appreciated point about considering the coalescent time as a predictor of genetic distance as opposed to resistance distance which can result in spurious results  where genetic distance is shaped by asymmetrical gene flow and coalescent processes.
+There are some points of clarification however that I think need to be made so that the paper is accessible and clear to its intended audience, and to ensure the paper can be adopted and influence analyses in this area. The differences in the highly spatial resistance distance approach versus the genetics-based coalescent time-based approach need to be distinguished more clearly, as in some ways this may be seen as comparing apples and oranges. Issues around timescales of genetic change (effects of landscape vs coalescent times) need to be further addressed and elucidated.  The differences in the results gained from the approaches are clearly defined and presented however.
+
+The types of questions and the type of demographic scenarios under which resistance vs. coalescense based approaches may be an improvement, or combined in the same study should be made more clearly. I suggest a summarising table or flow chart to this effect, that addresses time scales also.
+
+
+Line 7 of abstract and generally:
+This statement is conditional on the characteristics of the data you have, and your study aim. If the study aim is to  ask how landscape features affect genetic distance, then the coalescent time is not going to explicitly test this, or? It needs to be made clear how different study objectives will benefit in landscape genetics and under what circumstances a 'more accurate' predictor of genetic distance can be gained. It seems appropriate to mention that this approach would greatly complement existing landscape genetic analysis approaches to see the relative effects of resistance and coalescent time. Implications for management decisions based on resistance models could be mentioned, as resistance models are intended to inform conservation decisions in some cases.
+
+Line 26- 38 - Extremely long sentence, please divide.
+
+266- Would it make sense to select genetic markers that are more informative for coalescence rates by narrowing the level of variation accepted in the model? Would this help error rates justifiably or just bias interpretation?
+
+296-299 - I think it  might be helpful if this point was made earlier and reiterated
+
+
+Reviewer: 5
+
+Comments to the Author
+This article focuses on the inference of gene flows between populations from the analysis
+of georeferenced genetic data. In particular, a new coalescent-based technique, which
+applies to the analysis of pairs of sampled individuals, is compared to an approach based
+on "resistance distances" which aim at approximating coalescent distances. This work is
+interesting because resistance distances are at the core of several popular techniques
+in landscape genetics. It is thus important to gain a good understanding of how good
+this phenomenological approximation is compared to more mechanistic techniques such
+as the structured coalescent. The article clarifies the connections between the two
+approaches in a convincing manner. It thereby fully deserves to be published in Molecular
+Ecology Resources. There are however a few points (see below) that I think should be
+improved should the authors see fit.
+
+
+> Section "Hitting times of Markov chains"
+
+Pr(X_{t+e}=y | X_t=y) should read Pr(X_{t+e}=y | X_t=x).
+
+Regarding Equation 2, I would recommend giving more detail explaining where this comes from. Here
+is a suggestion:
+
+   H_xz = dt + \sum_y Pr(X_dt = y | X_0 = x) H_yz
+        = dt + \sum_{y != x} Q_xy dt H_yz + (Q_xx dt + 1) H_xz
+
+On a related note, it might be helpful to give more explanations about Equation 6. In
+fact, I am not quite sure I agree with it. Indeed, for x != z, we have
+
+      C_xz = dt +
+             1/2 \sum_y Pr(X_dt = y | X_0 = x) C_yz +
+             1/2 \sum_y Pr(X_dt = y | X_0 = z) C_xy,
+           = dt +
+             1/2 \sum_{y != x} Q_xy dt C_yz + (Q_xx dt + 1) C_xz +
+             1/2 \sum_{y != x} Q_zy dt C_xy + (Q_xx dt + 1) C_xz,
+
+where the 1/2 terms correspond to the probability of "selecting" the lineage found in x
+(resp. z) at time 0 to move to y after dt. The last equation above then gives
+
+       -2 = \sum_y Q_xy C_yz + Q_zy C_xy
+
+which differs from the one given in the ms. I have probably missed something in the derivation
+used by the authors. Giving a few more explanations here might help avoiding any confusion.
+
+
+
+> Section "Bayesian inference of movement rates"
+
+I was also a bit puzzled by the likelihood function that is at the core of the Bayesian inference
+proposed here (see Equation 8). The spatial component of the data seems completely hidden. It is
+in fact conveyed by the coalescent times C_ij(G,\gamma) but a more detailed description of the
+likelihood function where both genetic and spatial information appear explicitly would facilitate
+the understanding of the proposed inference technique.
+
+Moreover, my understanding is that the joint probability of the pairwise genetic distances
+(D) and spatial locations (L) given G and \gamma, i.e., p(D,L|G,\gamma), is expressed as the
+product p(D|L,G,\gamma) x p(L|G,\gamma).  Thanks to Equation (7) the first density is in fact
+p(D|C), where C are the coalescent times. The authors use a normal distribution for D|C but
+nothing is said  about the distribution of L|G,\gamma. It is paramount to explicitly define
+every probabilistic distribution in the likelihood of the model used for the inference so as
+to clarify what are the underlying simplifying hypotheses the proposed approach relies on.
+
+On a related note, my understanding is that the uncertainty affecting coalescent times conditional
+on the movement rates is not taken into account in the proposed approach (i.e., knowing G, one
+gets C through Equation 7 in a deterministic fashion). I would recommend that the authors
+discuss this point.
+
+
+> Section "Identifying a barrier to gene flow"
+
+The sentence "with noise standard deviation equal to 1/1000th of the mean coalescence
+time (left) and 1/100th of the mean coalescence time (right)" should read "with noise
+standard deviation equal to 1/1000th of the mean coalescence time (top) and 1/100th
+of the mean coalescence time (bottom)"
+
+
+> Section "Discussion"
+
+The authors call for new models to be developed that would properly accommodate
+for individuals distributed in space along a continuum as opposed to discrete demes,
+as is the case with the structured coalescent. The spatial Lambda-Fleming Viot model
+is one of these. It has been studied extensively from a mathematical standpoint (see
+the body of work by Etheridge, Barton and Veber amongst others) and has been used
+for the inference using a Bayesian approach (see Guindon, Guo, Welch, Theoretical
+Population Biology, 2016; but also Koskela's PhD thesis http://wrap.warwick.ac.uk/88065/1/WRAP_Theses_Koskela_2016.pdf).
+The spatial Lambda-Fleming-Viot model is mechanistic and enjoys many good statistical
+and biological properties (e.g., it does not suffer from the "clumping" issue that
+affects the Wright-Malecot model).
+
+Assuming that space is discrete in arguably the biggest weakness of the structured
+coalescent. It is quite often not biologically realistic and breaks down mathematically
+when considering larger numbers of smaller demes. The spatial Lambda-Fleming-Viot
+avoids this important shortcoming and thus probably deserves more attention.
