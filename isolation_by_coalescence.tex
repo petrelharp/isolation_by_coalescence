@@ -19,31 +19,35 @@
 \DeclareMathOperator{\var}{\mathop{\mbox{Var}}}
 \DeclareMathOperator{\cov}{\mathop{\mbox{Cov}}}
 \DeclareMathOperator{\diag}{\mathop{\mbox{diag}}}
-
 \renewcommand{\P}{\mathbb{P}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\given}{\,\vert\,}
 \newcommand{\supp}{\mathop{\mbox{supp}}}
 \newcommand{\sgn}{\mathop{\mbox{sgn}}}
-\newcommand{\EE}[1]{\E\!\left[#1\right]}
 \newcommand{\PP}[1]{\P\!\left\{#1\right\}}
-\newcommand{\PPP}[2]{\P_{#1}\!\left\{#2\right\}}
-\newcommand{\EEE}[2]{\E_{#1}\!\left[#2\right]}
-\newcommand{\EEsup}[2]{\E^{#1}\!\left[#2\right]}
-
 \newcommand{\bone}{\mathbf{1}}
 
 \newcommand{\plr}[1]{{\em \color{blue} #1}}
 
-\newif\ifstupid
-\stupidtrue  % for submission
-% \stupidfalse % for actual reading
+\newif\ifsubmission
+% \submissiontrue  % for submission
+\submissionfalse % for actual reading
 
-\ifstupid
+%%% WARNING: right now, with submissiontrue, the supplemental figures dissappear
+%%% and are not referred to!!
+\ifsubmission
     % \renewcommand{\includegraphics}[2][]{\relax}
     \usepackage{endfloat}
     % \renewcommand{\efloatseparator}{\mbox{}} 
 \fi
+
+% Responses to reviews:
+% set this to show line numbers and include responses to reviews or not
+\newif\ifreviewresponses
+\reviewresponsestrue  % include them
+% \reviewresponsesfalse  % don't include them
+\input{review-response-commands}
+\newcommand{\responsefile}{review-responses.tex}  % name of the review reponses file
 
 \begin{document}
 
@@ -90,7 +94,7 @@ and how to retain genetic diversity in threatened species.
 This is a potentially important source of information,
 as direct observation can be difficult 
 (especially of long-distance movement, \citep{cayuelademographic,levin_et_al_seed_dispersal}),
-or even impossible, if some of the populations in question no longer exist.
+or even impossible, if some of the populations in question no longer exist. \revpoint{3}{18}
 
 The idea of ``resistance distance'' is an important tool in the landscape genomics toolbox.
 Introduced by \citet{mcrae2006isolation},
@@ -157,13 +161,13 @@ using genetic distances.
 As we will see,
 although the two methods are conceptually similar,
 resistance-based inference may get the wrong answer if data are derived from a coalescent process,
-especially in the presence of gene flow asymmetry.
+especially in the presence of gene flow asymmetry. \revpoint{3}{19}
 We also explore the question of identifiability.
 Resistance-based methods are often used to predict distances based on a few layers of geographical data
 (land cover, slope, etcetera).
 Some methods find the combination of landscape layers to best explain genetic distance,
 which allows very fine geographic resolution \citep{shaffer2017desert}.
-Other methods such as EEMS \citep{petkova2016visualizing} infer conductances without such prior information;
+Other methods such as EEMS \citep{petkova2016visualizing} infer conductances without such prior information; \revpoint{3}{20}
 however, the geographical resolution is much coarser.
 (A recently-released method 
 that is based on EEMS but uses haplotype length data and an underlying model of coalescence time
@@ -171,7 +175,7 @@ that is based on EEMS but uses haplotype length data and an underlying model of 
 is promising, but still produces similarly coarse maps.)
 One reason for this difference in resolution
 is that EEMS uses more computationally intensive Bayesian methods.
-However, we show that this is a more general problem,
+However, we show that this is a more general problem, \revpoint{3}{21}
 both because of unmodeled ``process noise'' involved in discretization of geographical populations,
 and the mathematical structure of the underlying problem.
 
@@ -198,9 +202,10 @@ and then discuss their computation and application.
 \subsection*{Genetic distance and coalescence time}
 
 There are a number of ways to calculate measures of dissimilarity using genetic data.
-In this paper we use mean pairwise divergence:
-for two genomes, it is calculated as the density of sites at which the two differ.
-It is more common in the literature to use $F_{ST}/(1-F_{ST})$,
+In this paper we use mean pairwise divergence, \revpoint{3}{6}
+which for two genomes is calculated as the proportion of sites in the genome
+at which the two genomes differ. \revpoint{3}{22}
+It is more common in the literature to use $F_{ST}/(1-F_{ST})$, \revpoint{1}{7}
 but the two are highly correlated for good theoretical reasons 
 \citep{slatkin1991inbreeding,rousset1997genetic},
 especially for SNP data.
@@ -316,6 +321,7 @@ which implies that $G$ can be computed directly from $H$ as
 \begin{align} \label{eqn:G_from_H}
     G = \left( \diag(1/\pi) - \bone \bone^T \right) H^{-1} .
 \end{align}
+(We prove that $H$ is invertible in Appendix~\ref{apx::hitting_calcs}.)
 Therefore, $H$ uniquely determines $G$.
 
 % \paragraph{Commute times}
@@ -376,7 +382,7 @@ In matrix notation, this is
 where $\diag(\gamma)$ is the matrix with the vector $\gamma$ on the diagonal and zeros elsewhere,
 and $\circ$ is the componentwise product.
 In practice, we solve this by working with the product Markov chain $(X_t, Y_t)$,
-whose generator matrix is $G \otimes I + I \otimes G$,
+whose generator matrix is $G \otimes I + I \otimes G$, \revpoint{1}{10}
 where $I$ is the identity matrix and $\otimes$ is the Kronecker product.
 
 Equation \eqref{eqn:C_matrix} is linear in $G$ and $\gamma$,
@@ -422,7 +428,7 @@ except that there are $n$ local diversity parameters instead of $n$ coalescence 
 
 This suggests that nonuniqueness of solutions may not be a problem in practice,
 as long as geography is discretized into sufficiently many locations
-and direct, long-distance migration is disallowed.
+and direct, long-distance migration is disallowed. \revpoint{3}{2}
 However, another problem appears at finer geographic resolutions:
 although solutions may be in principle unique,
 the problems become \emph{ill-conditioned} 
@@ -449,7 +455,7 @@ then inference with either model would be equivalent.
 This was demonstrated in some situations by \citet{mcrae2006isolation}.
 We have already shown that this is not the case in general,
 but it turns out that it \emph{is} true
-under some restrictive assumptions not uncommonly found in abstract population genetics models.
+under some restrictive assumptions commonly found in abstract population genetics models. \revpoint{2}{6}
 We show in Appendix \ref{sec:com_eq_coal} that
 if hitting times are symmetric ($H = H^T$),
 then this does occur,
@@ -475,7 +481,7 @@ $D_{ij} = C_{ij} + \epsilon_{ij}$,
 where $\epsilon_{ij}$ are independent and Normally distributed
 with mean $\mathbf{0}$ and variance $\sigma_\epsilon^2$,
 except that $\epsilon_{ij} = \epsilon_{ji}$.
-(We assume that $C_{ij}$ is large compared to $\sigma_{\epsilon}$,
+(We assume that $C_{ij}$ is large compared to $\sigma_{\epsilon}$, \revpoint{3}{3}
 so that resulting values are still positive.)
 Given $G$ and $\gamma$ we can solve equation \eqref{eqn:C_matrix} 
 to find the corresponding coalescence times
@@ -491,7 +497,8 @@ Therefore, we use Bayesian inference,
 placing independent exponential priors on the parameters --
 the movement rates, $G_{ij}$, that are not constrained to be zero
 and the coalescence rates, $\gamma$.
-Concretely, suppose that the spatial arrangement of populations is given by a graph,
+Concretely, suppose that the spatial arrangement of populations is given by a graph 
+(i.e., a collection of ``nodes'' connected by ``edges''),
 and only movement rates corresponding to edges in the graph are allowed to be nonzero.
 Suppose there are $m_G$ edges in the graph,
 that each of the $n$ populations has its own coalescence rate,
@@ -521,7 +528,7 @@ which is the matrix $\comdist$ computed from $G$ and $q$
 by putting the solution to equation \eqref{eqn:hitting_sum}
 through equations \eqref{eqn:R_from_H} and \eqref{eq:commute_approx}.
 
-It is not required in this approach to have samples from every spatial location,
+It is not required in this approach to have samples from every spatial location, \revpoint{3}{16}
 allowing inference on incompletely sampled spatial discretizations.
 To carry out inference in this situation,
 we simply use Equation \ref{eq:post},
@@ -652,7 +659,7 @@ by rounding independent exponential random variables up to the nearest one tenth
 and fixed coalescence rates at 1 for all locations.
 We then analytically computed mean coalescence times,
 and added independent noise to each pairwise coalescence time.
-We assume that we can estimate the amount of noise reasonably well, 
+We assume that we can estimate the amount of noise reasonably well,  \revpoint{3}{4}
 so used the true standard deviation of the noise for $\sigma_\epsilon$ in the likelihood function.
 To assess the impact on inference of the number of parameters,
 we performed inference both with and without the assumption 
@@ -672,7 +679,7 @@ reported below as ``mean absolute error''.
 
 \paragraph{Varying noise}
 Unsurprisingly, coalescence time inference became less accurate as the amount of noise increased.
-As we varied the standard deviation of the noise
+As we varied the standard deviation of the noise \revpoint{3}{14}
 from 1/1000${}^\text{th}$ to 1/50${}^\text{th}$ of the mean value of $C$ for that grid,
 the mean absolute error of inferred gene flow rates ($G_{ij}$) 
 for coalescence time inference with a single coalescence rate
@@ -699,7 +706,7 @@ inferred gene flow rates were almost uncorrelated with true values.
 
 \paragraph{Varying coalescence rates}
 Lower coalescence rates mean that lineages wander about the landscape for longer
-before they coalesce, 
+before they coalesce,  \revpoint{4}{3}
 thus greatly reducing the geographic information we get from coalescence times 
 \citep{wilkins2004separationoftimescales}.
 Indeed, coalescence rates had a strong effect on feasibility of the inference problem
@@ -785,7 +792,7 @@ For instance, suppose there are three populations arranged in a line,
 and lineages currently in the outer populations are much more likely to come from the central population
 than the other way around.
 Since lineages quickly move to the center and coalesce regardless of starting position,
-coalescence time (and genetic diversity) will be relatively low between all individuals.
+coalescence time (and genetic diversity) will be relatively low between all individuals. \revpoint{4}{4}
 Commute time between the two outer locations, on the other hand,
 will be much longer than other comparisons, since it requires a lineage to leave the center.
 
@@ -799,11 +806,11 @@ and \emph{biased}, where movement rates down or to the left are equal to 2.0,
 and movement rates up or to the right are 0.5.
 For inference, we added noise with standard deviation $1/500^\text{th}$ of the mean value.
 
-Differences between true mean coalescence times ($C$) and mean resistance distances ($\comdist$) 
-are shown in Figure \ref{fig:RvsC}:
+Differences between true mean coalescence times ($C$) and mean resistance distances ($\comdist$)
+are shown in Figure \ref{fig:RvsC}: \revpoint{1}{19}
 they are fairly small in the uniform and symmetric cases, moderate in the asymmetric case, 
 and extreme in the biased asymmetric case.
-This difference suggests that resistance distance inference may be strongly misled 
+This difference suggests that resistance distance inference may be strongly misled \revpoint{2}{7}
 in the asymmetric and biased situations,
 but in principle it still could be the case that 
 the movement rates that give the best fit of resistance distance
@@ -955,7 +962,7 @@ The barriers were also identified with comparable accuracy by both our resistanc
 and EEMS, as shown in Supplemental Figure \ref{sfig:barrier_results}.
 Note also that this analysis began by grouping samples into discrete ``populations'' appropriately;
 in absence of a good \textit{a priori} idea of where barriers are,
-this step might not be straightforward.
+this step might not be straightforward. \revpoint{2}{4}
 % For instance, we may wonder whether a river or other geographical feature
 % restricts gene flow.
 % We would then discretize the landscape such that individuals on opposite sides of the 
@@ -994,7 +1001,7 @@ and shows only a slightly lower population density (Supplemental Figure \ref{sfi
 Since individuals in the valley are more likely to have parents outside of the valley,
 this produces gene flow ``uphill'', away from the ridge.
 Next, we simulated a recent \textbf{expansion},
-in which the middle 4/5 of the landscape was uninhabitable for 400,000 generations,
+in which the middle 4/5 of the landscape was uninhabitable for 400,000 generations, \revpoint{1}{18}
 until 500 generations before the present day
 (a model of secondary contact).
 The resulting expansion produces gene flow back away from the center,
@@ -1226,7 +1233,7 @@ Modeling lineages as a Markov chain is nearly ubiquitous in population genetics 
 but may not be appropriate.
 Even though the population dynamics in forwards time are Markov, 
 the dynamics of lineages traced back in time (the coalescent process) may not be. 
-For example, if fecundity is variable and population density is low, 
+For example, if fecundity is variable and population density is low,  \revpoint{3}{15}
 two lineages near each other are more likely to share a recent common origin, 
 so knowing how one lineage moves is informative about how the other lineage is likely to move. 
 This effect becomes small as population density increases, 
@@ -1257,7 +1264,7 @@ the Sloan Foundation and the NSF (under DBI-1262645) to PR.
 
 \bibliography{references}
 
-\ifstupid
+\ifsubmission
 \processdelayedfloats
 \fi
 
@@ -1267,7 +1274,7 @@ the Sloan Foundation and the NSF (under DBI-1262645) to PR.
 \appendix
 \renewcommand{\thefigure}{S\arabic{figure}}
 \setcounter{figure}{0}
-\ifstupid
+\ifsubmission
     % for endfloat
     \renewcommand{\thepostfigure}{S\arabic{postfigure}}
     \setcounter{postfigure}{0}
@@ -1348,8 +1355,11 @@ with $\gamma_1 = \gamma_2 = 1.29$ and $G_{12} = 0.14$ and $G_{21} = 0.93$.
 \section{Finding $G$ from $H$}
 \label{apx::hitting_calcs}
 
-Suppose that $G$ is the generator matrix of an irreducible continuous-time Markov chain $X$,
+Suppose that $G$ is the generator matrix of an irreducible continuous-time Markov chain $X$
+on at least two states,
 so that $G_{ij} \ge 0$ for $i \neq j$ and $G \bone = 0$.
+Under these assumptions, there is a unique stationary distribution, $\pi$,
+that satisfies $\pi^T \bone = 1$ and $\pi^T G = 0$.
 Let $\tau_{j} = \inf\{t \ge 0 : X_t = j\}$ and $H_{ij} = \E[\tau_j \,|\, X_0 = i]$.
 Then we know that
 \begin{align*}
@@ -1359,28 +1369,41 @@ and hence that for some vector $x$,
 \begin{align} \label{eqn:GH}
     GH = - \bone \bone^T + \diag(x).
 \end{align}
-What is $x$?  Well, note that
-\begin{align*}
-    G = (\diag(x) - \bone \bone^T) H^{-1}
-\end{align*}
-and so
-\begin{align*}
-    0 = G\bone 
-    = (\diag(x) - \bone \bone^T) H^{-1} \bone  .
-\end{align*}
-Rearranging, we find that
-\begin{align*}
-    x_i = \frac{ \bone^T H^{-1} \bone }{ (H^{-1} \bone)_i } .
-\end{align*}
-Furthermore,
-the Random Target Lemma \citep{aldous-fill-2014}
+What is $x$?  
+First note that the Random Target Lemma \citep{aldous-fill-2014}
 % https://www.stat.berkeley.edu/users/aldous/RWG/Book_Ralph/Ch2.S2.html
 tells us that if $\pi$ is the stationary distribution of the chain, then 
 $(H \pi)_i$ does not depend on $i$,
-i.e., that $H \pi \propto 1$,
-and thus if $H^{-1} \bone = \nu$, 
-then $\pi = \nu / \sum_i \nu_i$.
-This says exactly that $x_i = 1/\pi_i$.
+and so there exists a vector $\nu \propto \pi$
+such that $H \nu = \bone$.
+Multiplying equation \eqref{eqn:GH} by $\nu$, we get that
+\begin{align*}
+    0 = G\bone 
+    = (\diag(x) - \bone \bone^T) \nu ,
+\end{align*}
+which rearranges to
+\begin{align*}
+    x_i = \frac{ \bone^T \nu }{ \nu_i } .
+\end{align*}
+But, since $\nu \propto \pi$,
+it must be that $\pi = \nu / \bone^T \nu$,
+and so $x_i = 1/\pi_i$.
+
+Now, we prove that $H$ is in fact invertible, \llabel{rr:H_invertible}
+by showing that $z^T H \neq 0$ for every nonzero vector $z$.
+First note that $\bone^T H \neq 0$, since the entries of $H$ are nonnegative.
+Now take $z$ orthogonal to $\bone$.
+Since the chain is irreducible,
+the eigenspace associated with the eigenvalue 0 for $G$ has multiplicity one,
+and so any vector $y$ that satisfies $y^T G = 0$ is proportional to $\pi$.
+This implies that there is a vector $y$ such that $y^T G = z^T$.
+Multiplying equation \eqref{eqn:GH} on the left by $y^T$ obtains
+$z^T H = y^T (\diag(1/\pi) - \bone \bone^T)$.
+If $H$ is not invertible, then there is a $z$ for which this is zero,
+i.e., $y_i / \pi_i = \sum_j y_j$ for every $i$.
+But, this only holds if $y = \pi$, which was disallowed,
+because then we would have $z = 0$.
+Therefore, $H$ is invertible.
 
 In summary, $\pi = H^{-1} \bone / \bone^T H^{-1} \bone$, and 
 \begin{align}
@@ -1690,9 +1713,13 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
     }
 \end{figure}
 
-\ifstupid
+\ifsubmission
 \processdelayedfloats
 \fi
+
+\newpage
+
+\includereviews
 
 \end{document}
 
