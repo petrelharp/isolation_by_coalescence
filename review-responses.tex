@@ -195,6 +195,11 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    This is something we were considering doing. 
+    We decided to allow symmetric migration in the resistance distance case 
+    in order to make the two methods as similar as possible, 
+    although it could arguably be more useful to compare them
+    when they are implemented how they would be in practice.
 }
 
 
@@ -230,6 +235,11 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    Thank you for catching this.
+    You are correct that in addition to $ZC$ being skew-symmetric,
+    the rows of $Z$ must also sum to zero.
+    The second part is also a good point, 
+    but probably beyond the scope of this paper.
 }
 
 \begin{point}{Eq. 4:}
@@ -323,6 +333,11 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    More samples could be added for the EEMS runs, 
+    but doing so would have the drawback 
+    that the two methods would no longer be using the same data for inference. 
+    We could add a note pointing out that the $3 \times 3$ grid of slow 
+    moving spaces is an artifact.
 }
 
 \begin{point}{}
@@ -405,6 +420,15 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    Whether or not it is reasonable to assume there is no long distance migration
+    depends on the population under study. 
+    There are cases where it might be a good idea to allow it.
+    Putting a sparse prior on all of $G$ is a good idea for future improvements, 
+    although it would probably be appropriate for the prior probability of a value
+    to be non-zero to be much higher for adjacent demes as compared to non-adjacent ones, 
+    which would also likely prevent the graph from becoming disconnected very often.
+    Since disconnecting the graph would result in some infinite coalescence times, 
+    these steps would be rejected anyway.
 }
 
 \begin{point}{}
@@ -435,6 +459,17 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    Solving (7) directly for $G$ and $\gamma$ with a noisy $C$ is extremely difficult
+    even in cases small enough to just use least squares; 
+    it typically resulted in some negative values unless there is very little noise in $C$.
+    In order to solve for $C$ from $G$ and $\gamma$, 
+    we briefly experimented with the Jacobi method. 
+    While it seemed to converge fairly reliably, 
+    at the grid sizes where it was computationally advantageous to use it over solving exactly, 
+    it would still take a very long time for the MCMC to converge
+    due to the large number of parameters.
+    Devoloping a way to reduce the number of parameters in a way similar to EEMS
+    while still allowing asymmetric migration is a good direction for future implementations.
 }
 
 \begin{point}{\revref}
@@ -442,6 +477,8 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    Aside from making decisions based on prior knowledge of the geography, 
+    the sampling locations might lend themselves to being grouped together in a certain way.
 }
 
 \begin{point}{}
@@ -450,6 +487,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    No. The proposal distribution includes taking the absolute value of parameters.
 }
 
 \begin{point}{\revref}
