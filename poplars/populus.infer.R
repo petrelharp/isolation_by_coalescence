@@ -174,6 +174,13 @@ gam_med <- matrixStats::colMedians(gam)
 save(file="g_med.txt",g_med)
 save(file="gam_med.txt",gam_med)
 
+# for plotting
+library(sp)
+library(maps)
+    pop_coords <- sp::SpatialPoints(as.matrix(info[,c("Longitude", "Latitude")]),
+                                proj4string=sp::CRS("+proj=longlat"))
+
+
 cairo_pdf(filename=paste0(outpath,"/grid_",fname,".pdf"),width=14,height=14)
   gr <- igraph::graph_from_adjacency_matrix(G_adj,mode="directed",weighted=TRUE)
   igraph::E(gr)$curved <- TRUE
@@ -191,3 +198,26 @@ cairo_pdf(filename=paste0(outpath,"/posterior_dists_gam_",fname,".pdf"),width=8,
   boxplot(gam[100*(1:(30e6/100)),],outline=FALSE,main=paste0("Posterior Distributions (gamma): ",name),
         names=paste0("gam",1:n),xlab="Parameter Index",ylab="Parameter Value (rate)",las=2)
 dev.off()
+
+
+cairo_pdf(filename=paste0(outpath,"/grid_",fname,"_map.pdf"),width=14,height=14)
+  gr <- igraph::graph_from_adjacency_matrix(G_adj,mode="directed",weighted=TRUE)
+  igraph::E(gr)$curved <- TRUE
+  igraph::V(gr)$color <- cols <- adjustcolor(RColorBrewer::brewer.pal(9, "Set3"), 0.95)
+  # set up map
+    
+    plot(pop_coords, pch=21, cex=2, 
+         col=adjustcolor(c("blue", "red")[as.numeric(info$Species)], 0.75),
+         bg=cols[as.numeric(info$groups)], lwd=3)
+    # points(centroids[,1:2], pch=21, col=adjustcolor(cols[1:nlevels(info$groups)], 0.25), cex=5)
+    maps::map(add=TRUE, col=grey(0.8))
+  # edge_labels <- paste0("g",1:ng,"=",round(g_med*1000)/1000)
+  edge_labels <- sprintf("%0.2f", g_med)
+  plot(gr,layout=as.matrix(centroids[,1:2]),edge.width=(3*g_med+.2),
+       edge.label=edge_labels,
+       main=paste0("Graph Structure"), 
+       vertex.size=200, vertex.label.cex=2,
+       edge.arrow.size=2, edge.label.cex=1.5,
+       add=TRUE, rescale=FALSE)
+dev.off()
+

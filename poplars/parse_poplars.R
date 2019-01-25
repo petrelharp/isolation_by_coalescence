@@ -1,9 +1,6 @@
-library(rgdal)
 library(sp)
-library(rgeos)
-library(spdep)
-library(colorspace)
 library(maps)
+library(colorspace)
 
 # Download data from https://datadryad.org/resource/doi:10.5061/dryad.7s848
 #   and convert linebreaks
@@ -24,8 +21,8 @@ pdf('poplar_groups.pdf', width=12, height=12)
     pops <- subset(pops, !is.na(pops$Latitude))
     pops$Species <- factor(pops$Species)
 
-    pop_coords <- SpatialPoints(as.matrix(pops[,c("Longitude", "Latitude")]),
-                                proj4string=CRS("+proj=longlat"))
+    pop_coords <- sp::SpatialPoints(as.matrix(pops[,c("Longitude", "Latitude")]),
+                                proj4string=sp::CRS("+proj=longlat"))
 
     north_separator <- list(a = 147.6,
                             b = 0.7076)
@@ -99,12 +96,11 @@ pdf('poplar_groups.pdf', width=12, height=12)
     cols <- rainbow(10)
     plot(pop_coords, pch=21, cex=2, 
          col=adjustcolor(c("blue", "red")[as.numeric(pops$Species)], 0.75),
-         bg=cols[as.numeric(pops$groups)],
-    lwd=3)
+         bg=cols[as.numeric(pops$groups)], lwd=3)
     text(pop_coords@coords, labels=as.numeric(pops$groups))
     points(centroids[,1:2], pch=21, col=adjustcolor(cols[1:nlevels(pops$groups)], 0.25), cex=5)
     text(centroids[,1:2], labels=1:nlevels(pops$groups), col=cols[1:nlevels(pops$groups)], cex=5)
-    map(add=TRUE)
+    maps::map(add=TRUE)
 
     segments(x0=centroids[sapply(adjlist, '[', 1), 1],
              x1=centroids[sapply(adjlist, '[', 2), 1],
