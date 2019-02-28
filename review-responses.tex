@@ -101,6 +101,14 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    The runs with 16 demes take around 10 hours with the number of iterations we used.
+    30 is probably a good limit for the current implementation. 
+    There are changes that could be made to make it more efficient for larger systems, 
+    but at that point the ill conditioning problem would be more severe 
+    because there would be more parameters, 
+    so we would probably have to do something similar to EEMS, 
+    where movement rates are the same within regions, 
+    but in a way that still allowed asymmetric migration.
 }
 
 \begin{point}{}
@@ -115,6 +123,15 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    In the current implementation, 
+    equation (7) is solved using the solve(A,b) in R. 
+    The actual method varies depending on the specific linear algebra library used, 
+    but it is typically Gaussian elimination or LU decomposition, 
+    both of which are $\mathcal{O}(N^3)$ 
+    (unfortunately the decomposition is different each step;
+    if it were the same it would be $\mathcal{O}(N^2)$).
+    Since $n$ demes gives you order $n^2$ equations and unknowns, 
+    the time complexity is 
 }
 
 \begin{point}{}
@@ -168,6 +185,10 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    Convergence could be slow, and the likelihood surface is often ridgy, 
+    but we did not see too many problems with getting stuck in completely wrong
+    areas of state space.
+    This is partly how ``pre-burn-in'' helps.
 }
 
 \begin{point}{\revref}
@@ -551,6 +572,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    added parenthetical clarification
 }
 
 \begin{point}{\revref}
@@ -616,6 +638,13 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    Yes, this is one of the reasons that continuous space was used 
+    in the forwards time simulations. 
+    As long as the landscape behaves as if it is fairly continuous
+    and changing the boundary does not move a large number of individuals 
+    from one side to the other, 
+    the exact boundary in the discretization should not have a large effect.
+    Putting two isolated subpopulations into a single group would also be problematic.
 }
 
 \begin{point}{}
@@ -691,6 +720,16 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    Assuming that the movement parameters are of order one, 
+    a coalescence rate of 10 means that 
+    lineages would be more likely to coalesce the first time they are in the same location
+    and a coalescence rate of 0.1 means that lineages would likely meet many times
+    before finally coalescing. 
+    For example, if the gene flow rates out of a deme for both lineages sum to 8
+    (rate of 1 for each direction for each lineage), 
+    the chance of the lineages coalescing before one of them leaves 
+    would be 10/18 (~56\%) with a coalescence rate of 10 
+    but only 0.1/8.1 (~1.2\%) with a coalescence rate of 0.1.
 }
 
 \begin{point}{\revref}
@@ -718,6 +757,15 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    In practice, the more locations with samples you have, the better the result will be.
+    We would not typically recommend doing inference that includes unsampled demes
+    if it could be avoided.
+    However, in the theoretical case of a population fitting the model perfectly
+    and knowing the other genetic distance values perfectly, 
+    it is possible to solve exactly for paramters relating to the unsampled populations
+    as long as there are as many unique equations as unknowns.
+    In a real situation, if data is very good for the sampled locations, 
+    inference should be reasonable for the unsampled ones.
 }
 
 \begin{point}{}
