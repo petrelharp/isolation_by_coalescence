@@ -23,7 +23,10 @@
 \vskip 1em
 
 We are writing to submit a revised version of our manuscript, 
-``Are populations like a circuit? The relationship between isolation by distance and isolation by resistance''.
+``Are populations like a circuit? 
+Comparing isolation by resistance to a new coalescent-based method.''
+(formerly titled ``Are populations like a circuit? The relationship between isolation by distance and isolation by resistance'').
+
 
 ...
 
@@ -150,6 +153,11 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 % Vol. 34 (2003), pp. 99-125
 
 \reply{
+    We do think a big point of the manuscript is discussion of the drawbacks of resistance-based methods,
+    but we agree with the point about isolation by distance.
+    We've retitled it: 
+    ``Are populations like a circuit? 
+    Comparing isolation by resistance to a new coalescent-based method.''
 }
 
 \begin{point}{}
@@ -161,6 +169,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    This is a good thing to emphasize. We've added a bit to this effect. \revref
 }
 
 \begin{point}{}
@@ -231,11 +240,13 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    We've added a bit more to our big-picture overview that we hope achieves
+    the goal of setting the stage appropriately. \revref
 }
 
 \begin{point}{\revref}
     Do you actually use this tensor product for the movement
-    rates anywhere? And seems Eq. 7 (which has no Tensor product) is all you
+    rates anywhere? And seems Eq.\ 7 (which has no tensor product) is all you
     need.
 \end{point}
 
@@ -280,12 +291,13 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 
 \begin{point}{}
     Dimensionality arguments (Line 129 onward) can be a bit misleading when you
-    already now the equations have a non-trivial kernel. Set all
+    already know the equations have a non-trivial kernel. Setting all
     non-neighboring elements of $G$ to 0 might not get rid of parts of the
     kernel. So maybe flag it even more as ``be cautious'' as you already have.
 \end{point}
 
 \reply{
+    Good point; we've changed the wording here. \revref
 }
 
 \begin{point}{}
@@ -294,6 +306,9 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    In our experience, the term ``stepping stone model'' is used in a variety of ways in the literature
+    (e.g., also for all-migrate-to-all island models),
+    so we prefer to describe explicitly the grid that we use.
 }
 
 \begin{point}{}
@@ -304,6 +319,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    Good point; we've added this. \revref
 }
 
 \begin{point}{}
@@ -313,6 +329,12 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    This is a good idea,
+    but we haven't been able to see how to implement in a way that would improve things.
+    Maybe we don't see your idea,
+    but the additional graphs that describe population structure in the Appendix
+    won't be legible if added to existing figures,
+    and we think we already have more than enough figures.
 }
 
 \begin{point}{}
@@ -327,15 +349,23 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    Good reference! We'd referred to the simpler version of \citet{strobeck1987average},
+    and added this reference. \revref
 }
 
 \begin{point}{\revref}
-    400 000 generations will look a bit lunatic for someone not in
+    400,000 generations will look a bit lunatic for someone not in
     popgen who does not know about rescaling. You could give re-scaled, more
     realistic values!
 \end{point}
 
 \reply{
+    We didn't really intend that number to sound so outlandish,
+    but we think it's more ``quite long'' than ``absurdly long''?
+    We're not sure that mentioning rescaling will help,
+    but have added a reassuring note. \revref
+    (Note that we \emph{did} actually simulate for that many generations;
+    we didn't use rescaling to run a shorter or smaller simulation.)
 }
 
 \begin{point}{Paragraph beginning \revref:}
@@ -344,6 +374,8 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    This is a good point, but we'd rather keep the different results having to do with the same model
+    together in the same place.
 }
 
 
@@ -357,8 +389,13 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     More samples could be added for the EEMS runs, 
     but doing so would have the drawback 
     that the two methods would no longer be using the same data for inference. 
-    We could add a note pointing out that the $3 \times 3$ grid of slow 
-    moving spaces is an artifact.
+    We've been told that similar patterns show up when EEMS tries to approximate
+    anisotropic migration,
+    so it may not be the sampling pattern.
+    We've added a note about this. \revref
+    (Also, note that these samples are more spread out that people often have in practice:
+    they do occur in the middle three-quarters of each grid square,
+    but they aren't all located at the center.)
 }
 
 \begin{point}{}
@@ -458,12 +495,13 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     estimate migration unless the rates are large. It might be interesting to
     shift emphasis from estimation to the slightly easier problem of testing:
     how good are these methods at distinguishing between a given null and an
-    alternative hypothesis (say, barrier vs. no barrier) for the rate matrix G?
-    I think the gain of using a coalescent model might be more apparent in this
-    case.
+    alternative hypothesis (say, barrier vs.\ no barrier) for the rate matrix $G$?
+    I think the gain of using a coalescent model might be more apparent in this case.
 \end{point}
 
 \reply{
+    This is a good point; we've added it to the discussion
+    (and credited you with it). \revref
 }
 
 \begin{point}{}

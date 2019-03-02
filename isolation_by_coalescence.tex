@@ -51,9 +51,10 @@
 
 \begin{document}
 
-\title{Are populations like a circuit? The relationship between isolation by distance and isolation by resistance}
+\title{Are populations like a circuit? 
+Comparing isolation by resistance to a new coalescent-based method.}
 \author{Erik Lundgren\footnote{Computational Biology, University of Southern California}, and
-        Peter L. Ralph\footnote{Institute for Ecology and Evolution, University of Oregon}}
+        Peter L.\ Ralph\footnote{Institute for Ecology and Evolution, University of Oregon}}
 \maketitle
 
 \linenumbers
@@ -195,7 +196,10 @@ which happens at a given rate whenever they are in the same location.
 We will denote this by $C_{ij}$.
 Why should these be related to genetic distance? 
 First, we explain this connection,
-and then discuss their computation and application.
+and then discuss their computation,
+and finally develop a method that infers movement rates of the Markov chain
+(which are reverse-time migration probabilities)
+from observations of coalescence time. \revpoint{1}{9}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -321,7 +325,7 @@ which implies that $G$ can be computed directly from $H$ as
 \begin{align} \label{eqn:G_from_H}
     G = \left( \diag(1/\pi) - \bone \bone^T \right) H^{-1} .
 \end{align}
-(We prove that $H$ is invertible in Appendix~\ref{apx::hitting_calcs}.)
+(We prove that $H$ is invertible in Appendix~\ref{apx::hitting_calcs}.) \revpoint{1}{12}
 Therefore, $H$ uniquely determines $G$.
 
 % \paragraph{Commute times}
@@ -421,8 +425,9 @@ Since coalescence times are symmetric,
 equation \eqref{eqn:C_matrix} provides $n (n+1)/2$ informative equations.
 This is larger than $4n+n$, the number of parameters,
 for a grid with at least nine nodes (i.e., $3 \times 3$),
-so the system of equations will usually have a unique solution
-for grids larger than this, except in special cases.
+so we would expect the system of equations to usually have a unique solution
+for grids larger than this,
+although some special cases will still have free parameters. \revpoint{1}{13}
 The same calculation holds for commute times 
 except that there are $n$ local diversity parameters instead of $n$ coalescence parameters.
 
@@ -448,6 +453,14 @@ making the inverse problem possible in theory but not in practice.
 This implies a fundamental limit to the geographical resolution of inferred maps.
 For more discussion of related problems, see 
 \citet{epstein2008badtruth}, \citet{myers2008learn}, or \citet{terhorst2015fundamental}.
+
+One strategy for circumventing ill-conditioning is to impose additional constraints --
+for instance, constraining all population sizes to be the same (something we do below),
+or allowing only two distinct migration rates: one rate across a barrier, 
+and another across ``non-barriers''.
+Such constraints amount to a form of regularization,
+since they look for solutions to the original problem with certain desireable properties
+(e.g., most of the values are the same). \revpoint{1}{4}
 
 \paragraph{When are coalescence and commute times equal?}
 If in a given biological situation commute and coalescence times are equal --
@@ -656,7 +669,7 @@ To test the methods across a wide range of situations,
 we generated fifty sets of random movement rates on $3 \times 2$ rectangular grids:
 twenty-five symmetric (i.e., with $G_{ij} = G_{ji}$) and twenty-five asymmetric.
 We generated movement parameters
-by rounding independent exponential random variables up to the nearest one tenth,
+by rounding independent exponential random variables with mean 1 up to the nearest one tenth, \revpoint{1}{15}
 and fixed coalescence rates at 1 for all locations.
 We then analytically computed mean coalescence times,
 and added independent noise to each pairwise coalescence time.
@@ -1003,8 +1016,9 @@ Since individuals in the valley are more likely to have parents outside of the v
 this produces gene flow ``uphill'', away from the ridge.
 Next, we simulated a recent \textbf{expansion},
 in which the middle 4/5 of the landscape was uninhabitable for 400,000 generations, \revpoint{1}{18}
-until 500 generations before the present day
-(a model of secondary contact).
+until 500 generations before the present day.
+(This is a model of secondary contact with a long period of isolation,
+but not outside the realm of possibility.)
 The resulting expansion produces gene flow back away from the center,
 similar to the ``valley''.
 
@@ -1020,6 +1034,9 @@ However, the resistance landscapes as inferred by EEMS show patchy, vertical ban
 These patterns are commonly seen when attempting to use EEMS, 
 whose underlying model of gene flow is symmetric,
 to describe anisotropic gene flow.
+The grid-like pattern visible in this and other EEMS results
+may be due to the sampling scheme
+(recall that samples are drawn from the middle three-quarters of each grid square). \revpoint{1}{20}
 Our analysis above shows that this is an unavoidable consequence of the resistance approximation,
 and our implementation of resistance distance inference,
 which allows asymmetric gene flow, shows similar patterns
@@ -1203,6 +1220,11 @@ This fact could explain the results of \citet{graves2013current},
 who found a large area of resistance parameters
 that produced equivalently good fits to genetic distance
 (i.e., nonidentifiability, analogous to a flat likelihood surface).
+An anonymous reviewer suggested
+that although inference of landscapes of movement rates may carry a degree of unavoidable uncertainty,
+the problem of \emph{model comparison} 
+(e.g., between models with and without migration across a certain barrier)
+may still produce more certain answers. \revpoint{2}{2}
 
 \paragraph{The effect of history}
 The models we discuss here assume that population sizes and migration rates
@@ -1474,6 +1496,7 @@ we can find diversity values ($q$) and coalescence rates ($\gamma$) that make $\
 (and in fact there are many ways to do this).
 However, there is not a general solution for $q$ if coalescence rates are also given (as is the case in practice).
 This is related to the fact proved by \citet{strobeck1987average} 
+(and generalized by \citet{nagylaki1998expected}) \revpoint{1}{17}
 that $\diag(C)$ is constant and does not depend on movement rates
 for any isotropic conservative migration model.
 
