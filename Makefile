@@ -15,7 +15,7 @@ clean:
 	-pdflatex $<
 
 %.bbl : %.aux
-	bibtex $<
+	-bibtex $<
 
 %.html : %.md
 	Rscript -e "templater::render_template(md.file='$<', output='$@')"
