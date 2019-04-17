@@ -104,14 +104,13 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
-    The runs with 16 demes take around 10 hours with the number of iterations we used.
-    30 is probably a good limit for the current implementation. 
+    The runs with 16 demes take around 10 hours with the number of iterations we used
+    (noted in the text, \revref).
+    Thirty demes is probably a good limit for the current implementation. 
     There are changes that could be made to make it more efficient for larger systems, 
     but at that point the ill conditioning problem would be more severe 
-    because there would be more parameters, 
-    so we would probably have to do something similar to EEMS, 
-    where movement rates are the same within regions, 
-    but in a way that still allowed asymmetric migration.
+    because there would be more parameters.
+    We've added a note about this to the discussion. \llname{ll:computation}
 }
 
 \begin{point}{}
@@ -127,14 +126,19 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 
 \reply{
     In the current implementation, 
-    equation (7) is solved using the solve(A,b) in R. 
+    equation (7) is solved using \texttt{solve(A,b)} in R. 
     The actual method varies depending on the specific linear algebra library used, 
     but it is typically Gaussian elimination or LU decomposition, 
     both of which are $\mathcal{O}(N^3)$ 
-    (unfortunately the decomposition is different each step;
+    (unfortunately the decomposition is different in each step;
     if it were the same it would be $\mathcal{O}(N^2)$).
-    Since $n$ demes gives you order $n^2$ equations and unknowns, 
-    the time complexity is 
+    For fine discretizations of space, the matrices are sparse,
+    but in our testing, using sparse matrix methods didn't help at this scale.
+    We've added a point about this last thing to the discussion \revref
+    but haven't put in more detail (e.g., plots of scaling with $N$)
+    because it depends on the details (sparsity of the adjacency matrix),
+    and as we discuss above, we think that nonidentifiability is a more serious barrier
+    to finer resolutions.
 }
 
 \begin{point}{}
@@ -184,11 +188,15 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    This is a good point, and we did experiment with other measures of model fit.
+    However, in practice the mean absolute error captured patterns as well as other methods.
+    In the interest of not increasing complexity of the paper, we haven't included results
+    from the other methods.
 }
 
 \begin{point}{}
     You write you use standard methods to check convergence and mixing of the
-    MCMC chain (line 182). Given the degeneracy and the high dimensionality,
+    MCMC chain \revreffull{1}{6}. Given the degeneracy and the high dimensionality,
     where there any problems? E.g., local optima you were stuck sometimes? Or
     was it always pretty straightforward? Maybe write a few sentences on that!
 \end{point}
@@ -197,17 +205,22 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     Convergence could be slow, and the likelihood surface is often ridgy, 
     but we did not see too many problems with getting stuck in completely wrong
     areas of state space.
-    This is partly how ``pre-burn-in'' helps.
+    This the reason we introduced the non-standard ``pre-burn-in'' phase.
 }
 
 \begin{point}{\revref}
-    $F_ST \neq$ Absolute divergence!!! . $F_ST$ is more a
+    $F_ST \neq$ Absolute divergence!!!  $F_ST$ is more a
     co-variance measure, and for instance heavily influence by sampling a batch
     of related individuals (whereas the mean of absolute divergence will be
     unchanged).
 \end{point}
 
 \reply{
+    We can't agree more!!!!
+    We've added a note about this, although not a lot of detail,
+    because it seems outside the scope of this paper. \revref
+    And, we thought we should mention $F_{ST}$ because it is commonly used
+    in these situations.
 }
 
 \begin{point}{}
@@ -216,20 +229,24 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     no existing resistance method would do. Given your observation that there
     is a lot degeneracy for resistance times (adding skew stuff to hitting
     times), this introduces uncertainty that likely cannot be broken such as
-    with coalescence methods. This could drive the high uncertainty in Fig 5
-    upper right. Given your good results for Fig. 4 for the symmetric case,
+    with coalescence methods. This could drive the high uncertainty in Fig.\ 5
+    upper right. Given your good results for Fig.\ 4 for the symmetric case,
     this is a bit surprising. Maybe run one scheme where you FIX to a single
     symmetric movement rate between each pair of demes. This setting would be a
-    fairer comparison (and be much closer to what EEMS etc. actually do -- they
+    fairer comparison (and be much closer to what EEMS etc.\ actually do -- they
     do not even try to infer asymmetric rates).
 \end{point}
 
 \reply{
-    This is something we were considering doing. 
-    We decided to allow symmetric migration in the resistance distance case 
-    in order to make the two methods as similar as possible, 
-    although it could arguably be more useful to compare them
-    when they are implemented how they would be in practice.
+    We considered doing this, but
+    decided to allow asymmetric migration for resistance distance
+    in order to make the two methods more directly comparable.
+    For instance, how would we compare to the truth if the truth is asymmetric?
+    Comparing methods with both restricted to be symmetric 
+    certainly could be useful and informative,
+    but we chose not to include it because it seems not to be the most important comparison
+    (as reality is probably often asymmetric)
+    and we didn't want the paper to get overly complex.
 }
 
 
@@ -258,7 +275,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 }
 
 \begin{point}{Line 115:}
-    Not all $ZC$ skew-symmetric would translate to valid Generators 
+    Not all $ZC$ skew-symmetric would translate to valid generators 
     $G + Z$. The diagonal elements of G have another condition (they have to be minus
     the sum of all other jumping rates). Would be interesting to explore this a
     bit more -- overall what the dimensionality this degeneracy is (implicit
@@ -269,9 +286,9 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \reply{
     Thank you for catching this.
     You are correct that in addition to $ZC$ being skew-symmetric,
-    the rows of $Z$ must also sum to zero.
-    The second part is also a good point, 
-    but probably beyond the scope of this paper.
+    the rows of $Z$ must also sum to zero, which we now say. \revref
+    Further exploration of the constraints would be interesting,
+    but we think is beyond the scope of this paper.
 }
 
 \begin{point}{Eq. 4:}
@@ -349,8 +366,8 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
-    Good reference! We'd referred to the simpler version of \citet{strobeck1987average},
-    and added this reference. \revref
+    Good reference! We'd already referred to the simpler version of \citet{strobeck1987average},
+    and have now added this reference. \revref
 }
 
 \begin{point}{\revref}
@@ -363,9 +380,9 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     We didn't really intend that number to sound so outlandish,
     but we think it's more ``quite long'' than ``absurdly long''?
     We're not sure that mentioning rescaling will help,
-    but have added a reassuring note. \revref
-    (Note that we \emph{did} actually simulate for that many generations;
-    we didn't use rescaling to run a shorter or smaller simulation.)
+    but have added a reassuring note. {\revref} 
+    Note that we \emph{did} actually simulate for that many generations;
+    we didn't use rescaling to run a shorter or smaller simulation.
 }
 
 \begin{point}{Paragraph beginning \revref:}
@@ -374,7 +391,8 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
-    This is a good point, but we'd rather keep the different results having to do with the same model
+    This is a good suggestion, 
+    but we'd rather keep the different results having to do with the same model
     together in the same place.
 }
 
@@ -392,10 +410,10 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     We've been told that similar patterns show up when EEMS tries to approximate
     anisotropic migration,
     so it may not be the sampling pattern.
-    We've added a note about this. \revref
-    (Also, note that these samples are more spread out that people often have in practice:
+    We've added a note about this. {\revref}
+    Also, note that these samples are more spread out that people often have in practice:
     they do occur in the middle three-quarters of each grid square,
-    but they aren't all located at the center.)
+    but they aren't all located at the center.
 }
 
 \begin{point}{}
@@ -406,6 +424,8 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
+    We agree -- there's a lot of directions we could move in to improve our package,
+    and hope to work more on this.
 }
 
 
@@ -417,11 +437,11 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     This work revisits McRae’s seminal isolation-by-resistance (IBR) model through
     the lens of coalescent theory. The original idea of IBR was to compare patterns of
     genetic distance observed on a landscape with the so-called ``resistance distance''.
-    The resistance distance between states i and j in a Markov chain is defined to be
+    The resistance distance between states $i$ and $j$ in a Markov chain is defined to be
     the ``commute time'': the expected amount of time it takes for the chain to go
-    from i to j and back, integrated over all possible paths of the chain. Resistance
+    from $i$ to $j$ and back, integrated over all possible paths of the chain. Resistance
     distance comes from electrical circuit theory and is not a model of genetic
-    variation across a landscape. Also, it is inherently symmetric in i and j, and
+    variation across a landscape. Also, it is inherently symmetric in $i$ and $j$, and
     cannot accomodate asymmetric migration between demes. A more biologically
     realistic model is the structured coalescent. Hence, if data are generated under
     the something resembling the coalescent, then there is scope for improving IBR
@@ -448,7 +468,19 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     forthright discussion of advantages and disadvantages of the proposed method,
     and it raises a number of interesting questions and directions for future research.
     Overall, the paper was a pleasure to read.
+\end{quote}
 
+Thanks very much for the kind words.
+One minor comment: resistance distances are not strictly based in a population genetics model,
+but we think that in practice it is thought of as (an approximation to) such a model
+-- for instance, it is common to see the explanation that it
+``integrates over all possible paths that the organisms might take''.
+I think it is clear that \citet{mcrae2006isolation} saw resistance distance as an approximation
+to the more-accurate coalescence models; we're looking at the effects of this approximation.
+We hope this point comes through in the paper.
+
+
+\begin{quote}
     I find the main deficiency to be the lack of any analysis of real data. All
     experiments are carried out on simulated data only. This is a puzzling omission.
     The authors went to the trouble of creating an R package (which is good), so
@@ -462,6 +494,8 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     practitioners.
 \end{quote}
 
+We've now added analysis of a real dataset, from \citet{geraldes2014landscape}.
+We're quite pleased with the results.
 
 \begin{point}{}
     ``Bayesian inference of movement rates'': In their model the authors assume

@@ -213,6 +213,7 @@ It is more common in the literature to use $F_{ST}/(1-F_{ST})$, \revpoint{1}{7}
 but the two are highly correlated for good theoretical reasons 
 \citep{slatkin1991inbreeding,rousset1997genetic},
 especially for SNP data.
+(However, note that $F_{ST}$ depends on the sampling scheme, while divergence does not.) \revpoint{1}{7}
 The two genomes differ at a site only if there has been a mutation in some ancestor on the lineages leading
 from the two genomes back to their most recent common ancestor at that site.
 Therefore,
@@ -397,6 +398,8 @@ suppose that we have a matrix $Z$ such that $ZC$ is skew-symmetric.
 Then $(G + Z) C + C (G + Z)^T = GC + CG^T$,
 and so a Markov chain with generator matrix $G + Z$ has the same coalescence times
 as the original chain.
+For $G + Z$ to be a valid generator, the rows of $Z$ must sum to zero,
+and all offdiagonal entries of $G + Z$ must be nonnegative. \revpoint{1}{11}
 As before, if all entries of $G$ are nonzero, 
 it is always possible to find sufficiently small $\epsilon$
 so that $G + \epsilon Z$ remains the generator of a valid Markov chain.
@@ -560,8 +563,9 @@ portion of parameter space.
 Typically, we ran MCMC for $10^6$ iterations of pre-burn-in 
 and $3 \times 10^6$ iterations of burn-in,
 followed by $4 \times 10^6$ iterations which were used to estimate posterior distributions,
-although for small graphs fewer iterations were necessary.
-We used standard methods to assess convergence and mixing.
+which took around 10 hours on a single core of a modern computer with 16 demes. \revpoint{1}{1}
+For small graphs fewer iterations were necessary.
+We used standard methods to assess convergence and mixing. \revpoint{1}{6}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -648,6 +652,30 @@ We did this by multiplying genetic distances by a constant
 so that the rescaled mean of the entries of $D$
 is equal to the number of locations in the discretization. 
 
+%%%%%%%%%%%%%%%
+\subsection*{Data from \textit{Populus trichocarpa}}
+
+We also applied our method to genotyping data from 423 samples of \textit{Populus trichocarpa}
+\citet{geraldes2014landscape}
+and 8 samples of the closely related \textit{Populus balsamifera} (with which it hybridizes),
+from a large region of northwestern North America,
+described in \citet{geraldes2014landscape}.
+These data \citep{geraldes2014data},
+include geographical coordinates and genotypes from a genotyping chip targeting 34K SNPs.
+In addition to preliminary filtering described in \citet{geraldes2014landscape},
+we additionally removed 2,314 SNPs with more than 5\% missing data, retaining 30,756 SNPs,
+and two individuals, one with more than 15\% missing data and one that is much further east
+than all the other samples.
+We then computed pairwise divergence between the remaining samples.
+We discretized the landscape manually into nine regions,
+preserving species boundaries and choosing divisions along gaps in sampling
+to keep geographic areas roughly equal.
+The numbers of samples included in each discretized region varied from 1 to 268,
+but our method does not assume equal sample numbers
+(however, an $F_{ST}$-based method would likely be affected by such large differences in sampling).
+
+
+%%%%%%%%%%%%%%%%
 \subsection*{Code availability}
 
 All code used for this work is available at \url{https://github.com/elundgre/gene-flow-inference}
@@ -1063,6 +1091,13 @@ which allows asymmetric gene flow, shows similar patterns
     }
 \end{figure}
 
+%%%%%%%%%%%%%
+\subsection*{Application to \textit{Populus trichocarpa}}
+
+Our discretization of the sampling area for the two poplar species
+is shown in Figure~\ref{fig:populus_results},
+along with 
+
 
 %%%%%%%%%%%%%%%%%%%%
 \section*{Discussion}
@@ -1225,6 +1260,12 @@ that although inference of landscapes of movement rates may carry a degree of un
 the problem of \emph{model comparison} 
 (e.g., between models with and without migration across a certain barrier)
 may still produce more certain answers. \revpoint{2}{2}
+
+Computation time currently limits this method to a discretization of less than 30 populations,
+but nonidentifiability is probably a more serious barrier that must be concurrently addressed
+before scaling the method to finer discretizations of space. \llabel{ll:computation}
+Finer discretizations of space should benefit from the use of sparse matrix methods,
+but in our testing these did not speed up computation at this scale. \revpoint{1}{2}
 
 \paragraph{The effect of history}
 The models we discuss here assume that population sizes and migration rates

@@ -4,3 +4,5 @@
 *.bbl
 *.blg
 *.out
+*.fff
+*.lof
