@@ -69,23 +69,3 @@
 % Useful shortcuts ;) that demonstrate how to use the macros.
 \newcommand{\rollover}{ \reply{The reviewer makes an excellent point that we have missed out entirely.  We have made all the changes suggested, down to the minutiae \revref.} }
 \newcommand{\playdead}{ \reply{The reviewer makes an excellent point.  We have made an utterly trivial change {\revref} that we think deals entirely with the concern raised.} }
-                                                                                                         
-% from http://tex.stackexchange.com/questions/43648/why-doesnt-lineno-number-a-paragraph-when-it-is-followed-by-an-align-equation/55297#55297
-\ifcsname{patchAmsMathEnvironmentForLineno}\endcsname
-    \newcommand*\patchAmsMathEnvironmentForLineno[1]{%                                                       
-      \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname                                
-      \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname                          
-      \renewenvironment{#1}%                                                                                 
-         {\linenomath\csname old#1\endcsname}%                                                               
-         {\csname oldend#1\endcsname\endlinenomath}}%                                                        
-    \newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%                                                  
-      \patchAmsMathEnvironmentForLineno{#1}%                                                                 
-      \patchAmsMathEnvironmentForLineno{#1*}}%                                                               
-    \AtBeginDocument{%                                                                                       
-    \patchBothAmsMathEnvironmentsForLineno{equation}%                                                        
-    \patchBothAmsMathEnvironmentsForLineno{align}%                                                           
-    \patchBothAmsMathEnvironmentsForLineno{flalign}%                                                         
-    \patchBothAmsMathEnvironmentsForLineno{alignat}%                                                         
-    \patchBothAmsMathEnvironmentsForLineno{gather}%                                                          
-    \patchBothAmsMathEnvironmentsForLineno{multline}%                                                        
-\fi

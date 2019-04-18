@@ -286,7 +286,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \reply{
     Thank you for catching this.
     You are correct that in addition to $ZC$ being skew-symmetric,
-    the rows of $Z$ must also sum to zero, which we now say. \revref
+    the rows of $Z$ must also sum to zero, which we now say. {\revref}
     Further exploration of the constraints would be interesting,
     but we think is beyond the scope of this paper.
 }
@@ -475,7 +475,7 @@ One minor comment: resistance distances are not strictly based in a population g
 but we think that in practice it is thought of as (an approximation to) such a model
 -- for instance, it is common to see the explanation that it
 ``integrates over all possible paths that the organisms might take''.
-I think it is clear that \citet{mcrae2006isolation} saw resistance distance as an approximation
+We think it is clear that \citet{mcrae2006isolation} saw resistance distance as an approximation
 to the more-accurate coalescence models; we're looking at the effects of this approximation.
 We hope this point comes through in the paper.
 
@@ -494,8 +494,14 @@ We hope this point comes through in the paper.
     practitioners.
 \end{quote}
 
-We've now added analysis of a real dataset, from \citet{geraldes2014landscape}.
-We're quite pleased with the results.
+We've now added analysis of a real dataset, from \citet{geraldes2014landscape},
+and are quite pleased with the results!
+This has also given us a chance to spend more time talking through how to interpret the results.
+(We didn't get to say this in the paper,
+but initially were worried by the southward bias in gene flow for the inland poplar species,
+since we would expect the opposite if poplars had expanded to the north following the glaciers;
+but then we learned that this species likely expanded from Alaksa, rather than from the south.)
+
 
 \begin{point}{}
     ``Bayesian inference of movement rates'': In their model the authors assume
@@ -514,13 +520,12 @@ We're quite pleased with the results.
 \reply{
     Whether or not it is reasonable to assume there is no long distance migration
     depends on the population under study. 
-    There are cases where it might be a good idea to allow it.
-    Putting a sparse prior on all of $G$ is a good idea for future improvements, 
-    although it would probably be appropriate for the prior probability of a value
-    to be non-zero to be much higher for adjacent demes as compared to non-adjacent ones, 
-    which would also likely prevent the graph from becoming disconnected very often.
-    Since disconnecting the graph would result in some infinite coalescence times, 
-    these steps would be rejected anyway.
+    Putting a sparse prior on all of $G$ is a good idea for future improvement.
+    % although it would probably be appropriate for the prior probability of a value
+    % to be non-zero to be much higher for adjacent demes as compared to non-adjacent ones, 
+    % which would also likely prevent the graph from becoming disconnected very often.
+    (Since disconnecting the graph would result in some infinite coalescence times, 
+    such proposals would be rejected by the MCMC algorithm.)
 }
 
 \begin{point}{}
@@ -552,17 +557,18 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    Thanks for the suggestions.
     Solving (7) directly for $G$ and $\gamma$ with a noisy $C$ is extremely difficult
     even in cases small enough to just use least squares; 
     it typically resulted in some negative values unless there is very little noise in $C$.
     In order to solve for $C$ from $G$ and $\gamma$, 
-    we briefly experimented with the Jacobi method. 
+    we experimented with the Jacobi method. 
     While it seemed to converge fairly reliably, 
     at the grid sizes where it was computationally advantageous to use it over solving exactly, 
     it would still take a very long time for the MCMC to converge
     due to the large number of parameters.
-    Devoloping a way to reduce the number of parameters in a way similar to EEMS
-    while still allowing asymmetric migration is a good direction for future implementations.
+    % Devoloping a way to reduce the number of parameters in a way similar to EEMS
+    % while still allowing asymmetric migration is a good direction for future implementations.
 }
 
 \begin{point}{\revref}
@@ -570,8 +576,12 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
-    Aside from making decisions based on prior knowledge of the geography, 
-    the sampling locations might lend themselves to being grouped together in a certain way.
+    This is a large, thorny issue,
+    closely related to the question of how to translate discrete-population models
+    to continuous geography.
+    We've added a bit more \revref,
+    as well as some more discussion of this in the section on poplar data.
+    \llname{ll:discretization}
 }
 
 \begin{point}{}
@@ -580,7 +590,9 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
-    No. The proposal distribution includes taking the absolute value of parameters.
+    No. The proposal distribution includes taking the absolute value of parameters
+    (a standard method in MCMC to preserve reversibility).
+    We've added this note to the MCMC methods section. \revref
 }
 
 \begin{point}{\revref}
@@ -624,19 +636,27 @@ We're quite pleased with the results.
     readers of MER would find the manuscript hard going in many places.  For
     example, the text at 102-109 and 136-146 would benefit from translation
     into insights more meaningful to biologists.  The authors do a good job of
-    this in discussing results for asymmetric gene flow at lines 296-299.
+    this in discussing results for asymmetric gene flow at lines 296-299. % \llname{ll:dense3}
 \end{quote}
+
+Thanks for the encouragement.
+We've tried to improve accessibility in a number of places,
+in particular by adding a ``flag'' at the top of the methods {\llname{ll:flagging}},
+and improving the two bits of text referred to,
+at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
+
 
 \begin{quote}
     The reader also needs to understand the biological consequences of various
     assumptions.  Examples  where this could be improved include:
 \end{quote}
 
-\begin{point}{86:}
+\begin{point}{\revref}
       if the genome is selectively neutral ...
 \end{point}
 
 \reply{
+    Reworded.
 }
 
 \begin{point}{\revref}
@@ -644,7 +664,7 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
-    added parenthetical clarification
+    Added parenthetical clarification.
 }
 
 \begin{point}{\revref}
@@ -652,6 +672,7 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    Reworded.
 }
 
 \begin{point}{\revref}
@@ -659,6 +680,7 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    Added explanatory note aobut how to estimate noise.
 }
 
 \begin{point}{}
@@ -669,6 +691,10 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    The job of enumerating \emph{all} assumptions involved in modeling a real population
+    with a system of discrete demes is daunting.
+    We've put in more discussion of these pitfalls (as described above),
+    but a comprehensive review is beyond the scope of this paper.
 }
 
 \begin{point}{\revref}
@@ -683,10 +709,11 @@ We're quite pleased with the results.
 }
 
 \begin{point}{}
-    Eq 1:  what is $R_{ij}$ and how is $q$ calculated?
+    Eq \eqref{eq:commute_approx}: what is $R_{ij}$ and how is $q$ calculated?
 \end{point}
 
 \reply{
+    We've added a clarifying sentence. \revref
 }
 
 \begin{point}{}
@@ -699,6 +726,8 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    A precise definition (in words and equations) is given where it is first introduced, at \revref.
+    We've rewritten it to be hopefully more clear.
 }
 
 \begin{point}{}
@@ -710,13 +739,13 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
-    Yes, this is one of the reasons that continuous space was used 
-    in the forwards time simulations. 
-    As long as the landscape behaves as if it is fairly continuous
-    and changing the boundary does not move a large number of individuals 
-    from one side to the other, 
-    the exact boundary in the discretization should not have a large effect.
-    Putting two isolated subpopulations into a single group would also be problematic.
+    This is an important point that applies not just to our method
+    but to most methods of population genetics inference,
+    and we view this disconnect as a major unsolved problem in the field.
+    Our simulations of continuous space are explicitly designed
+    to look at this problem.
+    We've added substantially more discussion of this point
+    in the interpretation of poplar results \llname{ll:continuous}.
 }
 
 \begin{point}{}
@@ -729,10 +758,10 @@ We're quite pleased with the results.
     \begin{enumerate}
         \item       A third source of noise is sampling a finite number of
             genes or SNPs.  To some extent one can trade off sampling
-            individuals vs loci, but there are limits to how effective that is
+            individuals vs loci, but there are limits to how effective that is.
         \item       The relative magnitudes of the three sources of error are
             not constant and can vary dramatically depending on parameter
-            values.  Process error is inversely related to Ne but otherwise
+            values.  Process error is inversely related to $N_e$ but otherwise
             fixed in magnitude; it does not change when sampling errors change.
             This means that Process error becomes relatively more important
             when there is a lot of replication in sampling.  In particular,
@@ -744,6 +773,14 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    We certainly had omitted that source of noise,
+    but have added it to the list now \revref.
+    We agree it can be substantial, but aren't focusing on it here,
+    as the contribution of sampling noise is much less appreciated,
+    particularly in the context of continuous space (see our additional note on this).
+    We're not sure what you mean about SLiM reducing process noise:
+    on the contrary, since we use SLiM to simulate in continuous space,
+    we expect process noise to be larger than in a randomly mating population.
 }
 
 \begin{point}{}
@@ -761,6 +798,8 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    Good point, but to keep the paper relatively focused we're not going into this in detail
+    (but perhaps the pointer at {\revref} suffices?).
 }
 
 \begin{point}{}
@@ -776,42 +815,51 @@ We're quite pleased with the results.
     value must necessarily be less certain. This tradeoff implies some degree
     of unavoidable uncertainty.  Reproducible, reliable inference will likely
     require development of new inference methods that explicitly model
-    continuous geography. `` This seems like a fairly crucial paragraph.  But
+    continuous geography.''  This seems like a fairly crucial paragraph.  But
     what exactly is the take-home message for biologists interested in
     practical application of the methodology?
 \end{point}
 
 \reply{
+    Good question!
+    As written, the take-home was ``wait until we make better methods'',
+    but we've added a better one. \revref
 }
 
 \begin{point}{}
     Coalescent rates are critical to model performance, which can be poor if the
     rate is too low.  It is obvious that the coalescent rate is inversely
-    related to Ne, but in practical terms, what does it mean when the
+    related to $N_e$, but in practical terms, what does it mean when the
     coalescent rate is lowered from 10 to 0.1?
 \end{point}
 
 \reply{
-    Assuming that the movement parameters are of order one, 
-    a coalescence rate of 10 means that 
-    lineages would be more likely to coalesce the first time they are in the same location
-    and a coalescence rate of 0.1 means that lineages would likely meet many times
-    before finally coalescing. 
-    For example, if the gene flow rates out of a deme for both lineages sum to 8
-    (rate of 1 for each direction for each lineage), 
-    the chance of the lineages coalescing before one of them leaves 
-    would be 10/18 (~56\%) with a coalescence rate of 10 
-    but only 0.1/8.1 (~1.2\%) with a coalescence rate of 0.1.
+    We've added more context to this section. \revref
+    % Assuming that the movement parameters are of order one, 
+    % a coalescence rate of 10 means that 
+    % lineages would be more likely to coalesce the first time they are in the same location
+    % and a coalescence rate of 0.1 means that lineages would likely meet many times
+    % before finally coalescing. 
+    % For example, if the gene flow rates out of a deme for both lineages sum to 8
+    % (rate of 1 for each direction for each lineage), 
+    % the chance of the lineages coalescing before one of them leaves 
+    % would be 10/18 (~56\%) with a coalescence rate of 10 
+    % but only 0.1/8.1 (~1.2\%) with a coalescence rate of 0.1.
 }
 
 \begin{point}{\revref}
     ``we varied the standard deviation of the noise from 1/1000th to 1/50th of
-    the mean value of C for that grid.''  This sounds like a CV of 0.001 to
+    the mean value of $C$ for that grid.''  This sounds like a CV of 0.001 to
     0.02 for noise, both of which would be exceedingly small.  If that is not
     what is meant, please clarify.
 \end{point}
 
 \reply{
+    That is what we mean, and although small, we don't think that's unreasonable for genome-scale data
+    under a discrete population model (but see our later discussion of process noise).
+    We realize that many people are working with much smaller number of (ascertained) loci,
+    but there's enough bigger issues here related to continuous geography
+    that we've not explored in that direction.
 }
 
 \begin{point}{\revref}
@@ -820,24 +868,30 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    We mean among individuals (and have added this).
 }
 
 \begin{point}{\revref}
     ``It is not required in this approach to have samples from every spatial
-    location ...''  Required for what?  Are they saying that unsampled but real
+    location \ldots''  Required for what?  Are they saying that unsampled but real
     (ghost) populations have no effect on precision or bias?
 \end{point}
 
 \reply{
-    In practice, the more locations with samples you have, the better the result will be.
-    We would not typically recommend doing inference that includes unsampled demes
-    if it could be avoided.
-    However, in the theoretical case of a population fitting the model perfectly
-    and knowing the other genetic distance values perfectly, 
-    it is possible to solve exactly for paramters relating to the unsampled populations
-    as long as there are as many unique equations as unknowns.
-    In a real situation, if data is very good for the sampled locations, 
-    inference should be reasonable for the unsampled ones.
+    We're simply saying that it is not a requirement to \emph{run} the method
+    to have samples in each location --
+    it is easy, in principle, to include ``ghost'' populations.
+    Of course, unsampled populations will affect accuracy of the result,
+    and we've added a note to clarify. \revref
+    % In practice, the more locations with samples you have, the better the result will be.
+    % We would not typically recommend doing inference that includes unsampled demes
+    % if it could be avoided.
+    % However, in the theoretical case of a population fitting the model perfectly
+    % and knowing the other genetic distance values perfectly, 
+    % it is possible to solve exactly for paramters relating to the unsampled populations
+    % as long as there are as many unique equations as unknowns.
+    % In a real situation, if data is very good for the sampled locations, 
+    % inference should be reasonable for the unsampled ones.
 }
 
 \begin{point}{}
@@ -848,6 +902,14 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    We sympathize, and have tried to improve this.
+    However, some of this we think is unavoidable --
+    the x-axis labels of figures like Figure~\ref{fig:5x3b_post_coalvcom}
+    cannot be made larger without overlapping.
+    Another approach would be to simply plot true versus observed values,
+    which is equivalent to the current plot without the x-axis labels.
+    We prefer to leave these labels, even if these are only really legible
+    in the digital version (after zooming in).
 }
 
 
@@ -858,6 +920,7 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    Good point, but we'd like to keep this bit more concise.
 }
 
 \begin{point}{\revref}
@@ -865,6 +928,7 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    The truth. We've changed the phrasing. \revref
 }
 
 \begin{point}{\revref}
@@ -872,6 +936,7 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    A lengthy name (that we've added). \revref
 }
 
 \begin{point}{\revref}
@@ -879,6 +944,7 @@ We're quite pleased with the results.
 \end{point}
 
 \reply{
+    Clarified. \revref
 }
 
 \begin{point}{\revref}
@@ -889,30 +955,33 @@ We're quite pleased with the results.
     We reworded this.
 }
 
-\begin{point}{184:}
+\begin{point}{\revref}
     why quotes for ``from the model''?
 \end{point}
 
 \reply{
+    Removed. \revref
 }
 
 \begin{point}{}
     ``suppose that the spatial arrangement of populations is given by a graph
-    ...''  ``Graph'' is a very general term and not clear exactly what is meant
+    \ldots''  ``Graph'' is a very general term and not clear exactly what is meant
     here.  If the word has a more specific meaning in this context, please
     define it.
 \end{point}
 
 \reply{
+    Done. \revref
 }
 
-\begin{point}{Fig 6:}
+\begin{point}{Fig 6 caption:}
     the barrier is ``sufficiently thick'' to prohibit migration.  ``Thick''
     implies distance, but is that a requirement?  Couldn’t the barrier be
     higher or deeper or less penetrable for a different reason than thickness?
 \end{point}
 
 \reply{
+    Yes, but this is the way we implemented it in the simulation.
 }
 
 
@@ -946,13 +1015,18 @@ We're quite pleased with the results.
     also.
 \end{quote}
 
+We've added more discussion along these lines
+particularly in {\llname{ll:history}} 
+and in relation to analysis of the poplar data.
+We've got quite a few figures already (and have added one for the poplars),
+so haven't tried to add a flow chart.
 
 \begin{point}{Line 7 of abstract and generally:}
-This statement is conditional on the characteristics of the data you have, and
+    This statement is conditional on the characteristics of the data you have, and
     your study aim. If the study aim is to  ask how landscape features affect
     genetic distance, then the coalescent time is not going to explicitly test
     this, or? It needs to be made clear how different study objectives will
-    benefit in landscape genetics and under what circumstances a 'more
+    benefit in landscape genetics and under what circumstances a `more
     accurate' predictor of genetic distance can be gained. It seems appropriate
     to mention that this approach would greatly complement existing landscape
     genetic analysis approaches to see the relative effects of resistance and
@@ -962,14 +1036,42 @@ This statement is conditional on the characteristics of the data you have, and
 \end{point}
 
 \reply{
+    We're not sure which possible study aims are being referred to,
+    but one possible aim that is not possible currently with coalescence methods
+    is to produce high-resolution maps (as we discuss, \revref).
+    We made the statement that
+    genetic data are more accurately modeled by coalescence time than resistance distance
+    because while there is an extensive literature going back fourty years
+    describing the broad conditions under which coalescence is a good model 
+    for the process that produces genomic data,
+    we know of no such justification for resistance distance.
+    Perhaps the key disconnect here is that we're thinking about generative models?
+    We agree that since coalescence theory does not always apply,
+    resistance distance on some network could in principle be closer to the truth
+    than any coalescence times.
+    However, we're unaware of this claim having been made.
+    Furthermore, as we understand it,
+    the point of landscape genetics methods using resistance distance
+    is not merely to recapitulate observed genetic distances,
+    but to provide an accurate depiction of past or present gene flow,
+    i.e., movements of individuals across the landscape,
+    In our paper we've tried to describe how inaccuracies of the generative model
+    that underlies resistance distance
+    can lead to misleading results.
+    As discussed at \llname{ll:approx},
+    resistance distance is used only because it is a more computationally tractable
+    approxmation to coalescence time --
+    any method that uses resistance distances could in principle be 
+    done with coalescence times instead (e.g., to look at the effect of landscape features).
+    This is discussed at \llname{ll:circuitscape}.
 }
 
-\begin{point}{Line 26-38:}
+\begin{point}{\revref}
     Extremely long sentence, please divide.
 \end{point}
 
 \reply{
-    Not sure what they mean.
+    Done.
 }
 
 \begin{point}{\revref}
@@ -979,6 +1081,10 @@ This statement is conditional on the characteristics of the data you have, and
 \end{point}
 
 \reply{
+    This is an interesting idea,
+    and suggests looking at a statistic of genetic differentiation other than the mean,
+    perhaps IBD segment lengths (as done by \citet{alasadi2018estimating}).
+    We don't know enough about this to speculate, however.
 }
 
 \begin{point}{\revref}
@@ -986,6 +1092,7 @@ This statement is conditional on the characteristics of the data you have, and
 \end{point}
 
 \reply{
+    Done, at \llname{ll:threepop}.
 }
 
 

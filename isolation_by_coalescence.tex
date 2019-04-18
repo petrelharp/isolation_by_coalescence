@@ -49,6 +49,24 @@
 \input{review-response-commands}
 \newcommand{\responsefile}{review-responses.tex}  % name of the review reponses file
 
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+  \renewenvironment{#1}%
+     {\linenomath\csname old#1\endcsname}%
+     {\csname oldend#1\endcsname\endlinenomath}}% 
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+  \patchAmsMathEnvironmentForLineno{#1}%
+  \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+
 \begin{document}
 
 \title{Are populations like a circuit? 
@@ -106,11 +124,13 @@ to first hit node $y$ and then return to $x$ (the ``commute time'')
 is equal to the effective resistance between $x$ and $y$ in an electrical network
 whose conductances are given by the movement rates of the Markov chain \citep{levin2008markov,doyle2006random}.
 This measure therefore averages over all possible paths through the network between the two.
-For this reason, 
-if assigning local conductances based on the values of some landscape variable
-results in a significant positive correlation between 
+Suppose we
+assign local conductances based on the values of some landscape variable, 
+and compute the correlation of
 genetic distances between samples from different parts of the landscape
-and the effective resistances between those locations,
+with the effective resistances between the samples' locations.
+\revpoint{4}{2}
+If this results in a significant positive correlation,
 then this is taken as good evidence that the landscape variable is a good indicator of
 where gene flow occurs \citep{mcrae2007circuit,cushman2006complex}.
 For instance,
@@ -161,14 +181,15 @@ and develop a method to infer movement rates on a discrete landscape
 using genetic distances.
 As we will see,
 although the two methods are conceptually similar,
-resistance-based inference may get the wrong answer if data are derived from a coalescent process,
-especially in the presence of gene flow asymmetry. \revpoint{3}{19}
+resistance-based inference may infer movement rates uncorrelated with the truth \revpoint{3}{19}
+if data are derived from a coalescent process,
+especially in the presence of gene flow asymmetry. 
 We also explore the question of identifiability.
 Resistance-based methods are often used to predict distances based on a few layers of geographical data
 (land cover, slope, etcetera).
 Some methods find the combination of landscape layers to best explain genetic distance,
 which allows very fine geographic resolution \citep{shaffer2017desert}.
-Other methods such as EEMS \citep{petkova2016visualizing} infer conductances without such prior information; \revpoint{3}{20}
+Other methods such as EEMS \citep[``Estimating Effective Migration Surfaces'',][]{petkova2016visualizing} infer conductances without such prior information; \revpoint{3}{20}
 however, the geographical resolution is much coarser.
 (A recently-released method 
 that is based on EEMS but uses haplotype length data and an underlying model of coalescence time
@@ -176,7 +197,7 @@ that is based on EEMS but uses haplotype length data and an underlying model of 
 is promising, but still produces similarly coarse maps.)
 One reason for this difference in resolution
 is that EEMS uses more computationally intensive Bayesian methods.
-However, we show that this is a more general problem, \revpoint{3}{21}
+However, we show that this coarse resolution reflects a more general problem, \revpoint{3}{21}
 both because of unmodeled ``process noise'' involved in discretization of geographical populations,
 and the mathematical structure of the underlying problem.
 
@@ -199,7 +220,12 @@ First, we explain this connection,
 and then discuss their computation,
 and finally develop a method that infers movement rates of the Markov chain
 (which are reverse-time migration probabilities)
-from observations of coalescence time. \revpoint{1}{9}
+from observations of coalescence time, \revpoint{1}{9}
+and apply this to a real dataset.
+Although we have tried to highlight the intuitive aspects of this initial technical discussion,
+readers who are interested in practical differences
+more than the mathematical arguments should be able to skip to ``Test cases and simulations''
+without loss of continuity. \llabel{ll:flagging}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -229,9 +255,11 @@ Suppose we model the geographic distribution of the species
 as a collection of randomly mating populations
 that exchange occasional migrants,
 thus discretizing geographic space.
-If the genome is selectively neutral,
-then the motion of these lineages back through time
+It is common to assume that
+the motion of these lineages back through time
 forms a Markov process, the \emph{structured coalescent} \citep{wakeley2005coalescent}.
+(This assumption requires the effects of natural selection on each segment of the genome 
+to be generally weak.) \revpoint{3}{1}
 In this framework, each lineage performs a random walk across the populations,
 with movement probabilities depending on the flux of individuals between populations.
 This provides the link between genetic distance and random walks.
@@ -253,6 +281,10 @@ and using the model
 \begin{align} \label{eq:commute_approx}
 	D_{ij} \approx \comdist_{ij} = R_{ij}/4 + q_{i}/2 + q_{j}/2 .
 \end{align}
+Concretely, this means finding 
+movement rates of a Markov chain whose matrix of commute times ($R$)
+yields a good approximation to the matrix of genetic distances,
+after adding local diversity parameters ($q$, which are also free parameters). \revpoint{3}{7}
 The factor of four is necessary to make commute time work on the same time scale as coalescence time:
 the commute time covers the path from $i$ to $j$ twice
 (once in both directions),
@@ -263,6 +295,13 @@ and in half the time, because two particles are moving.
 % therefore, commute time is most analogous to the first meeting time.
 For a conceptual picture of the differences between the coalescence time and commute time,
 see Figure \ref{fig:concept_coalcom}. 
+
+A simple situation when the two clearly differ \llabel{ll:threepop}
+is in the presence of biased gene flow,
+as for instance between a source and a sink population:
+coalescence only requires that lineages move in \emph{one} direction
+between populations,
+while a commute requires movement in both.
 
 \begin{figure}
 \centering
@@ -287,12 +326,13 @@ see Figure \ref{fig:concept_coalcom}.
 Now, we explain how to compute the relevant quantities --
 mean commute and coalescence times -- from a Markov chain model of lineage movement.
 The Markov chain is defined by its \emph{generator matrix}, denoted $G$,
-for which $G_{xy}$ gives the jump rate from $x$ to $y$.
-This means that if the Markov chain is at location $X_t$ at time $t$,
-then for $x \neq y$, the probability the chain jumps from $x$ to $y$ in the next unit of time
-is proportional to $G_{xy}$,
-i.e., $\PP{X_{t+\epsilon} = y \given X_t = y} = \epsilon G_{xy} + O(\epsilon^2)$,
-and $G_{xx} = - \sum_{y \neq x} G_{xy}$.
+for which $G_{xy}$ gives the ``jump rate'' from $x$ to $y$.
+The jump rate $G_{xy}$ is \revpoint{3}{8}
+the probability the chain jumps to position $y$ when at position $x$ per unit of time.
+(More precisely, if the Markov chain is at location $X_t$ at time $t$, 
+then for $x \neq y$, $\PP{X_{t+\epsilon} = y \given X_t = x} = \epsilon G_{xy} + O(\epsilon^2)$.)
+For mathematical convenience, the diagonal of this matrix is completed so that rows sum to zero:
+$G_{xx} = - \sum_{y \neq x} G_{xy}$.
 We will need to find the \emph{hitting times} of the chain --
 i.e., for each pair of states $x$ and $y$, 
 the mean time until the chain first hits $y$ after being started at $x$.
@@ -319,7 +359,7 @@ tells us that the stationary distribution of the Markov chain, denoted $\pi$,
 can be recovered from the hitting times by solving $\pi = H^{-1} \bone / \bone^T H^{-1} \bone$.
 As shown in Appendix \ref{apx::hitting_calcs},
 equation \eqref{eqn:hitting_sum} can be rewritten in matrix form as
-\begin{align}
+\begin{align} \label{eqn:gh}
     G H = \diag(1/\pi) - \bone \bone^T ,
 \end{align}
 which implies that $G$ can be computed directly from $H$ as
@@ -338,17 +378,19 @@ defining $R = H + H^T$, i.e.:
     R_{xy} = H_{xy} + H_{yx}.
 \end{align}
 
-Although commute times are uniquely determined by movement rates, the reverse is not true.
-Commute times only depend on the symmetric part of $H$ --
+Although commute times are uniquely determined by movement rates, the reverse is not true --
+we can use equations \eqref{eqn:gh} and \eqref{eqn:R_from_H} to see how to modify movement rates
+without changing commute times.  \llabel{ll:dense1}
+A small concrete example of this is given in Appendix \ref{ss:simple_example}.
+More generally, commute times only depend on the symmetric part of $H$ --
 given a skew-symmetric matrix $Z$ (so that $Z + Z^T = 0$),
 any Markov chain that has hitting times given by $H_\epsilon = H + \epsilon Z$ for some $\epsilon$
 will have the same commute times.
 The resulting hitting times may not be valid --
-if we let $G_\epsilon$ be the matrix constructed by applying equation \eqref{eqn:G_from_H} to $H_\epsilon$,
+if $G_\epsilon$ is the matrix constructed by applying equation \eqref{eqn:G_from_H} to $H_\epsilon$,
 % (assuming this is invertible),
 then it is not guaranteed that the offdiagonal elements of $G_\epsilon$ are all nonnegative, as required.
 % (It is always true that rows of $G_\epsilon$ sum to zero.)
-We provide a small concrete example in Appendix \ref{ss:simple_example}.
 However, since $G$ and $H$ are continuous functions of each other,
 if all offdiagonal elements of $G$ are strictly positive,
 then there exists a positive $\epsilon_0$ such that all $G_\epsilon$ for $\epsilon < \epsilon_0$
@@ -435,24 +477,27 @@ The same calculation holds for commute times
 except that there are $n$ local diversity parameters instead of $n$ coalescence parameters.
 
 This suggests that nonuniqueness of solutions may not be a problem in practice,
-as long as geography is discretized into sufficiently many locations
+as long as geography is discretized into sufficiently many regions
 and direct, long-distance migration is disallowed \revpoint{3}{2}
-(i.e., an individual is unlikely to live many demes away from their parents).
-However, another problem appears at finer geographic resolutions:
-although solutions may be in principle unique,
-the problems become \emph{ill-conditioned} 
-in the sense that arbitrarily small variations in the input times
+(i.e., parents and offspring live in the same or neighboring regions).
+However, finer geographic resolutions may present problems of nonidentifiability, \llabel{ll:dense2}
+similar to the problem of multiple linear regression with many collinear variables.
+The problem of inferring gene flow rates on fine geographic maps may become \emph{ill-conditioned},
+arbitrarily small variations in the data
 (even numerical instability)
-may produce large differences in the inferred rates.
-Roughly speaking, this occurs because as the spatial resolution increases,
-the matrix $G$ converges to a second-order elliptic differential operator \citep{stroock1997multidimensional};
-such operators are deformations of the Laplacian \citep{feller4},
-which is well-known to have eigenvalues that decay rapidly 
-\citep{hpmckean1967curvature,kuttler1984eigenvalues}.
+may produce large differences in the inferred ``best'' rates.
 Information about the landscape contained in higher-order modes
 (e.g., finer resolution changes in hitting times)
-is then almost obliterated by the small eigenvalues of $G$,
-making the inverse problem possible in theory but not in practice.
+is obscured by noise.
+(For the interested technical reader, 
+this could occur as the spatial resolution increases because,
+the matrix $G$ converges to a second-order elliptic differential operator \citep{stroock1997multidimensional};
+such operators are deformations of the Laplacian \citep{feller4},
+which has rapidly decaying eigenvalues \citep{hpmckean1967curvature,kuttler1984eigenvalues}.)
+% Information about the landscape contained in higher-order modes
+% (e.g., finer resolution changes in hitting times)
+% is then almost obliterated by the small eigenvalues of $G$,
+% making the inverse problem possible in theory but not in practice.
 This implies a fundamental limit to the geographical resolution of inferred maps.
 For more discussion of related problems, see 
 \citet{epstein2008badtruth}, \citet{myers2008learn}, or \citet{terhorst2015fundamental}.
@@ -498,8 +543,9 @@ $D_{ij} = C_{ij} + \epsilon_{ij}$,
 where $\epsilon_{ij}$ are independent and Normally distributed
 with mean $\mathbf{0}$ and variance $\sigma_\epsilon^2$,
 except that $\epsilon_{ij} = \epsilon_{ji}$.
-(We assume that $C_{ij}$ is large compared to $\sigma_{\epsilon}$, \revpoint{3}{3}
-so that resulting values are still positive.)
+(We assume that coalescence times are measured to good accuracy 
+-- i.e., $C_{ij}$ is large compared to $\sigma_{\epsilon}$ -- \revpoint{3}{3}
+so that this model does not predict negative times.)
 Given $G$ and $\gamma$ we can solve equation \eqref{eqn:C_matrix} 
 to find the corresponding coalescence times
 -- which we call $\mathcal{C}(G, \gamma)$ --
@@ -515,8 +561,9 @@ placing independent exponential priors on the parameters --
 the movement rates, $G_{ij}$, that are not constrained to be zero
 and the coalescence rates, $\gamma$.
 Concretely, suppose that the spatial arrangement of populations is given by a graph 
-(i.e., a collection of ``nodes'' connected by ``edges''),
-and only movement rates corresponding to edges in the graph are allowed to be nonzero.
+(i.e., a discrete collection of locations represented by ``nodes'',
+between which movement is possible only between those connected by ``edges''). \revpoint{3}{24}
+Only movement rates in $G$ that correspond to edges in the graph are allowed to be nonzero.
 Suppose there are $m_G$ edges in the graph,
 that each of the $n$ populations has its own coalescence rate,
 and write $i \sim j$ to mean that $i$ and $j$ are adjacent in the graph.
@@ -545,8 +592,9 @@ which is the matrix $\comdist$ computed from $G$ and $q$
 by putting the solution to equation \eqref{eqn:hitting_sum}
 through equations \eqref{eqn:R_from_H} and \eqref{eq:commute_approx}.
 
-It is not required in this approach to have samples from every spatial location, \revpoint{3}{16}
+It is not required in this approach to have samples from every spatial location,
 allowing inference on incompletely sampled spatial discretizations.
+(However, more complete sampling will produce more accurate results.) \revpoint{3}{16}
 To carry out inference in this situation,
 we simply use Equation \ref{eq:post},
 but only sum over observed entries of $D_{ij}$.
@@ -554,7 +602,8 @@ but only sum over observed entries of $D_{ij}$.
 \paragraph{MCMC methods}
 To sample from the posterior distribution of equation \eqref{eq:post}, 
 we used R \citep{Rmanual} 
-to implement a standard Metropolis-Hastings algorithm with Gaussian proposals \citep{brooks2011handbook}.
+to implement a standard Metropolis-Hastings algorithm with Gaussian proposals 
+reflected into the positive quadrant \citep{brooks2011handbook}. \revpoint{2}{5}
 Starting locations were chosen by sampling from the prior distribution.
 Before the usual ``burn-in'' phase,
 we included a period of ``pre-burn-in'' which used the same MCMC procedure
@@ -572,7 +621,7 @@ We used standard methods to assess convergence and mixing. \revpoint{1}{6}
 \subsection*{Test cases and simulations}
 
 We compared inference under coalescence time and resistance distance models
-using both data ``from the model'' and from more realistic simulations.
+using both data from the model and from more realistic simulations. \revpoint{3}{23}
 For the first category, we designed a number of graphs to test particular aspects of inference,
 with migration rates specified on each directed edge
 (plotted below using igraph \citep{igraph}).
@@ -701,8 +750,10 @@ by rounding independent exponential random variables with mean 1 up to the neare
 and fixed coalescence rates at 1 for all locations.
 We then analytically computed mean coalescence times,
 and added independent noise to each pairwise coalescence time.
-We assume that we can estimate the amount of noise reasonably well,  \revpoint{3}{4}
+We assume that we can estimate the amount of noise reasonably well, \revpoint{3}{4}
 so used the true standard deviation of the noise for $\sigma_\epsilon$ in the likelihood function.
+In practice, $\sigma_epsilon$ can be estimated by the standard deviation
+of genetic distances between different pairs of samples in the same region.
 To assess the impact on inference of the number of parameters,
 we performed inference both with and without the assumption 
 that coalescence rate is the same everywhere.
@@ -751,11 +802,19 @@ Lower coalescence rates mean that lineages wander about the landscape for longer
 before they coalesce,  \revpoint{4}{3}
 thus greatly reducing the geographic information we get from coalescence times 
 \citep{wilkins2004separationoftimescales}.
+For instance, if between-population gene flow and coalescence rates are similar,
+then the lineages of two samples in the same population 
+are likely to coalesce before either leaves,
+leading to a strong signal of isolation by distance. \revpoint{3}{13}
+On the other hand, if coalescence rates are much smaller than gene flow,
+nearby samples are unlikely to share more recent common ancestors than distant ones.
 Indeed, coalescence rates had a strong effect on feasibility of the inference problem
 (shown in Figures \ref{fig:mult_gam} and \ref{fig:mult_gam_iqr}):
 lowering the coalescence rate from 10 to 0.1
 (always adding noise with standard deviation 1/200$^\text{th}$ of the mean value)
 increased mean absolute error of coalescence time inference from around 0.05 to 0.5.
+(Gene flow rates are of order 1, so this range of coalescence rates
+spans strong to weak isolation by distance.)
 Again, allowing multiple coalescence rates
 or using resistance distance inference were highly inaccurate in all cases,
 with mean absolute errors of above 0.5.
@@ -833,7 +892,8 @@ then commute times to $i$ could be quite long even while coalescence times are n
 For instance, suppose there are three populations arranged in a line,
 and lineages currently in the outer populations are much more likely to come from the central population
 than the other way around.
-Since lineages quickly move to the center and coalesce regardless of starting position,
+Since lineages quickly move to the center and coalesce regardless of starting position, 
+\llabel{ll:dense3}
 coalescence time (and genetic diversity) will be relatively low between all individuals. \revpoint{4}{4}
 Commute time between the two outer locations, on the other hand,
 will be much longer than other comparisons, since it requires a lineage to leave the center.
@@ -925,8 +985,9 @@ The mean coalescence times of lineages that we compute analytically
 are exact for large, randomly mating populations,
 but the word ``mean'' indicates an average across several levels of randomness:
 each observed, empirical mean estimated using a sample of genotypes
-will deviate from this depending on both the individuals sampled (``sampling noise'')
+will deviate from this depending on the individuals sampled (``individual sampling noise'')
 \citep{ashander2018demographic},
+the genetic loci genotyped (``genome sampling noise'') \citep{waples2009modelling},
 and the stochasticity of the population history itself (``process noise'')
 \citep{wakeley2012genealogies,waples2009modelling}.
 % Both sources of noise can be substantially larger 
@@ -938,10 +999,15 @@ and the stochasticity of the population history itself (``process noise'')
 % a barrier might be inferred in a region that has not happened to have a local population recently
 % only because of demographic stochasticity.
 % This might make inference using a discretization of continuous space considerably more difficult.
-To quantify the relative contributions of the different sources of noise,
+Sequencing of many nonascertained loci genome-wide should minimize the second source of noise
+(although genome structure can affect this at large scales \citep{li2016local}). \revpoint{3}{11}
+Geographic models in continous space, 
+are expected to show much more process noise than discrete population models
+because of random fluctuations in local population density. \revpoint{3}{10}
+To quantify the relative contributions of the remaining sources of noise,
 we compared mean genetic distances, calculated in the same way,
 between two nonoverlapping sets of samples from each of three identical simulations.
-These simulations were done using SLiM as described in the Methods.
+These forwards-time, continuous-space simulations were done using SLiM as described in the Methods.
 We found that with these parameter values, process and sampling noise were of similar magnitude,
 contributing 6.7\% and 13.8\% of the variance, respectively
 (Supplemental Figure \ref{fig:h_val_comp}).
@@ -1005,6 +1071,9 @@ and EEMS, as shown in Supplemental Figure \ref{sfig:barrier_results}.
 Note also that this analysis began by grouping samples into discrete ``populations'' appropriately;
 in absence of a good \textit{a priori} idea of where barriers are,
 this step might not be straightforward. \revpoint{2}{4}
+To make parameters most easily interpretable,
+geography should probably be discretized along natural barriers
+and so that each region is of roughly the same geographic area.
 % For instance, we may wonder whether a river or other geographical feature
 % restricts gene flow.
 % We would then discretize the landscape such that individuals on opposite sides of the 
@@ -1092,12 +1161,86 @@ which allows asymmetric gene flow, shows similar patterns
 \end{figure}
 
 %%%%%%%%%%%%%
-\subsection*{Application to \textit{Populus trichocarpa}}
+\subsection*{Application to \textit{Populus}}
 
 Our discretization of the sampling area for the two poplar species
-is shown in Figure~\ref{fig:populus_results},
-along with 
+is shown in Figure~\ref{fig:poplar_results},
+along with arrows depicting posterior mean estimates of gene flow.
+Posterior distributions of gene flow rates and coalescence rates
+are shown in Supplemental Figures~\ref{sfig:poplar_g} and \ref{sfig:poplar_gam}.
+The main features of the resulting model are:
+(a) low but nonzero gene flow between species,
+with the highest rate between regions 3 and 4;
+(b) strong bias in gene flow among (inland) \textit{balsamifera} regions,
+from southeast to northwest ($3 \to 5 \to 6 \to 1$); and 
+(c) strong bias in gene flow into regions 2 and 8.
+These results align with what is known about \textit{Populus} history and ecology in the region
+(personal communication, A.~Moreno Geraldes and Q.~Cronk, and \citet{geraldes2014landscape}).
+There is ongoing hybridization around region 4,
+and interspecific gene flow from 9 to 3 may be due to downstream transport along the Columbia river
+(A larger gene flow rate from 9 to 3 indicates that individuals in region 9
+are more likely to have recent ancestry in region 3 than vice-versa.)
+The glacial refugia for the two species are thought to be in western Alaska (\textit{balsamifera})
+and coastal British Columbia (\textit{trichocarpa}).
+Inferred gene flow leading back towards these regions (depicted by larger arrows on the map)
+are consistent with this --
+for instance, if region 5 was colonized from region 6 sufficiently recently,
+then individuals in region 5 should trace their ancestry to region 6 much more frequently
+than vice-versa, as indicated by the large $5 \to 6$ arrow 
+and small $6 \to 5$ arrow in Figure~\ref{fig:poplar_results}.
 
+Interpreting these results requires some nuance beyond what was necessary in our simulation results.
+Sampling locations are sparse, especially in the inland species,
+so how exactly should we think of the geographic extent of ``region 6'',
+which is represented by only two, distant samples?
+Is this region's low inferred coalescence rate
+a result of simply a large population (due to a large geographic region)
+or barriers to movement within the region?
+Although it is not entirely clear how to translate discrete-population models
+to continuous space, \llabel{ll:continuous}
+a ``gene flow rate'' from region $i$ to region $j$ as shown in Figure~\ref{fig:poplar_results}
+is best thought of as an estimate of the proportion of the individuals in region $i$
+that have a parent in region $j$, averaged over time and scaled by some unknown factor.
+Equivalently,
+this is the probability per unit time
+that a lineage traced back from an individual in region $i$ follows a line of descent to region $j$,
+again scaled by some factor.
+We therefore expect gene flow to be biased from an area of 
+lower population density (or, net fecundity)
+into a neighboring region of higher population density.
+We also expect gene flow to be biased 
+from a smaller region to a larger, neighboring one than vice-versa
+if a larger proprotion of the smaller region lies close to the boundary between the two.
+This may explain the net bias from many coastal populations to inland ones.
+We grouped samples so that each group represented roughly comparable geographic regions,
+to ameliorate these confounding factors. \llabel{ll:discretization}
+However, these difficulties in interpretation are common in any situation
+where discrete populations are used to model continuous geography.
+
+\begin{figure}
+\centering
+    \includegraphics[width=0.9\textwidth]{poplars/grid_populus_map}
+    \caption{
+        Model results for \textit{Populus} data,
+        superimposed on a map of northwestern North America.
+        Sampling locations of \textit{Populus} genomes are small circles,
+        with outer color indicating species 
+        (red-outlined, coastal samples are \textit{trichocarpa}, 
+        blue-outlined, inland samples are \textit{balsamifera});
+        circle fill color indicates how samples are grouped into discrete ``populations''.
+        Large circles are placed at group centroids, and given group labels.
+        Arrow width is proportional to the posterior mean gene flow rate inferred under
+        the coalescence time model (also given by the labels):
+        for instance, the inferred gene flow rate from 4 to 2 is 3.0,
+        while that from 2 to 4 is 0.7,
+        suggesting that poplars in region 4
+        have many more recent ancestors in region 2
+        than poplars in region 2 do in region 4.
+        Northwestern bias in gene flow between \textit{balsamifera} regions
+        may reflect postglacial expansion to the south and east out of a refugium in Alaska.
+        \label{fig:poplar_results}
+    }
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%
 \section*{Discussion}
@@ -1116,7 +1259,7 @@ which provides good estimates of gene flow in a wider range of situations
 This weakness of resistance-based methods is not surprising --
 the original papers 
 describing Circuitscape \citep{mcrae2006isolation} and EEMS \citep{petkova2016visualizing}
-present the resistance approximation as a necessary step for computational feasibility.
+present the resistance approximation as a necessary step for computational feasibility. \llabel{ll:approx}
 Results of resistance-based methods should therefore be interpreted with caution:
 for example, high inferred gene flow between two areas
 may actually mean the areas are being fed by a common source.
@@ -1124,7 +1267,7 @@ may actually mean the areas are being fed by a common source.
 Our new method infers effective population sizes and gene flow rates quite well 
 -- and, being Bayesian, provides estimates of uncertainty --
 given data from discrete populations connected by migration.
-Can our method replace resistance-based methods?
+Can our method replace resistance-based methods? 
 Perhaps, but
 the substantial uncertainty we saw on graphs with only tens of nodes
 is indicative of a larger problem we face for realistic models.
@@ -1139,6 +1282,8 @@ and so inferences about that value must necessarily be less certain.
 This tradeoff implies some degree of unavoidable uncertainty.
 Reproducible, reliable inference will likely require development of new inference methods
 that explicitly model continuous geography.
+In the meantime, comparison of results utilizing different discretizations of geography
+can help identify problems.  \revpoint{3}{12}
 
 
 Although commute and coalescence times can be quite different,
@@ -1155,7 +1300,7 @@ simulated with symmetric migration rates.
 For comparison on equal footing, we have implemented a resistance-based inference method.
 However, methods that use resistance distance have substantial advantages over the method we present here.
 Circuitscape \citep{mcrae2008using} produces maps of much higher resolution 
-than is presently possible with coalescent times.
+than is presently possible with coalescent times. \revpoint{4}{1}
 \citet{hanks2013circuit} connects the problem to intrinsic conditional autoregressive models, 
 providing a Bayesian model of an underlying Gaussian Markov random field.
 EEMS \citep{petkova2014visualizing} integrates over possible tessellations of the region
@@ -1215,7 +1360,7 @@ resistance methods will show no barrier (and relatively high movement rates),
 even if there is very little uphill dispersal.
 This could lead to a falsely high assessment of gene flow across the top of the ridge.
 
-\paragraph{Circuitscape}
+\paragraph{Circuitscape} \llabel{ll:circuitscape}
 Could we use coalescence time in place of commute time
 for workflows that compute values on a given map of movement rates
 that are then compared to genetic distance?
@@ -1267,7 +1412,7 @@ before scaling the method to finer discretizations of space. \llabel{ll:computat
 Finer discretizations of space should benefit from the use of sparse matrix methods,
 but in our testing these did not speed up computation at this scale. \revpoint{1}{2}
 
-\paragraph{The effect of history}
+\paragraph{The effect of history} \llabel{ll:history}
 The models we discuss here assume that population sizes and migration rates
 have been constant on the time scale given by the within-species coalescent time.
 This is rarely true in practice \citep{neigel1991estimation,barton1995genealogies}.
@@ -1295,9 +1440,9 @@ may give a reasonable picture of the landscape averaged over recent times.
 \paragraph{Assumptions}
 Modeling lineages as a Markov chain is nearly ubiquitous in population genetics today,
 but may not be appropriate.
-Even though the population dynamics in forwards time are Markov, 
+Even if the population dynamics in forwards time are Markov, 
 the dynamics of lineages traced back in time (the coalescent process) may not be. 
-For example, if fecundity is variable and population density is low,  \revpoint{3}{15}
+For example, if individual fecundity is variable and population density is low,  \revpoint{3}{15}
 two lineages near each other are more likely to share a recent common origin, 
 so knowing how one lineage moves is informative about how the other lineage is likely to move. 
 This effect becomes small as population density increases, 
@@ -1319,7 +1464,7 @@ to Paul Marjoram for useful comments,
 to Brad Shaffer and Evan McCartney-Melstad for discussions about landscape modeling,
 to John Novembre, Hussein Al-Asadi and Benjamin Peter for help with EEMS
 and general input,
-and to Quentin Cronk and Armando Geraldes for consultations about the \emph{Populus} results.
+and to Quentin Cronk and Armando Moreno Geraldes for consultations about the \emph{Populus} results.
 We would also like to gratefully acknowledge the immense positive impact that Brad McRae \citep[1966--2017;][]{lawler2018tribute}
 has had on landscape genetics and conservation biology through the introduction of landscape resistance.
 We hope this paper helps to carry forward this work.
@@ -1776,6 +1921,37 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
             \textbf{(bottom left)} the coalescence time method and
             \textbf{(bottom right)} the resistance distance method.
         \label{sfig:expansion_results}
+    }
+\end{figure}
+
+\begin{figure}
+\centering
+    \includegraphics[width=0.7\textwidth]{poplars/posterior_dists_g_populus}
+    \includegraphics[width=0.7\textwidth]{poplars/grid_populus}
+    \caption{
+        Posterior distributions of parameters for \textit{Populus} data,
+        using coalescence time inference with the model shown in Figure~\ref{fig:poplar_results}.
+        \textbf{(top)} Posterior medians (dark line),
+        interquartile range (box), and middle 95\% (whiskers),
+        for gene flow rates.
+        \textbf{(bottom)} Posterior medians, along with edge labels that match the upper figure.
+        \label{sfig:poplar_g}
+    }
+\end{figure}
+
+\begin{figure}
+\centering
+    \includegraphics[width=\textwidth]{poplars/posterior_dists_gam_populus}
+    \caption{
+        Posterior distributions of parameters for \textit{Populus} data,
+        using coalescence time inference with the model shown in Figure~\ref{fig:poplar_results}.
+        Plot shows posterior medians (dark line),
+        interquartile range (box), and middle 95\% (whiskers),
+        for coalescence rates, labeled as in Figure~\ref{fig:poplar_results}.
+        For instance, the coalescence rates for regions 4 and 8 (labeled ``gam4'' and ``gam8'')
+        are inferred to be much smaller than most other regions, 
+        perhaps indicating larger or older populations in southwestern British Columbia.
+        \label{sfig:poplar_gam}
     }
 \end{figure}
 
