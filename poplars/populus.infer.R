@@ -189,14 +189,20 @@ cairo_pdf(filename=paste0(outpath,"/grid_",fname,".pdf"),width=14,height=14)
        edge.label=paste0("g",1:ng,"=",round(g_med*1000)/1000),main=paste0("Graph Structure"))
 dev.off()
 
-cairo_pdf(filename=paste0(outpath,"/posterior_dists_g_",fname,".pdf"),width=8,height=7)
-  boxplot(g[100*(1:(30e6/100)),order(g_med)],outline=FALSE,main=paste0("Posterior Distributions (g): ",name),
-        names=paste0("g",order(g_med)),xlab="Parameter Index",ylab="Parameter Value (rate)",las=2)
+#with helper function
+cairo_pdf(filename=paste0(outpath,"/grid_",fname,"2.pdf"),width=14,height=14)
+  plot.grid(g_med=g_med,gam_med=gam_med,name="Populus Habitat Graph Structure",
+            rect_grid = FALSE,use_centroids = TRUE,centroids=as.matrix(centroids[,1:2]),G_adj=G_adj)
 dev.off()
 
-cairo_pdf(filename=paste0(outpath,"/posterior_dists_gam_",fname,".pdf"),width=8,height=7)
+cairo_pdf(filename=paste0(outpath,"/posterior_dists_g_",fname,"2.pdf"),width=6,height=5)
+  boxplot(g[100*(1:(30e6/100)),order(g_med)],outline=FALSE,main=paste0("Posterior Distributions (g): ",name),
+        names=paste0("g",order(g_med)),xlab="Gene Flow Rate Parameter Label",ylab="Gene Flow Rate",las=2)
+dev.off()
+
+cairo_pdf(filename=paste0(outpath,"/posterior_dists_gam_",fname,"2.pdf"),width=6,height=5)
   boxplot(gam[100*(1:(30e6/100)),],outline=FALSE,main=paste0("Posterior Distributions (gamma): ",name),
-        names=paste0("gam",1:n),xlab="Parameter Index",ylab="Parameter Value (rate)",las=2)
+        names=paste0("gam",1:n),xlab="Coalescence Rate Parameter Label",ylab="Coalescence Rate",las=2)
 dev.off()
 
 
