@@ -329,7 +329,7 @@ The Markov chain is defined by its \emph{generator matrix}, denoted $G$,
 for which $G_{xy}$ gives the ``jump rate'' from $x$ to $y$.
 The jump rate $G_{xy}$ is \revpoint{3}{8}
 the probability the chain jumps to position $y$ when at position $x$ per unit of time.
-(More precisely, if the Markov chain is at location $X_t$ at time $t$, 
+(More precisely, if the Markov chain is at location $X_t$ at time $t$,  \revpoint{5}{1}
 then for $x \neq y$, $\PP{X_{t+\epsilon} = y \given X_t = x} = \epsilon G_{xy} + O(\epsilon^2)$.)
 For mathematical convenience, the diagonal of this matrix is completed so that rows sum to zero:
 $G_{xx} = - \sum_{y \neq x} G_{xy}$.
@@ -339,12 +339,20 @@ the mean time until the chain first hits $y$ after being started at $x$.
 We denote this quantity $H_{xy}$.
 Throughout, we assume that all hitting times are finite,
 which implies the chain is connected and irreducible.
-By conditioning on $X_\epsilon$,
-one can use the Markov property to show that
+The Markov property lets us write a system of linear equations that can be solved for $H$, as follows
+(see, e.g., \citet{kemeny1983finite}):
+Suppose that the chain begins at $x \neq z$,
+and is at location $y \neq z$ after $dt$ units of time, without having visited $z$.
+Then the total time to hit $z$ is equal to the elapsed time $dt$
+plus the remaining time to hit $z$ from $y$.
+Formally, this says that \revpoint{5}{2}
+$H_{xz} \approx dt + \sum_y \P\{X_{dt} = y \given X_0 = x\} H_{yz}$.
+Replacing $\P\{X_{dt} = y \given X_0 = x\}$ with $dt G_{xy}$ and rearranging
+gives the system of equations:
 \begin{align} \label{eqn:hitting_sum}
-    \sum_y G_{xy} H_{yz} = -1 \qquad \text{for} \; x \neq z,
+    \sum_y G_{xy} H_{yz} = -1 \qquad \text{for} \; x \neq z.
 \end{align}
-i.e., if $G_{-z}$ is the matrix with the $z^\text{th}$ row and column removed,
+In other words, if $G_{-z}$ is the matrix with the $z^\text{th}$ row and column removed,
 and $\bone$ is the vector composed of all ones,
 then the $z^\text{th}$ column of $H$, except for $H_{zz}$,
 can be computed as $- (G_{-z})^{-1} \bone$.
@@ -540,7 +548,7 @@ to develop a Bayesian inference method that accounts for noise in the data
 and estimates uncertainty in the resulting estimates.
 To do this, we model genetic distances as equal to coalescence times plus noise:
 $D_{ij} = C_{ij} + \epsilon_{ij}$,
-where $\epsilon_{ij}$ are independent and Normally distributed
+where $\epsilon_{ij}$ are independent and Gaussian distributed
 with mean $\mathbf{0}$ and variance $\sigma_\epsilon^2$,
 except that $\epsilon_{ij} = \epsilon_{ji}$.
 (We assume that coalescence times are measured to good accuracy 
@@ -551,6 +559,7 @@ to find the corresponding coalescence times
 -- which we call $\mathcal{C}(G, \gamma)$ --
 so our model is that $D$ has a Gaussian distribution 
 with mean $\mathcal{C}(G, \gamma)$.
+(This Gaussian stands in for the sampling noise of coalescence times about their mean.) \revpoint{5}{6}
 The maximum likelihood estimate of $G$ could be found directly;
 however, this in practice will quite likely contain negative movement rates,
 and does not allow us to impose constraints
@@ -584,6 +593,11 @@ Then, the resulting log-posterior density is
 \end{align}
 Here $1/\lambda_\gamma$ and $1/\lambda_G$ are the prior means of $\gamma_i$ and $G_{ij}$,
 respectively.
+Recall that both $D$ and $\mathcal{C}(G,\gamma)$ are full matrices of pairwise distances between discrete locations (in the same order), \revpoint{5}{5}
+the term $(\mathcal{C}_{ij}(G,\gamma) - D_{ij})^2$
+measures the deviation of the observed genetic distances
+from those predicted under the coalescent model on the graph. \revpoint{5}{4}
+
 
 Inference with resistance distance is done in exactly the same way,
 except that $q$ replaces $\gamma$,
@@ -832,8 +846,8 @@ and coalescence rates are set to 1 everywhere.
 Figure \ref{fig:5x3b_post_coalvcom} shows posterior distributions of the movement rates
 for both coalescence time and resistance distance inference
 on this graph, with noise standard deviation equal to
-1/1000${}^\text{th}$ of the mean coalescence time (left)
-and 1/100${}^\text{th}$ of the mean coalescence time (right).
+1/1000${}^\text{th}$ of the mean coalescence time (top)
+and 1/100${}^\text{th}$ of the mean coalescence time (bottom). \revpoint{5}{7}
 Although increased noise in the data increased uncertainty in the estimated values,
 coalescence time inference correctly inferred not only the location of the barrier
 but also the migration rates along all other edges within a reasonable margin of error.
@@ -1307,7 +1321,7 @@ EEMS \citep{petkova2014visualizing} integrates over possible tessellations of th
 as a way of regularizing the inferred landscape,
 aiming to obtain a map at the best possible resolution supported by the data.
 
-Most promisingly, the recent method, MAPS \citep{alasadi2018estimating}
+Most promisingly, the recent method, MAPS \citep[``Migration and Population Surface estimation'',][]{alasadi2018estimating}
 is based on EEMS, but instead of resistance distances,
 uses pairwise sharing of long haplotype segments,
 which have been shown to carry substantial information about recent demography
@@ -1335,6 +1349,20 @@ We have found asymmetry in migration rates to be important:
 by modeling genetic similarity as deriving from an underlying random field
 whose space-time covariance is given by the covariance of the (forwards-time) population fluctuations.
 However, this is not motivated by a generative model for genetic data.
+
+All of the methods presented above work with a discretized model of space,
+for mathematical and computational reasons. \revpoint{5}{8}
+Development of new methods for continuous geography
+and assessment of how current methods behave when faced with continuous geography
+is an important challenge facing the field.
+This has been made substantially easier with the introduction of continuous space 
+into the simulator, SLiM \citep{haller2018forward},
+that we used to test the behavior of our method with more realistic data.
+Another promising approach centers around the Spatial Lambda-Fleming-Viot model
+\citep{barton2010continuum}, \revpoint{5}{9}
+which provides a mechanistic model in which coalescent simulations are possible.
+This has been used for inference \citep{guindon2016demographic},
+but more work remains to understand how it behaves as an approximation to real populations.
 
 
 \paragraph{Asymmetric dispersal and consequences for resistance methods}

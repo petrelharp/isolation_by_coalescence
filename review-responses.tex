@@ -1122,34 +1122,38 @@ so haven't tried to add a flow chart.
 \end{point}
 
 \reply{
+    Whoops, thanks! \revref
 }
 
 \begin{point}{}
     Regarding Equation 2, I would recommend giving more detail explaining where
     this comes from. Here is a suggestion:
     \begin{align*}
-        H_xz &= dt + \sum_y Pr(X_{dt} = y | X_0 = x) H_{yz} \\
-             &= dt + \sum_{y != x} Q_{xy} dt H_{yz} + (Q_{xx} dt + 1) H_{xz}
+        H_{xz} &= dt + \sum_y Pr(X_{dt} = y | X_0 = x) H_{yz} \\
+               &= dt + \sum_{y != x} Q_{xy} dt H_{yz} + (Q_{xx} dt + 1) H_{xz}
     \end{align*}
 \end{point}
 
 \reply{
+    We wondered whether this would overload readers,
+    but have now included an explanation along these lines.
+    \revref
 }
 
 \begin{point}{}
     On a related note, it might be helpful to give more explanations about Equation 6. In
     fact, I am not quite sure I agree with it. Indeed, for $x \neq z$, we have
     \begin{align*}
-        C_xz &= dt + {} \\
+        C_{xz} &= dt + {} \\
                 & \qquad
              1/2 \sum_y Pr(X_{dt} = y | X_0 = x) C_{yz} + {} \\
                 & \qquad
              1/2 \sum_y Pr(X_{dt} = y | X_0 = z) C_{xy}, \\
            &= dt + {} \\
                 & \qquad
-             1/2 \sum_{y != x} Q_{xy} dt C_{yz} + (Q_{xx} dt + 1) C_{xz} + \\
+             1/2 \sum_{y \neq x} Q_{xy} dt C_{yz} + (Q_{xx} dt + 1) C_{xz} + \\
                 & \qquad
-             1/2 \sum_{y != x} Q_{zy} dt C_{xy} + (Q_{xx} dt + 1) C_{xz},
+             1/2 \sum_{y \neq x} Q_{zy} dt C_{xy} + (Q_{xx} dt + 1) C_{xz},
     \end{align*}
     where the 1/2 terms correspond to the probability of "selecting" the lineage found in x
     (resp. z) at time 0 to move to y after dt. The last equation above then gives
@@ -1161,6 +1165,27 @@ so haven't tried to add a flow chart.
 \end{point}
 
 \reply{
+    Besides substituting $G$ for $Q$,
+    our equations only differ by the factor of 1/2.
+    The model we work under is that each lineage moves as an independent copy
+    of the Markov chain $X$, so that the total jump rate
+    when the two chains are at $x$ and $z$ is $-G_{xx}-G_{zz}$.
+    We think the factors of 1/2 are in error --
+    a more clear way to see this would be to say that $X$ and $Z$ are the locations of the two lineages,
+    that move independently until they coalesce,
+    and so
+    \begin{align*}
+        C_{xz} &= dt + {} \\
+                & \qquad
+             \sum_u \P(X_{dt} = u | X_0 = x) C_{uz} + {} \\
+                & \qquad
+             \sum_v \P(Z_{dt} = v | Z_0 = z) C_{xv}, \\
+           &= dt + {} \\
+                & \qquad
+             \sum_{u \neq x} G_{xu} dt C_{uz} + (G_{xx} dt + 1) C_{xz} + \\
+                & \qquad
+             \sum_{v \neq x} G_{zv} dt C_{xv} + (G_{xx} dt + 1) C_{xz} .
+    \end{align*}
 }
 
 
@@ -1170,10 +1195,14 @@ so haven't tried to add a flow chart.
     I was also a bit puzzled by the likelihood function that is at the core of the
     Bayesian inference proposed here (see Equation 8). The spatial component of
     the data seems completely hidden. It is in fact conveyed by the coalescent
-    times $C_{ij}(G,\gamma)$ but a more detailed description of the likelihood
+    times $\mathcal{C}_{ij}(G,\gamma)$ but a more detailed description of the likelihood
     function where both genetic and spatial information appear explicitly would
     facilitate the understanding of the proposed inference technique.
 \end{point}
+
+\reply{
+    We've added a clarifying sentence. \revref
+}
 
 \begin{point}{}
     Moreover, my understanding is that the joint probability of the pairwise genetic distances
@@ -1186,6 +1215,17 @@ so haven't tried to add a flow chart.
     to clarify what are the underlying simplifying hypotheses the proposed approach relies on.
 \end{point}
 
+\reply{
+    In our model, spatial locations are (discrete and) assumed to be known without error,
+    and we do not want to model the sampling process,
+    so they do not enter into the likelihood.
+    Also recall that both $D$ and $C$ are \emph{complete} matrices of genetic distances 
+    and pairwise coalescence times -- i.e.,
+    between all pairs of populations --
+    so the locations do not enter at this stage (although they are certainly used in estimating $D$).
+    We have added a note reminding the reader of this. \revref
+}
+
 \begin{point}{}
     On a related note, my understanding is that the uncertainty affecting
     coalescent times conditional on the movement rates is not taken into
@@ -1195,19 +1235,21 @@ so haven't tried to add a flow chart.
 \end{point}
 
 \reply{
+    This is true; we've added a sentence emphasizing this. \revref
 }
 
 
 % Section "Identifying a barrier to gene flow"
 
 \begin{point}{}
-    The sentence "with noise standard deviation equal to 1/1000th of the mean
-    coalescence time (left) and 1/100th of the mean coalescence time (right)"
-    should read "with noise standard deviation equal to 1/1000th of the mean
-    coalescence time (top) and 1/100th of the mean coalescence time (bottom)"
+    The sentence ``with noise standard deviation equal to 1/1000th of the mean
+    coalescence time (left) and 1/100th of the mean coalescence time (right)''
+    should read ``with noise standard deviation equal to 1/1000th of the mean
+    coalescence time (top) and 1/100th of the mean coalescence time (bottom)''
 \end{point}
 
 \reply{
+    Whoops! Fixed. \revref
 }
 
 
@@ -1229,6 +1271,11 @@ so haven't tried to add a flow chart.
 \end{point}
 
 \reply{
+    Certainly! We agree that the SLFV model is a promising way forward
+    to be able to use coalescent simulations in continuous space.
+    There's a lot of work left to explore how and when it's a good approximation
+    to reality also,
+    but we've added a bit about it to the ``Other methods'' section. \revref
 }
 
 \begin{point}{}
@@ -1240,5 +1287,7 @@ so haven't tried to add a flow chart.
 \end{point}
 
 \reply{
+    We agree, and very much hope to move in that direction.
+    We've added more discussion of this. \revref
 }
 
