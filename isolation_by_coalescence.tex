@@ -459,6 +459,8 @@ and all offdiagonal entries of $G + Z$ must be nonnegative. \revpoint{1}{11}
 As before, if all entries of $G$ are nonzero, 
 it is always possible to find sufficiently small $\epsilon$
 so that $G + \epsilon Z$ remains the generator of a valid Markov chain.
+The coalescence rates, $\gamma$, provide additional degrees of freedom
+which may render solutions nonunique in a broader range of situations.
 
 \paragraph{Constraints and uniqueness}
 We have seen that to find the movement rates of a continuous-time Markov chain
@@ -1124,7 +1126,7 @@ and so that each region is of roughly the same geographic area.
 
 \paragraph{Other barriers: population sinks and recent expansions}
 We simulated two other situations on a continuous landscape that produced an bias in effective migration.
-First, we simulated a \textbf{valley} in a landscape with a $5 \times 3$ aspect ratio as above, 
+First, we simulated a \textbf{valley} in a square landscape,
 in which fecundity of individuals in the middle 1/4 of the landscape was reduced by 50\%.
 The valley is a population ``sink'',
 although it would not be detectable with mortality rates,
@@ -1889,12 +1891,12 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
 
 \begin{figure}
 \centering
-    \includegraphics[width=0.45\textwidth]{figs/barrier_locations}
-    \includegraphics[width=0.45\textwidth]{figs/barrier_eems}
-    \includegraphics[width=0.45\textwidth]{figs/barrier_coal_graph}
-    \includegraphics[width=0.45\textwidth]{figs/barrier_commute_graph}
-    \includegraphics[width=0.45\textwidth]{figs/barrier_coal_dists}
-    \includegraphics[width=0.45\textwidth]{figs/barrier_commute_dists}
+    \includegraphics[width=0.4\textwidth]{figs/barrier_locations}
+    \includegraphics[width=0.4\textwidth]{figs/barrier_eems}
+    \includegraphics[width=0.4\textwidth]{figs/barrier_coal_graph}
+    \includegraphics[width=0.4\textwidth]{figs/barrier_commute_graph}
+    \includegraphics[width=0.4\textwidth]{figs/barrier_coal_dists}
+    \includegraphics[width=0.4\textwidth]{figs/barrier_commute_dists}
     \caption{
         Results from the \textbf{barrier} simulation:
         \textbf{(top left)} Positions of all individuals at the end of simulation.
@@ -1913,12 +1915,12 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
 
 \begin{figure}
 \centering
-    \includegraphics[width=0.45\textwidth]{figs/valley_locations}
-    \includegraphics[width=0.45\textwidth]{figs/valley_eems}
-    \includegraphics[width=0.45\textwidth]{figs/valley_coal_graph}
-    \includegraphics[width=0.45\textwidth]{figs/valley_commute_graph}
-    \includegraphics[width=0.45\textwidth]{figs/valley_coal_dists}
-    \includegraphics[width=0.45\textwidth]{figs/valley_commute_dists}
+    \includegraphics[width=0.4\textwidth]{figs/valley_locations}
+    \includegraphics[width=0.4\textwidth]{figs/valley_eems}
+    \includegraphics[width=0.4\textwidth]{figs/valley_coal_graph}
+    \includegraphics[width=0.4\textwidth]{figs/valley_commute_graph}
+    \includegraphics[width=0.4\textwidth]{figs/valley_coal_dists}
+    \includegraphics[width=0.4\textwidth]{figs/valley_commute_dists}
     \caption{
         Results from the \textbf{valley} simulation:
         \textbf{(top left)} Positions of all individuals at the end of simulation.
@@ -1937,12 +1939,12 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
 
 \begin{figure}
 \centering
-    \includegraphics[width=0.45\textwidth]{figs/expansion_locations}
-    \includegraphics[width=0.45\textwidth]{figs/expansion_eems}
-    \includegraphics[width=0.45\textwidth]{figs/expansion_coal_graph}
-    \includegraphics[width=0.45\textwidth]{figs/expansion_commute_graph}
-    \includegraphics[width=0.45\textwidth]{figs/expansion_coal_dists}
-    \includegraphics[width=0.45\textwidth]{figs/expansion_commute_dists}
+    \includegraphics[width=0.4\textwidth]{figs/expansion_locations}
+    \includegraphics[width=0.4\textwidth]{figs/expansion_eems}
+    \includegraphics[width=0.4\textwidth]{figs/expansion_coal_graph}
+    \includegraphics[width=0.4\textwidth]{figs/expansion_commute_graph}
+    \includegraphics[width=0.4\textwidth]{figs/expansion_coal_dists}
+    \includegraphics[width=0.4\textwidth]{figs/expansion_commute_dists}
     \caption{
         Results from the \textbf{expansion} simulation:
         \textbf{(top left)} Positions of all individuals at the end of simulation.
@@ -1961,8 +1963,8 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
 
 \begin{figure}
 \centering
-    \includegraphics[width=0.7\textwidth]{poplars/posterior_dists_g_populus}
-    \includegraphics[width=0.7\textwidth]{poplars/grid_populus}
+    \includegraphics[width=0.65\textwidth]{poplars/posterior_dists_g_populus}
+    \includegraphics[width=0.65\textwidth]{poplars/grid_populus}
     \caption{
         Posterior distributions of parameters for \textit{Populus} data,
         using coalescence time inference with the model shown in Figure~\ref{fig:poplar_results}.
