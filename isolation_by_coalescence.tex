@@ -216,13 +216,13 @@ to \emph{coalesce},
 which happens at a given rate whenever they are in the same location.
 We will denote this by $C_{ij}$.
 Why should these be related to genetic distance? 
-First, we explain this connection,
-and then discuss their computation,
+We first explain this connection and discuss computation of both quantities,
 and finally develop a method that infers movement rates of the Markov chain
-(which are reverse-time migration probabilities)
-from observations of coalescence time, \revpoint{1}{9}
-and apply this to a real dataset.
-Although we have tried to highlight the intuitive aspects of this initial technical discussion,
+(which are rates of gene flow)
+from observations of coalescence time. \revpoint{1}{9}
+We apply the method to both realistic simulations in continuous space
+and to an empirical dataset.
+Although we have tried to highlight the intuitive aspects of the initial technical discussion,
 readers who are interested in practical differences
 more than the mathematical arguments should be able to skip to ``Test cases and simulations''
 without loss of continuity. \llabel{ll:flagging}
@@ -272,9 +272,10 @@ We denote the resulting genetic distance $D_{ij}$;
 since divergence is symmetric, $D_{ij} = D_{ji}$.
 We compute $D_{ii}$ by sampling without replacement from group $i$,
 so that generally $D_{ii} > 0$: the diagonal elements measure local diversity.
-As discussed below, we will find commute times so that the mean commute time between
+As discussed below, 
+``resistance distance'' methods find commute times so that the mean commute time between
 $i$ and $j$ matches $D_{ij}$ -- but the commute time of a location to itself is zero,
-so we must account for local diversity.
+so a term is added to account for local diversity.
 We do this in the same way as \citet{petkova2016visualizing},
 by introducing the \emph{local diversity} parameters $q_i$,
 and using the model
@@ -345,7 +346,7 @@ Suppose that the chain begins at $x \neq z$,
 and is at location $y \neq z$ after $dt$ units of time, without having visited $z$.
 Then the total time to hit $z$ is equal to the elapsed time $dt$
 plus the remaining time to hit $z$ from $y$.
-Formally, this says that \revpoint{5}{2}
+Taking the average over possible paths, this says that \revpoint{5}{2}
 $H_{xz} \approx dt + \sum_y \P\{X_{dt} = y \given X_0 = x\} H_{yz}$.
 Replacing $\P\{X_{dt} = y \given X_0 = x\}$ with $dt G_{xy}$ and rearranging
 gives the system of equations:
@@ -375,16 +376,19 @@ which implies that $G$ can be computed directly from $H$ as
     G = \left( \diag(1/\pi) - \bone \bone^T \right) H^{-1} .
 \end{align}
 (We prove that $H$ is invertible in Appendix~\ref{apx::hitting_calcs}.) \revpoint{1}{12}
-Therefore, $H$ uniquely determines $G$.
+Therefore, the pairwise mean hitting times, $H$, uniquely determine the jump rates, $G$.
 
 % \paragraph{Commute times}
-The \emph{commute times} are a symmetrized version of the hitting times
-(which need not be symmetric),
-defining $R = H + H^T$, i.e.:
+The \emph{commute time} between $x$ and $y$ is the mean time a chain started at $x$ takes 
+to first hit $y$ and then to return to $x$.
+We will write this as
 \begin{align} \label{eqn:R_from_H}
 \text{\bf (commute time)} \qquad
-    R_{xy} = H_{xy} + H_{yx}.
+    R_{xy} = H_{xy} + H_{yx},
 \end{align}
+or in matrix notation, $R = H + H^T$.
+Note that the commute times are symmetric,
+even though the hitting times may not be.
 
 Although commute times are uniquely determined by movement rates, the reverse is not true --
 we can use equations \eqref{eqn:gh} and \eqref{eqn:R_from_H} to see how to modify movement rates
@@ -392,7 +396,7 @@ without changing commute times.  \llabel{ll:dense1}
 A small concrete example of this is given in Appendix \ref{ss:simple_example}.
 More generally, commute times only depend on the symmetric part of $H$ --
 given a skew-symmetric matrix $Z$ (so that $Z + Z^T = 0$),
-any Markov chain that has hitting times given by $H_\epsilon = H + \epsilon Z$ for some $\epsilon$
+any Markov chain that has hitting times given by $H_\epsilon = H + \epsilon Z$ for some number $\epsilon$
 will have the same commute times.
 The resulting hitting times may not be valid --
 if $G_\epsilon$ is the matrix constructed by applying equation \eqref{eqn:G_from_H} to $H_\epsilon$,
@@ -411,14 +415,15 @@ if the chains coalesce at rate $\gamma$ when they are in the same place.
 Concretely, 
 suppose that $X$ and $Y$ are independent Markov chains both moving with movement rates given by $G$,
 that coalesce at rate $\gamma_x$ when $X$ and $Y$ are both at $x$.
-Then we define $\tau$ to be this coalescence time,
+Define $\tau$ to be this coalescence time,
 so that 
 $\P\{\tau \le t + \epsilon \given \tau > t, \; X_t = Y_t = x\} = \epsilon \gamma_x + O(\epsilon^2)$,
 and 
 $\P\{\tau \le t + \epsilon \given \tau > t, \; X_t \neq Y_t\} = O(\epsilon^2)$.
-Then, the (mean) coalescence time is $C_{xy} = \E[\tau \given X_0 = x, \, Y_0 = y]$.
-A similar argument using the Markov property
-shows that $C$ satisfies the following equation:
+Then, the (mean) coalescence time is defined to be
+$C_{xy} = \E[\tau \given X_0 = x, \, Y_0 = y]$.
+An argument similar to the one behind equation \eqref{eqn:hitting_sum}
+shows that the coalescence times satisfy the following system of equations:
 \begin{align}
 \text{\bf (coalescence time)} \qquad
     \sum_y \left(G_{xy} C_{yz} + C_{xy} G_{zy}\right)
@@ -448,7 +453,8 @@ suppose that we have a matrix $Z$ such that $ZC$ is skew-symmetric.
 Then $(G + Z) C + C (G + Z)^T = GC + CG^T$,
 and so a Markov chain with generator matrix $G + Z$ has the same coalescence times
 as the original chain.
-For $G + Z$ to be a valid generator, the rows of $Z$ must sum to zero,
+Furthermore, for $G + Z$ to be a valid generator of a Markov chain,
+the rows of $Z$ must sum to zero,
 and all offdiagonal entries of $G + Z$ must be nonnegative. \revpoint{1}{11}
 As before, if all entries of $G$ are nonzero, 
 it is always possible to find sufficiently small $\epsilon$
@@ -491,14 +497,14 @@ and direct, long-distance migration is disallowed \revpoint{3}{2}
 However, finer geographic resolutions may present problems of nonidentifiability, \llabel{ll:dense2}
 similar to the problem of multiple linear regression with many collinear variables.
 The problem of inferring gene flow rates on fine geographic maps may become \emph{ill-conditioned},
-arbitrarily small variations in the data
+i.e., arbitrarily small variations in the data
 (even numerical instability)
 may produce large differences in the inferred ``best'' rates.
 Information about the landscape contained in higher-order modes
 (e.g., finer resolution changes in hitting times)
 is obscured by noise.
 (For the interested technical reader, 
-this could occur as the spatial resolution increases because,
+this could occur as the spatial resolution increases because
 the matrix $G$ converges to a second-order elliptic differential operator \citep{stroock1997multidimensional};
 such operators are deformations of the Laplacian \citep{feller4},
 which has rapidly decaying eigenvalues \citep{hpmckean1967curvature,kuttler1984eigenvalues}.)
@@ -515,7 +521,7 @@ for instance, constraining all population sizes to be the same (something we do 
 or allowing only two distinct migration rates: one rate across a barrier, 
 and another across ``non-barriers''.
 Such constraints amount to a form of regularization,
-since they look for solutions to the original problem with certain desireable properties
+since they look for solutions to the original problem with certain desirable properties
 (e.g., most of the values are the same). \revpoint{1}{4}
 
 \paragraph{When are coalescence and commute times equal?}
@@ -594,7 +600,7 @@ Then, the resulting log-posterior density is
 Here $1/\lambda_\gamma$ and $1/\lambda_G$ are the prior means of $\gamma_i$ and $G_{ij}$,
 respectively.
 Recall that both $D$ and $\mathcal{C}(G,\gamma)$ are full matrices of pairwise distances between discrete locations (in the same order), \revpoint{5}{5}
-the term $(\mathcal{C}_{ij}(G,\gamma) - D_{ij})^2$
+and so the term $(\mathcal{C}_{ij}(G,\gamma) - D_{ij})^2$
 measures the deviation of the observed genetic distances
 from those predicted under the coalescent model on the graph. \revpoint{5}{4}
 
@@ -719,7 +725,6 @@ is equal to the number of locations in the discretization.
 \subsection*{Data from \textit{Populus trichocarpa}}
 
 We also applied our method to genotyping data from 423 samples of \textit{Populus trichocarpa}
-\citet{geraldes2014landscape}
 and 8 samples of the closely related \textit{Populus balsamifera} (with which it hybridizes),
 from a large region of northwestern North America,
 described in \citet{geraldes2014landscape}.
@@ -766,7 +771,7 @@ We then analytically computed mean coalescence times,
 and added independent noise to each pairwise coalescence time.
 We assume that we can estimate the amount of noise reasonably well, \revpoint{3}{4}
 so used the true standard deviation of the noise for $\sigma_\epsilon$ in the likelihood function.
-In practice, $\sigma_epsilon$ can be estimated by the standard deviation
+In practice, $\sigma_\epsilon$ can be estimated by the standard deviation
 of genetic distances between different pairs of samples in the same region.
 To assess the impact on inference of the number of parameters,
 we performed inference both with and without the assumption 
@@ -926,7 +931,8 @@ Differences between true mean coalescence times ($C$) and mean resistance distan
 are shown in Figure \ref{fig:RvsC}: \revpoint{1}{19}
 they are fairly small in the uniform and symmetric cases, moderate in the asymmetric case, 
 and extreme in the biased asymmetric case.
-This difference suggests that resistance distance inference may be strongly misled \revpoint{2}{7}
+This difference suggests that inferences made with resistance distance 
+may be strongly misleading \revpoint{2}{7}
 in the asymmetric and biased situations,
 but in principle it still could be the case that 
 the movement rates that give the best fit of resistance distance
@@ -984,7 +990,7 @@ as we would expect based on the differences discussed above.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Continuous geographical space}
 
-The data we have used thus far are produced ``under the model'',
+The data we have used thus far are produced under the model used for inference,
 and should provide an accurate depiction of our method applied to discrete, randomly mating populations
 whose connections by migration are known.
 However, this is nearly always a rough approximation to reality,
@@ -1015,7 +1021,7 @@ and the stochasticity of the population history itself (``process noise'')
 % This might make inference using a discretization of continuous space considerably more difficult.
 Sequencing of many nonascertained loci genome-wide should minimize the second source of noise
 (although genome structure can affect this at large scales \citep{li2016local}). \revpoint{3}{11}
-Geographic models in continous space, 
+Geographic models in continuous space, 
 are expected to show much more process noise than discrete population models
 because of random fluctuations in local population density. \revpoint{3}{10}
 To quantify the relative contributions of the remaining sources of noise,
@@ -1192,7 +1198,7 @@ These results align with what is known about \textit{Populus} history and ecolog
 (personal communication, A.~Moreno Geraldes and Q.~Cronk, and \citet{geraldes2014landscape}).
 There is ongoing hybridization around region 4,
 and interspecific gene flow from 9 to 3 may be due to downstream transport along the Columbia river
-(A larger gene flow rate from 9 to 3 indicates that individuals in region 9
+(a larger gene flow rate from 9 to 3 indicates that individuals in region 9
 are more likely to have recent ancestry in region 3 than vice-versa.)
 The glacial refugia for the two species are thought to be in western Alaska (\textit{balsamifera})
 and coastal British Columbia (\textit{trichocarpa}).
@@ -1224,7 +1230,7 @@ lower population density (or, net fecundity)
 into a neighboring region of higher population density.
 We also expect gene flow to be biased 
 from a smaller region to a larger, neighboring one than vice-versa
-if a larger proprotion of the smaller region lies close to the boundary between the two.
+if a larger proportion of the smaller region lies close to the boundary between the two.
 This may explain the net bias from many coastal populations to inland ones.
 We grouped samples so that each group represented roughly comparable geographic regions,
 to ameliorate these confounding factors. \llabel{ll:discretization}
@@ -1243,9 +1249,9 @@ where discrete populations are used to model continuous geography.
         blue-outlined, inland samples are \textit{balsamifera});
         circle fill color indicates how samples are grouped into discrete ``populations''.
         Large circles are placed at group centroids, and given group labels.
-        Arrow width is proportional to the posterior mean gene flow rate inferred under
-        the coalescence time model (also given by the labels):
-        for instance, the inferred gene flow rate from 4 to 2 is 3.0,
+        Arrows are labeled by the posterior mean gene flow rate inferred under
+        the coalescence time model (which also determines arrow width).
+        For instance, the inferred gene flow rate from 4 to 2 is 3.0,
         while that from 2 to 4 is 0.7,
         suggesting that poplars in region 4
         have many more recent ancestors in region 2
@@ -1317,7 +1323,7 @@ Circuitscape \citep{mcrae2008using} produces maps of much higher resolution
 than is presently possible with coalescent times. \revpoint{4}{1}
 \citet{hanks2013circuit} connects the problem to intrinsic conditional autoregressive models, 
 providing a Bayesian model of an underlying Gaussian Markov random field.
-EEMS \citep{petkova2014visualizing} integrates over possible tessellations of the region
+EEMS \citep{petkova2016visualizing} integrates over possible tessellations of the region
 as a way of regularizing the inferred landscape,
 aiming to obtain a map at the best possible resolution supported by the data.
 
@@ -1493,6 +1499,7 @@ to Brad Shaffer and Evan McCartney-Melstad for discussions about landscape model
 to John Novembre, Hussein Al-Asadi and Benjamin Peter for help with EEMS
 and general input,
 and to Quentin Cronk and Armando Moreno Geraldes for consultations about the \emph{Populus} results.
+Thanks also go to five anonymous reviewers for numerous useful suggestions.
 We would also like to gratefully acknowledge the immense positive impact that Brad McRae \citep[1966--2017;][]{lawler2018tribute}
 has had on landscape genetics and conservation biology through the introduction of landscape resistance.
 We hope this paper helps to carry forward this work.

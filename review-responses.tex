@@ -25,10 +25,27 @@
 We are writing to submit a revised version of our manuscript, 
 ``Are populations like a circuit? 
 Comparing isolation by resistance to a new coalescent-based method.''
-(formerly titled ``Are populations like a circuit? The relationship between isolation by distance and isolation by resistance'').
+(formerly titled 
+``Are populations like a circuit? 
+The relationship between isolation by distance and isolation by resistance'').
 
+Thanks to the five mostly anonymous reviewers for their many useful comments --
+we've addressed all of them, which we think has made the paper more generally understandable
+and suitable for this audience.
+In particular, we have included analysis of an empirical dataset 
+(which was fun, and produced good results),
+revised the figures for increased legibility,
+and added a substantial amount of additional explanation of the technical points.
+We hope that discussion of the empirical results should help make interpretation
+of the coalescent-based model more broadly understandable.
+And, at the suggestion of reviewer 1,
+we have changed the title.
+We think this has all improved the paper substantially,
+and hope you agree.
 
-...
+We have included detailed responses to all the reviewer's comments,
+with page and line numbers that refer to the revised version of the manuscript.
+There is also a version of the manuscript showing differences to the previously submitted document.
 
 \vspace{5em}
 
@@ -59,6 +76,9 @@ We received five reviews for your submitted article. While three are quite posit
 Please respond to all major comments raised by the reviewers. In particular, try to address the following points: 1) Revise figures for clarity and legibility. 2) Include an empirical dataset, as suggested by REV 2. 3) Rewrite for a broader audience of biologists (translating some difficult concepts when possible and as appropriate). 4) Clarify aspects of the statistical methods as indicated by several reviewers.
 \end{quote}
 
+Please find our responses below.
+We hope you agree we've addressed all four of these points.
+
 %%%%%%%%%%%%%%
 \reviewersection{1}
 
@@ -67,7 +87,7 @@ Please respond to all major comments raised by the reviewers. In particular, try
     set of demes to pairwise genetic differentiation, utilizing a MCMC. They first
     state the basic equations, which closely resemble existing theory of stepping
     stone models. They extensively compare their computational method to resistance
-    based methods using an own implementation of the latter, both "under the model"
+    based methods using an own implementation of the latter, both ``under the model''
     as well as using various quite realistic forward in time simulations.
     Resistance based methods are much faster and can handle much more demes than
     the method presented here (no case with more than a 5x5 grid is shown).
@@ -85,7 +105,7 @@ Please respond to all major comments raised by the reviewers. In particular, try
     implementation.
 
     Overall, I think this article makes a very valid contribution for Molecular
-    Ecology Ressources. The authors put their work into the right context and
+    Ecology Resources. The authors put their work into the right context and
     show good knowledge of the relevant literature. The writing is both clear
     and concise. Importantly, they do not shy away from pointing out the limits
     of their method, and the very stringent (often unrealistic) assumptions
@@ -134,7 +154,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     if it were the same it would be $\mathcal{O}(N^2)$).
     For fine discretizations of space, the matrices are sparse,
     but in our testing, using sparse matrix methods didn't help at this scale.
-    We've added a point about this last thing to the discussion \revref
+    We've added a point about this last thing to the discussion \revref{}
     but haven't put in more detail (e.g., plots of scaling with $N$)
     because it depends on the details (sparsity of the adjacency matrix),
     and as we discuss above, we think that nonidentifiability is a more serious barrier
@@ -209,7 +229,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 }
 
 \begin{point}{\revref}
-    $F_ST \neq$ Absolute divergence!!!  $F_ST$ is more a
+    $F_{ST} \neq$ Absolute divergence!!!  $F_{ST}$ is more a
     co-variance measure, and for instance heavily influence by sampling a batch
     of related individuals (whereas the mean of absolute divergence will be
     unchanged).
@@ -218,7 +238,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \reply{
     We can't agree more!!!!
     We've added a note about this, although not a lot of detail,
-    because it seems outside the scope of this paper. \revref
+    because it seems outside the scope of this paper \revref{}.
     And, we thought we should mention $F_{ST}$ because it is commonly used
     in these situations.
 }
@@ -307,7 +327,7 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 }
 
 \begin{point}{}
-    Dimensionality arguments (Line 129 onward) can be a bit misleading when you
+    Dimensionality arguments (\revref{} and onward) can be a bit misleading when you
     already know the equations have a non-trivial kernel. Setting all
     non-neighboring elements of $G$ to 0 might not get rid of parts of the
     kernel. So maybe flag it even more as ``be cautious'' as you already have.
@@ -424,8 +444,8 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
 \end{point}
 
 \reply{
-    We agree -- there's a lot of directions we could move in to improve our package,
-    and hope to work more on this.
+    True! We've tweaked the way the arrows are displayed,
+    and think they look better now.
 }
 
 
@@ -442,21 +462,22 @@ run-time then, does the whole thing blow up? Give an idea how big is too big!
     from $i$ to $j$ and back, integrated over all possible paths of the chain. Resistance
     distance comes from electrical circuit theory and is not a model of genetic
     variation across a landscape. Also, it is inherently symmetric in $i$ and $j$, and
-    cannot accomodate asymmetric migration between demes. A more biologically
+    cannot accommodate asymmetric migration between demes. A more biologically
     realistic model is the structured coalescent. Hence, if data are generated under
     the something resembling the coalescent, then there is scope for improving IBR
     by reducing model misspecification.
 
     This paper implements such a method and conducts comparative analyses on a
     number of simulated data sets. It seems that in general, this method and the
-    resistance-based approaches (as exemplified by EEMS) produce somewhat com-
-    parable results so long as migration rates are symmetric. The largest differences
-    emerge when gene flow is asymmetric, because this fundamentally violates the
-    resistance distance model used by EEMS. Here, the authors show convincingly
-    that inferring migration rates using the resistance distance approximation can
-    be wildly inaccurate compared to the same estimates obtained using coalescent
-    methods. To the extent that gene flow is more likely to be asymmetric in many
-    natural populations, this seems like an important finding.
+    resistance-based approaches (as exemplified by EEMS) produce somewhat
+    comparable results so long as migration rates are symmetric. The largest
+    differences emerge when gene flow is asymmetric, because this fundamentally
+    violates the resistance distance model used by EEMS. Here, the authors show
+    convincingly that inferring migration rates using the resistance distance
+    approximation can be wildly inaccurate compared to the same estimates
+    obtained using coalescent methods. To the extent that gene flow is more
+    likely to be asymmetric in many natural populations, this seems like an
+    important finding.
 
     My overall impression of this work is fairly positive. The paper is very clearly
     written, and the idea of replacing IBR with a method that is more faithful to
@@ -475,7 +496,7 @@ One minor comment: resistance distances are not strictly based in a population g
 but we think that in practice it is thought of as (an approximation to) such a model
 -- for instance, it is common to see the explanation that it
 ``integrates over all possible paths that the organisms might take''.
-We think it is clear that \citet{mcrae2006isolation} saw resistance distance as an approximation
+We think \citet{mcrae2006isolation} saw resistance distance as an approximation
 to the more-accurate coalescence models; we're looking at the effects of this approximation.
 We hope this point comes through in the paper.
 
@@ -497,10 +518,10 @@ We hope this point comes through in the paper.
 We've now added analysis of a real dataset, from \citet{geraldes2014landscape},
 and are quite pleased with the results!
 This has also given us a chance to spend more time talking through how to interpret the results.
-(We didn't get to say this in the paper,
-but initially were worried by the southward bias in gene flow for the inland poplar species,
-since we would expect the opposite if poplars had expanded to the north following the glaciers;
-but then we learned that this species likely expanded from Alaksa, rather than from the south.)
+% (We didn't get to say this in the paper,
+% but initially were worried by the southward bias in gene flow for the inland poplar species,
+% since we would expect the opposite if poplars had expanded to the north following the glaciers;
+% but then we learned that this species likely expanded from Alaska, rather than from the south.)
 
 
 \begin{point}{}
@@ -567,7 +588,8 @@ but then we learned that this species likely expanded from Alaksa, rather than f
     at the grid sizes where it was computationally advantageous to use it over solving exactly, 
     it would still take a very long time for the MCMC to converge
     due to the large number of parameters.
-    % Devoloping a way to reduce the number of parameters in a way similar to EEMS
+    Something along these lines might be useful for finer geographical resolutions, though.
+    % Developing a way to reduce the number of parameters in a way similar to EEMS
     % while still allowing asymmetric migration is a good direction for future implementations.
 }
 
@@ -608,7 +630,7 @@ but then we learned that this species likely expanded from Alaksa, rather than f
 \end{point}
 
 \reply{
-    We think this is correct (and reads reasonably well?) as it stands.
+    We've reworded this. \revref
 }
 
 
@@ -656,7 +678,7 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
 \end{point}
 
 \reply{
-    Reworded.
+    Reworded. \revref
 }
 
 \begin{point}{\revref}
@@ -664,7 +686,7 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
 \end{point}
 
 \reply{
-    Added parenthetical clarification.
+    Added parenthetical clarification. \revref
 }
 
 \begin{point}{\revref}
@@ -672,7 +694,7 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
 \end{point}
 
 \reply{
-    Reworded.
+    Reworded. \revref
 }
 
 \begin{point}{\revref}
@@ -680,7 +702,7 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
 \end{point}
 
 \reply{
-    Added explanatory note aobut how to estimate noise.
+    Added explanatory note about how to estimate noise. \revref
 }
 
 \begin{point}{}
@@ -701,11 +723,10 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
     How exactly is the pairwise genetic distance calculated?  What does ``density
     of sites'' mean?  Is it just the fraction of sites at which two genomes
     differ?  If so it is just pairwise theta as used by Wakeley and others.  
-    Eq 1:  what is $R_{ij}$ and how is $q$ calculated?
 \end{point}
 
 \reply{
-    That's correct; we've reworded this to be more clear.
+    That's correct; we've reworded this to be more clear. \revref
 }
 
 \begin{point}{}
@@ -851,7 +872,7 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
     ``we varied the standard deviation of the noise from 1/1000th to 1/50th of
     the mean value of $C$ for that grid.''  This sounds like a CV of 0.001 to
     0.02 for noise, both of which would be exceedingly small.  If that is not
-    what is meant, please clarify.
+    what is meant, please clarify. \revref
 \end{point}
 
 \reply{
@@ -868,7 +889,7 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
 \end{point}
 
 \reply{
-    We mean among individuals (and have added this).
+    We mean among individuals (and have added this). \revref
 }
 
 \begin{point}{\revref}
@@ -878,9 +899,9 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
 \end{point}
 
 \reply{
-    We're simply saying that it is not a requirement to \emph{run} the method
+    We're saying that it is possible to \emph{run} the method
     to have samples in each location --
-    it is easy, in principle, to include ``ghost'' populations.
+    so it is easy, in principle, to include ``ghost'' populations.
     Of course, unsampled populations will affect accuracy of the result,
     and we've added a note to clarify. \revref
     % In practice, the more locations with samples you have, the better the result will be.
@@ -902,10 +923,9 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
 \end{point}
 
 \reply{
-    We sympathize, and have tried to improve this.
-    However, some of this we think is unavoidable --
-    the x-axis labels of figures like Figure~\ref{fig:5x3b_post_coalvcom}
-    cannot be made larger without overlapping.
+    We sympathize, and have increased the sizes of most of the labels.
+    However, the x-axis labels of figures like Figure~\ref{fig:5x3b_post_coalvcom}
+    cannot be made larger without overlapping, and we'd like to keep them.
     Another approach would be to simply plot true versus observed values,
     which is equivalent to the current plot without the x-axis labels.
     We prefer to leave these labels, even if these are only really legible
@@ -936,7 +956,7 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
 \end{point}
 
 \reply{
-    A lengthy name (that we've added). \revref
+    A lengthy acronym (that we've added, as well as MAPS, later). \revref
 }
 
 \begin{point}{\revref}
@@ -981,7 +1001,7 @@ at {\llname{ll:dense1}} and {\llname{ll:dense2}}.
 \end{point}
 
 \reply{
-    Yes, but this is the way we implemented it in the simulation.
+    It could, but this is the way we implemented it in the simulation.
 }
 
 
@@ -1041,7 +1061,7 @@ so haven't tried to add a flow chart.
     is to produce high-resolution maps (as we discuss, \revref).
     We made the statement that
     genetic data are more accurately modeled by coalescence time than resistance distance
-    because while there is an extensive literature going back fourty years
+    because while there is an extensive literature % going back fourty years
     describing the broad conditions under which coalescence is a good model 
     for the process that produces genomic data,
     we know of no such justification for resistance distance.
@@ -1058,10 +1078,10 @@ so haven't tried to add a flow chart.
     In our paper we've tried to describe how inaccuracies of the generative model
     that underlies resistance distance
     can lead to misleading results.
-    As discussed at \llname{ll:approx},
-    resistance distance is used only because it is a more computationally tractable
-    approxmation to coalescence time --
-    any method that uses resistance distances could in principle be 
+    The only downside to coalescence time inference is computational tractability
+    (discussed at \llname{ll:approx}):
+    otherwise, one can be swapped out for the other.
+    In fact, \emph{any} method that uses resistance distances could in principle be 
     done with coalescence times instead (e.g., to look at the effect of landscape features).
     This is discussed at \llname{ll:circuitscape}.
 }
@@ -1071,7 +1091,7 @@ so haven't tried to add a flow chart.
 \end{point}
 
 \reply{
-    Done.
+    Done. \revref
 }
 
 \begin{point}{\revref}
@@ -1102,8 +1122,8 @@ so haven't tried to add a flow chart.
     This article focuses on the inference of gene flows between populations from
     the analysis of georeferenced genetic data. In particular, a new
     coalescent-based technique, which applies to the analysis of pairs of
-    sampled individuals, is compared to an approach based on "resistance
-    distances" which aim at approximating coalescent distances. This work is
+    sampled individuals, is compared to an approach based on ``resistance
+    distances'' which aim at approximating coalescent distances. This work is
     interesting because resistance distances are at the core of several popular
     techniques in landscape genetics. It is thus important to gain a good
     understanding of how good this phenomenological approximation is compared
@@ -1172,7 +1192,7 @@ so haven't tried to add a flow chart.
     when the two chains are at $x$ and $z$ is $-G_{xx}-G_{zz}$.
     We think the factors of 1/2 are in error --
     a more clear way to see this would be to say that $X$ and $Z$ are the locations of the two lineages,
-    that move independently until they coalesce,
+    that move independently according to $G$ until they coalesce,
     and so
     \begin{align*}
         C_{xz} &= dt + {} \\

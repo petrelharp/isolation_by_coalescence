@@ -171,8 +171,12 @@ g_med <- matrixStats::colMedians(g)
 gam_med <- matrixStats::colMedians(gam)
 
 #save medians
-save(file="g_med.txt",g_med)
-save(file="gam_med.txt",gam_med)
+write.table(g_med, file="g_med.tsv", col.names=FALSE, row.names=FALSE)
+write.table(gam_med, file="gam_med.tsv", col.names=FALSE, row.names=FALSE)
+
+# reload them
+if (!exists("g_med")) { g_med <- scan("g_med.tsv") }
+if (!exists("gam_med")) { gam_med <- scan("gam_med.tsv") }
 
 # for plotting
 library(sp)
@@ -224,6 +228,7 @@ cairo_pdf(filename=paste0(outpath,"/grid_",fname,"_map.pdf"),width=14,height=14)
        main=paste0("Graph Structure"), 
        vertex.size=200, vertex.label.cex=2,
        edge.arrow.size=2, edge.label.cex=1.5,
+       edge.color=rgb(colorRamp(c("#DD8000","gray","#9999FF"))(tanh(g_med/2)),max=255),
+       edge.label.color="#000000",
        add=TRUE, rescale=FALSE)
 dev.off()
-
