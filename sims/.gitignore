@@ -1,1 +1,4 @@
 *.tsv
+run_*
+*.tar.gz
+test/

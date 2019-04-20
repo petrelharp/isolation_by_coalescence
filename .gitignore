@@ -6,3 +6,6 @@
 *.out
 *.fff
 *.lof
+isolation_by_coalescence-diff*
+submission/
+tort_results.pdf
