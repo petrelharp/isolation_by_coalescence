@@ -882,6 +882,8 @@ having 105 equations and 59 unknowns.
     Values for the non-zero movement rates 
     were chosen by rounding independent draws of an exponential random variable with mean 1 
     up to the nearest tenth.
+    Thickness and color of arrows reflect movement rates:
+    darker red arrows have smaller rates and darker blue arrows have larger rates.
     } \label{fig:5x3b_grid}
 \end{figure}
 
@@ -1252,7 +1254,7 @@ where discrete populations are used to model continuous geography.
         circle fill color indicates how samples are grouped into discrete ``populations''.
         Large circles are placed at group centroids, and given group labels.
         Arrows are labeled by the posterior mean gene flow rate inferred under
-        the coalescence time model (which also determines arrow width).
+        the coalescence time model (which also determines arrow width and color).
         For instance, the inferred gene flow rate from 4 to 2 is 3.0,
         while that from 2 to 4 is 0.7,
         suggesting that poplars in region 4
@@ -1969,9 +1971,15 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
         Posterior distributions of parameters for \textit{Populus} data,
         using coalescence time inference with the model shown in Figure~\ref{fig:poplar_results}.
         \textbf{(top)} Posterior medians (dark line),
-        interquartile range (box), and middle 95\% (whiskers),
+        interquartile range (box), and min--max (whiskers),
         for gene flow rates.
-        \textbf{(bottom)} Posterior medians, along with edge labels that match the upper figure.
+        \textbf{(bottom)} Posterior medians gene flow rates, 
+        both as a numerical label and color
+        (as in other figures, red is lower and blue is larger),
+        along with edge labels that match the upper figure.
+        Nodes are also colored according to posterior median coalescence rate:
+        grey is a high rate (small population)
+        and orange is a low rate (large population).
         \label{sfig:poplar_g}
     }
 \end{figure}
@@ -1983,7 +1991,7 @@ Subplot locations for each situation are the same as in Figure \ref{fig:mult_noi
         Posterior distributions of parameters for \textit{Populus} data,
         using coalescence time inference with the model shown in Figure~\ref{fig:poplar_results}.
         Plot shows posterior medians (dark line),
-        interquartile range (box), and middle 95\% (whiskers),
+        interquartile range (box), and min--max (whiskers),
         for coalescence rates, labeled as in Figure~\ref{fig:poplar_results}.
         For instance, the coalescence rates for regions 4 and 8 (labeled ``gam4'' and ``gam8'')
         are inferred to be much smaller than most other regions, 

@@ -209,26 +209,58 @@ cairo_pdf(filename=paste0(outpath,"/posterior_dists_gam_",fname,"2.pdf"),width=6
         names=paste0("gam",1:n),xlab="Coalescence Rate Parameter Label",ylab="Coalescence Rate",las=2)
 dev.off()
 
+####
+# nice plot on a map
 
+gr <- igraph::graph_from_adjacency_matrix(G_adj,mode="directed",weighted=TRUE)
+igraph::E(gr)$curved <- TRUE
+igraph::V(gr)$color <- cols <- adjustcolor(RColorBrewer::brewer.pal(9, "Set3"), 0.95)
+edge_labels <- sprintf("%0.2f", g_med)
+
+# FAKE plot, really plots AFTER this
+# the point here it to get the edge label coords
+source("
 cairo_pdf(filename=paste0(outpath,"/grid_",fname,"_map.pdf"),width=14,height=14)
-  gr <- igraph::graph_from_adjacency_matrix(G_adj,mode="directed",weighted=TRUE)
-  igraph::E(gr)$curved <- TRUE
-  igraph::V(gr)$color <- cols <- adjustcolor(RColorBrewer::brewer.pal(9, "Set3"), 0.95)
   # set up map
-    
     plot(pop_coords, pch=21, cex=2, 
          col=adjustcolor(c("blue", "red")[as.numeric(info$Species)], 0.75),
          bg=cols[as.numeric(info$groups)], lwd=3)
     # points(centroids[,1:2], pch=21, col=adjustcolor(cols[1:nlevels(info$groups)], 0.25), cex=5)
-    maps::map(add=TRUE, col=grey(0.8))
-  # edge_labels <- paste0("g",1:ng,"=",round(g_med*1000)/1000)
-  edge_labels <- sprintf("%0.2f", g_med)
-  plot(gr,layout=as.matrix(centroids[,1:2]),edge.width=(3*g_med+.2),
+    maps::map(add=TRUE, col=grey(0.6))
+  ip <- my_plot_igraph(gr,layout=as.matrix(centroids[,1:2]),
+       edge.width=pmin(15, 3 * g_med + .1),
        edge.label=edge_labels,
        main=paste0("Graph Structure"), 
        vertex.size=200, vertex.label.cex=2,
-       edge.arrow.size=2, edge.label.cex=1.5,
+       edge.arrow.size=2.5, edge.label.cex=1.9,
        edge.color=rgb(colorRamp(c("#DD8000","gray","#9999FF"))(tanh(g_med/2)),max=255),
        edge.label.color="#000000",
        add=TRUE, rescale=FALSE)
+dev.off()
+
+# manual adjustment to stop overlap
+el_x <- ip$lc.x + c(
+      0.0, 0.0, 0.0, 0.0, 0.3,-0.4, 0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.3, 0.0,-0.4, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+el_y <- ip$lc.y + c(
+      0.0, 0.0, 0.0, 0.0,-0.4, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0,-0.6, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+# now for REALS
+cairo_pdf(filename=paste0(outpath,"/grid_",fname,"_map.pdf"),width=14,height=14)
+    plot(pop_coords, pch=21, cex=3, 
+         col=adjustcolor(c("blue", "red")[as.numeric(info$Species)], 0.75),
+         bg=cols[as.numeric(info$groups)], lwd=3)
+    # points(centroids[,1:2], pch=21, col=adjustcolor(cols[1:nlevels(info$groups)], 0.25), cex=5)
+    maps::map(add=TRUE, col=grey(0.6))
+  plot(gr,layout=as.matrix(centroids[,1:2]),
+       edge.width=pmin(15, 3 * g_med + .1),
+       main=paste0("Graph Structure"), 
+       vertex.size=200, vertex.label.cex=2,
+       edge.arrow.size=2.5, 
+       edge.color=rgb(colorRamp(c("#DD8000","gray","#9999FF"))(tanh(g_med/2)),max=255),
+       add=TRUE, rescale=FALSE)
+  text(el_x, el_y, labels=(edge_labels), cex=2,
+       col=adjustcolor("black", 0.9))
 dev.off()
