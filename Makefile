@@ -1,9 +1,22 @@
-.PHONY: all, clean
+.PHONY: all clean submission
 
-all: isolation_by_coalescence.pdf
+all: isolation_by_coalescence.pdf 
+	
+submission: ibc_main.pdf ibc_supmat.pdf cover_letter.pdf review-responses.pdf
 
 isolation_by_coalescence.pdf : references.bib figs/conceptn.pdf figs/all_flat_divergences.fonts.pdf figs/barrier_sample_locations_pretty.fonts.pdf figs/fancy_watershed_assignments.fonts.pdf
 
+ibc_main.pdf : isolation_by_coalescence.pdf 
+	pdfjam --outfile $@ $< 1-27
+
+ibc_supmat.pdf : isolation_by_coalescence.pdf 
+	pdfjam --outfile $@ $< 28-44
+
+cover_letter.pdf : isolation_by_coalescence.pdf 
+	pdfjam --outfile $@ $< 45
+
+review-responses.pdf : isolation_by_coalescence.pdf 
+	pdfjam --outfile $@ $< 46-
 
 clean: 
 	-rm *.aux *.log *.lof *.lot *.fff *.ttt *.out *.bbl *.blg
