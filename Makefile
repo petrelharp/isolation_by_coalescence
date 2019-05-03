@@ -1,8 +1,14 @@
 .PHONY: all clean submission
 
+ALLFIGS = $(shell grep "^[^%]*includegr" isolation_by_coalescence.tex| sed -e 's/.*{//'| sed -e 's/}.*//')
+FIGS = $(shell for x in $(ALLFIGS); do if [ -f $$x.pdf ]; then echo $$x.pdf; else echo $$x.png; fi; done)
+
 all: isolation_by_coalescence.pdf 
 	
-submission: ibc_main.pdf ibc_supmat.pdf cover_letter.pdf review-responses.pdf
+submission: ibc_main.pdf ibc_supmat.pdf # cover_letter.pdf review-responses.pdf
+
+latex_bundle.tar.gz : 
+	tar -cvzhf $@ isolation_by_coalescence.tex references.bib review-response-commands.tex $(FIGS)
 
 isolation_by_coalescence.pdf : references.bib figs/conceptn.pdf figs/all_flat_divergences.fonts.pdf figs/barrier_sample_locations_pretty.fonts.pdf figs/fancy_watershed_assignments.fonts.pdf
 

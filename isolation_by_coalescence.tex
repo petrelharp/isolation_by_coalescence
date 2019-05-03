@@ -44,8 +44,8 @@
 % Responses to reviews:
 % set this to show line numbers and include responses to reviews or not
 \newif\ifreviewresponses
-\reviewresponsestrue  % include them
-% \reviewresponsesfalse  % don't include them
+% \reviewresponsestrue  % include them
+\reviewresponsesfalse  % don't include them
 \input{review-response-commands}
 \newcommand{\responsefile}{review-responses.tex}  % name of the review reponses file
 
@@ -75,7 +75,7 @@ Comparing isolation by resistance to a new coalescent-based method.}
         Peter L.\ Ralph\footnote{Institute for Ecology and Evolution, University of Oregon}}
 \maketitle
 
-\linenumbers
+\nolinenumbers
 
 \begin{abstract}
 A number of methods commonly used in landscape genetics
@@ -393,7 +393,8 @@ even though the hitting times may not be.
 Although commute times are uniquely determined by movement rates, the reverse is not true --
 we can use equations \eqref{eqn:gh} and \eqref{eqn:R_from_H} to see how to modify movement rates
 without changing commute times.  \llabel{ll:dense1}
-A small concrete example of this is given in Appendix \ref{ss:simple_example}.
+A small concrete example of this is given in Appendix \ref{ss:simple_example},
+and depicted in Supplemental figure \ref{fig:valid_range}.
 More generally, commute times only depend on the symmetric part of $H$ --
 given a skew-symmetric matrix $Z$ (so that $Z + Z^T = 0$),
 any Markov chain that has hitting times given by $H_\epsilon = H + \epsilon Z$ for some number $\epsilon$
@@ -434,7 +435,8 @@ shows that the coalescence times satisfy the following system of equations:
     \end{cases}
 \end{align}
 Similar recursions are common in the literature,
-going back at least to \citet{hill1972effective} (see also \citet{whitlock1997effective}).
+going back at least to \citet{hill1972effective} 
+(see also \citet{tufto1998analysis} and \citet{whitlock1997effective}).
 In matrix notation, this is
 \begin{align} \label{eqn:C_matrix}
     G C + C G^T - \diag(\gamma) \circ C = -\bone \bone^T,
@@ -660,7 +662,7 @@ except that noise terms about the theoretical mean should be somewhat correlated
 
 \paragraph{Forwards-time simulations}
 To produce realistic data, we implemented forwards-time simulations using SLiM v3.1 
-\citep{haller2018forward,haller2018treesequence},
+\citep{haller2018forward,haller2019treesequence},
 with individuals living across continuous, two-dimensional geography (sometimes with barriers),
 from which we recorded genomic data.
 The basic simulation, which we modified to produce several other situations,
@@ -696,7 +698,7 @@ and a recombination rate of $10^{-8}$ per generation per locus.
 Neutral mutations were added at a rate of $10^{-9}$ per meiosis.
 To make these simulations computationally feasible,
 the mutation rate was set to 0.0 during the forwards simulation,
-while tree sequences were recorded \citep{haller2018treesequence},
+while tree sequences were recorded \citep{haller2019treesequence},
 and mutations were added after the fact with msprime,
 which is equivalent to including mutations during the forwards simulation 
 but resulted in much faster run times \citep{kelleher2018efficient}.
@@ -1500,7 +1502,7 @@ However, more investigation with continuous-space models is needed.
 \section*{Acknowledgements}
 
 Thanks to David Levin for useful suggestions regarding hitting time calculations,
-to Paul Marjoram for useful comments,
+to Paul Marjoram and Nick Barton for useful comments,
 to Brad Shaffer and Evan McCartney-Melstad for discussions about landscape modeling,
 to John Novembre, Hussein Al-Asadi and Benjamin Peter for help with EEMS
 and general input,
