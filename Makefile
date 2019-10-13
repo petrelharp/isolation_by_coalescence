@@ -45,6 +45,9 @@ clean:
 %.png : %.pdf
 	convert -density 300 $< -flatten $@
 
+%.tiff : %.png
+	convert -density 300 $< -flatten $@
+
 %.pdf : %.ink.svg
 	inkscape $< --export-pdf=$@
 

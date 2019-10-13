@@ -219,7 +219,7 @@ edge_labels <- sprintf("%0.2f", g_med)
 
 # FAKE plot, really plots AFTER this
 # the point here it to get the edge label coords
-source("
+source("igraph_plot.R"
 cairo_pdf(filename=paste0(outpath,"/grid_",fname,"_map.pdf"),width=14,height=14)
   # set up map
     plot(pop_coords, pch=21, cex=2, 
